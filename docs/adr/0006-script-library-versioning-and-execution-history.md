@@ -1,17 +1,17 @@
 # ADR-0006: Versionamento, parâmetros e histórico da biblioteca de scripts
 
-- **Status:** Aceito para a P1; validação de migração e build pendente
+- **Status:** Aceito para a P1; build e validação funcional pendentes
 - **Data:** 2026-11-25
 
 ## Contexto
 
 A P0 persistia um único script e executava código Python sem um catálogo completo, snapshots de versão ou histórico relacional. A P1 precisa permitir que o usuário mantenha vários scripts, altere metadados, declare entradas e consulte resultados anteriores sem misturar persistência Kotlin e execução Python.
 
-Também é necessário preservar os scripts já gravados no banco P0. O runtime Chaquopy não deve ser tratado como um ambiente pip desktop nem como sandbox.
+A preservação de dados P0 não é requisito padrão durante o desenvolvimento, conforme ADR-0007. O runtime Chaquopy não deve ser tratado como um ambiente pip desktop nem como sandbox.
 
 ## Decisão
 
-1. Manter Room/SQLite como fonte de verdade e elevar o schema da versão 1 para a versão 2 por migração incremental explícita.
+1. Manter Room/SQLite como fonte de verdade e manter o schema versão 2 com `fallbackToDestructiveMigration()` durante o desenvolvimento; não manter migração 1 → 2 sem solicitação expressa de preservação.
 2. Expandir a entidade scripts com descrição, tags, definições JSON de parâmetros e manifesto declarativo de dependências.
 3. Criar script_versions com chave composta (script_id, version_number). Cada alteração efetiva de código ou metadados cria um snapshot imutável. Restaurar uma versão cria um novo número, sem sobrescrever o histórico.
 4. Criar script_executions com identificador, script, nome/version snapshot, parâmetros resolvidos, status, horários, duração, stdout, stderr, erro estruturado e flags de truncamento.
@@ -39,7 +39,7 @@ Também é necessário preservar os scripts já gravados no banco P0. O runtime 
 
 ### Custos e riscos
 
-- O schema exige migração 1 → 2 e testes de preservação de dados.
+- Uma atualização incompatível pode recriar o banco e descartar scripts, versões e execuções locais; esse efeito deve ser informado antes da validação.
 - O histórico pode crescer sem política de retenção automática.
 - O manifesto de dependências não prova compatibilidade binária; cada pacote precisa de validação real.
 - O editor P1 fornece realce lexical básico, não análise semântica ou depuração.
@@ -49,5 +49,5 @@ Também é necessário preservar os scripts já gravados no banco P0. O runtime 
 
 - Testes JVM do repositório e do histórico de execução foram escritos, mas ainda precisam ser executados.
 - Testes de resolução de parâmetros foram escritos, mas ainda precisam ser executados.
-- A migração Room 1 → 2 foi implementada, mas precisa ser exercitada sobre banco P0 real.
+- A migração Room 1 → 2 foi removida conforme ADR-0007; o fallback destrutivo será exercitado no ciclo de build/instalação P1, sem exigir preservação dos dados P0.
 - Build APK e validação física no Moto G06 permanecem pendentes.
