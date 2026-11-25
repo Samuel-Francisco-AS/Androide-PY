@@ -62,7 +62,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.3** Reler integralmente AGENTS.md, README.md, docs/README.md, PROJECT_VISION.md, ARCHITECTURE.md, ROADMAP.md, ADRs 0001–0007 aplicáveis e contratos operacionais P0/P1. Revisão documental concluída em 2026-11-25; inconsistências e atualizações necessárias registradas abaixo.
 - [x] **P2.0.4** Inspecionar a estrutura real da branch, AndroidManifest, AndroidBridgeAdapter, PythonRuntime, ScriptExecutor, módulos `mobile`, registro de capacidades, testes e APIs de arquivo existentes. Revisão estática concluída em 2026-11-25; nenhum serviço de acessibilidade ou API `mobile.screen` existe ainda.
 - [x] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Concluído em 2026-11-25: Gradle confirma minSdk 24/targetSdk 36/compileSdk 36; Sam executou `mobile.device.get_info()` no Moto G06 e reportou Android 15/API 35, ABI `arm64-v8a`; lifecycle e APIs conferidos na documentação oficial Android. Evidência física identificada como relato do usuário; nenhum teste/build P2 foi executado.
-- [ ] **P2.0.6** Definir o protocolo assíncrono de chamadas Python → Kotlin → AccessibilityService → resultado, incluindo correlação de requisições, timeout, cancelamento lógico, erros e estado de autorização.
+- [x] **P2.0.6** Definir o protocolo assíncrono Python → Kotlin → AccessibilityService → resultado. Contrato v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; revisão estática concluída em 2026-11-25. Define envelope JSON versionado, request_id UUID, espera síncrona apenas no worker Python, gateway nativo assíncrono, timeout monotônico, cancelamento lógico/callbacks tardios, estados de autorização/conexão, erros estáveis, fila limitada e serialização de gestos. Nenhum código foi implementado ou testado.
 - [ ] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação; nomes apresentados em exemplos/conversas são propostas, não contratos finais.
 - [ ] **P2.0.8** Revisar implicações de privacidade e segurança: dados visíveis, campos sensíveis, senhas, conteúdo de notificações, captura de tela, overlays e registro de dados.
 - [ ] **P2.0.9** Criar/atualizar ADR quando a decisão alterar fronteiras arquiteturais, permissões, política de dados ou protocolo da Bridge.
@@ -290,6 +290,25 @@ Pontos confirmados nas referências: `dispatchGesture()` requer `canPerformGestu
 
 **Gate P2.5:** todos os itens obrigatórios do escopo acordado possuem evidência apropriada ou são explicitamente adiados por decisão de Sam. Nenhuma capacidade pendente pode ser apresentada como aprovada.
 
+
+### P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService — 2026-11-25
+
+**Contrato normativo:** [P2_ASYNC_PROTOCOL.md](P2_ASYNC_PROTOCOL.md), versão 1.
+
+**Decisões fechadas:**
+1. A API Python inicial pode ser síncrona para o autor do script; a implementação Kotlin é assíncrona internamente.
+2. A chamada Python/Kotlin acontece no worker serial `AndroidePY-Python`. O adaptador pode aguardar um `CompletableFuture.get(timeout, unit)` nesse worker, nunca na main thread.
+3. O gateway application-scoped encaminha comandos ao handler/thread do AccessibilityService; callbacks completam a solicitação pendente.
+4. A fronteira usa JSON versionado e envelopes de request/response com `request_id` UUID, operação, payload, timeout e códigos de erro estáveis.
+5. Timeout usa prazo monotônico. Solicitação expirada é terminal; callbacks tardios são descartados. Uma ação já despachada pode continuar fisicamente, sem promessa de rollback.
+6. Autorização habilitada e conexão efetiva são estados diferentes. Desconexão/interrupção falham pendências e reconexão não revive solicitações antigas.
+7. A fila nativa é limitada a 16 pendências; timeout inclui espera na fila. Gestos usam um único slot em andamento até callback terminal/teardown.
+8. O retorno distingue despacho, conclusão da API Android e efeito efetivo no app de destino.
+
+**Conferência técnica:** código atual de `PythonRuntime`, `ScriptExecutor`, `AndroidBridgeAdapter`, `runner.py` e fachada `mobile` revisado. Chaquopy 17.2 documenta liberação do GIL em chamadas Java. Android documenta `CompletableFuture` e `get(timeout, unit)` desde API 24, compatível com minSdk 24; não usar `completeOnTimeout` (API 31) como base do timeout.
+
+**Evidência:** revisão estática e publicação documental. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADR arquitetural será registrado na P2.0.9, conforme decomposição aprovada.
+
 ## 9. Fora do escopo da P2
 
 - Serviço de notificações (`NotificationListenerService`) — fase posterior.
@@ -318,7 +337,8 @@ Pontos confirmados nas referências: `dispatchGesture()` requer `canPerformGestu
 
 | Data | Subetapa | Evidência/resultado | Commit |
 |---|---|---|---|
-| 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`. Checklist: commit inicial `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório: `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice `docs/README.md`: `3017ad8fa0983feb2d0950b366242eae0349786c`. Arquivos recuperados do GitHub para conferência posterior. | Ver commits |
+| 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`. Checklist: commit inicial `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório: `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice `docs/README.md`: `3017ad8fa0983feb2d0950b366242eae0349786c`. | Ver commits |
+| 2026-11-25 | P2.0.6 | Contrato assíncrono v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; checklist e relatório atualizados. Revisão estática; sem implementação, testes, build ou validação física. | Commit documental desta subetapa |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
