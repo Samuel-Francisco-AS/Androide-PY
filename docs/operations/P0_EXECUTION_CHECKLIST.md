@@ -179,7 +179,9 @@
 - [ ] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
 - [ ] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
 
-**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Testes escritos e conferidos no GitHub; ainda não executados. Comandos locais estão nos documentos operacionais.\n\n**Evidência P0-8.2:** [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md) reúne comandos host/JVM e roteiro manual para runtime Chaquopy, executor, Bridge, Room, exceções, truncamento, rotação e persistência. Não foram criados testes instrumentados que exijam ADB, conforme preferência do usuário. A execução automatizada e o roteiro físico continuam pendentes.
+**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Testes escritos e conferidos no GitHub; ainda não executados. Comandos locais estão nos documentos operacionais.
+
+**Evidência P0-8.2:** [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md) reúne comandos host/JVM e roteiro manual para runtime Chaquopy, executor, Bridge, Room, exceções, truncamento, rotação e persistência. Não foram criados testes instrumentados que exijam ADB, conforme preferência do usuário. A execução automatizada e o roteiro físico continuam pendentes.
 
 ## P0-9 — Validação local e física (dependente do usuário)
 
