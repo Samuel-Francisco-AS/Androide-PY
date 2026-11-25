@@ -1,6 +1,6 @@
 # ADR-0005: Baseline de ferramentas e dependências da P0
 
-- **Status:** Aceito para implementação inicial; sujeito à validação do build local
+- **Status:** Aceito e validado na P0 (build e validação física confirmadas por relato do usuário; testes JVM e Python host aprovados)
 - **Data:** 2026-11-25
 
 ## Contexto
@@ -66,12 +66,14 @@ O log também reportou que Gradle 8.14.3 será considerado deprecated por versõ
 
 Esta correção é baseada no erro real observado e nas notas oficiais de Compose; precisa ser confirmada por nova execução local. Ela não equivale a build aprovado.
 
-## Validação pendente
+## Validação registrada (2026-11-25)
 
-1. Executar `./gradlew :app:assembleDebug` no Fedora.
-2. Corrigir incompatibilidades efetivamente observadas, se houver, e atualizar este ADR.
-3. Instalar o APK por transferência manual ao Moto G06 e confirmar inicialização do runtime.
-4. Confirmar ABI e comportamento real no dispositivo.
+- O usuário informou que `:app:assembleDebug` foi concluído, o APK foi instalado e o aplicativo abriu no Moto G06. O log detalhado do comando não foi anexado; esta evidência é registrada como relato explícito.
+- O usuário reportou `BUILD SUCCESSFUL` para `:app:testDebugUnitTest` (31 tarefas executadas).
+- Os testes Python host foram executados com Python 3.13: 10 testes aprovados (`Ran 10 tests ... OK`).
+- No Moto G06 (Android 15/API 35, ABI arm64-v8a), o usuário demonstrou runtime, stdout/stderr, exceções sem crash, `mobile.device.get_info()`, abertura de app, erro estruturado para pacote inexistente e persistência após reabertura.
+- A primeira falha de compatibilidade Compose foi corrigida fixando BOM 2026.06.01 e Gradle Wrapper 8.14.8; o reteste JVM passou.
+- Limitações: não há log completo de `assembleDebug`, screenshots ou logcat anexados. Rotação, leitor de tela e truncamento físico acima do limite permanecem verificações complementares.
 
 ## Fontes oficiais consultadas
 
