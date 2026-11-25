@@ -355,7 +355,7 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 
 **Conferência:** manifesto, Bridge, runtime, executor, runner, Room, histórico de execução, fachada Python, catálogo de capacidades, testes existentes e ADRs 0003/0004/0006/0007 revisados. Confirmado que ainda não há serviço, overlay, gateway, configuração XML ou API mobile.screen implementados.
 
-**Evidência:** revisão estática e publicação de P2_SECURITY_REVIEW.md; commit documental af09745bf87055dcfd3382de7cbc60bf742b1882. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADRs de segurança permanecem para P2.0.9.
+**Evidência:** revisão estática e publicação de P2_SECURITY_REVIEW.md; commit documental af09745bf87055dcfd3382de7cbc60bf742b1882. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADRs-0008 e 0009 foram publicados na P2.0.9; controles permanecem pendentes de implementação e validação.
 
 ## 9. Fora do escopo da P2
 
