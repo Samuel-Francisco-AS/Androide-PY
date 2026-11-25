@@ -63,7 +63,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.4** Inspecionar a estrutura real da branch, AndroidManifest, AndroidBridgeAdapter, PythonRuntime, ScriptExecutor, módulos `mobile`, registro de capacidades, testes e APIs de arquivo existentes. Revisão estática concluída em 2026-11-25; nenhum serviço de acessibilidade ou API `mobile.screen` existe ainda.
 - [x] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Concluído em 2026-11-25: Gradle confirma minSdk 24/targetSdk 36/compileSdk 36; Sam executou `mobile.device.get_info()` no Moto G06 e reportou Android 15/API 35, ABI `arm64-v8a`; lifecycle e APIs conferidos na documentação oficial Android. Evidência física identificada como relato do usuário; nenhum teste/build P2 foi executado.
 - [x] **P2.0.6** Definir o protocolo assíncrono Python → Kotlin → AccessibilityService → resultado. Contrato v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; revisão estática concluída em 2026-11-25. Define envelope JSON versionado, request_id UUID, espera síncrona apenas no worker Python, gateway nativo assíncrono, timeout monotônico, cancelamento lógico/callbacks tardios, estados de autorização/conexão, erros estáveis, fila limitada e serialização de gestos. Nenhum código foi implementado ou testado.
-- [ ] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação; nomes apresentados em exemplos/conversas são propostas, não contratos finais.
+- [x] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação. Contrato v1 publicado em `docs/operations/P2_PYTHON_API.md`; revisão estática concluída em 2026-11-25. Define `ScreenError`, validação local, `get_status`, toque/digitação/deslize/rolagem, Mapas de Coordenadas persistentes e seus métodos de consulta/reutilização, retornos, timeouts, limites e erros. Nenhum código foi implementado ou testado.
 - [ ] **P2.0.8** Revisar implicações de privacidade e segurança: dados visíveis, campos sensíveis, senhas, conteúdo de notificações, captura de tela, overlays e registro de dados.
 - [ ] **P2.0.9** Criar/atualizar ADR quando a decisão alterar fronteiras arquiteturais, permissões, política de dados ou protocolo da Bridge.
 - [ ] **P2.0.10** Atualizar documentação de arquitetura/roadmap/índices se o contrato aprovado exigir.
@@ -183,6 +183,24 @@ O resultado confirma que o dispositivo de validação está acima do minSdk 24 e
 Pontos confirmados nas referências: `dispatchGesture()` requer `canPerformGestures` e existe desde API 24; `TYPE_ACCESSIBILITY_OVERLAY` existe desde API 22 e é reservado a AccessibilityService conectado; `ACTION_SET_TEXT` existe desde API 21; consulta da árvore requer `canRetrieveWindowContent`. A documentação alerta que `typeAllMask` pode ser oneroso e que a hierarquia pode mudar/ficar obsoleta. A configuração deve solicitar somente eventos e capacidades necessários. A política de distribuição deverá ser reavaliada se o projeto futuramente buscar publicação na Play Store.
 
 **Status desta revisão:** P2.0.3 e P2.0.4 concluídas por revisão documental/estática; P2.0.5 parcialmente preparada, ainda pendente de confirmação do nível Android real no Moto G06 e fechamento da análise de lifecycle. P2.0.6–P2.0.10 permanecem pendentes. Nenhuma implementação, teste, build ou validação física P2 foi realizada.
+
+### P2.0.7 — Contrato público Python `mobile.screen` — 2026-11-25
+
+Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
+
+**Decisões públicas:**
+- API síncrona para scripts, com implementação nativa assíncrona conforme P2.0.6.
+- Sucesso retorna estruturas Python simples; falhas operacionais lançam `mobile.screen.ScreenError` (atributos `code`, `retryable`, `request_id`); argumentos inválidos usam `TypeError`/`ValueError`.
+- `get_status()` distingue autorização habilitada (`enabled`) de conexão efetiva (`connected`) e estados `not_enabled`, `disconnected`, `connected`.
+- Interação: `tap`, `type_text`, `swipe`, `scroll`; pixels como sistema padrão, coordenadas normalizadas como alternativa; timeouts em milissegundos. `type_text` atua somente no campo focado via `ACTION_SET_TEXT` e substitui seu conteúdo.
+- Rolagem inicial é gesto geométrico ancorado no centro do display; não promete identificar contêiner.
+- Mapa: `capture_coordinates`, `list_coordinate_maps`, `get_coordinate_map`, `delete_coordinate_map`, `tap_point`. Captura múltiplos pontos nomeados, persiste somente coordenadas/metadados mínimos e valida pacote/orientação conhecidos na reutilização.
+- Captura não sobrescreve mapa existente; cancelamento não persiste mapa parcial. O atraso inicial é configurável e zero significa início imediato.
+- `API_VERSION = 1` permanece compatível por se tratar de adição; o catálogo só anunciará capacidades após implementação e testes.
+
+**Conferência:** contrato revisado contra a fachada Python existente, módulos `device/apps/capabilities`, runner, testes host, adaptador Kotlin, executor serial e protocolo assíncrono. A implementação atual ainda não contém `mobile.screen`; portanto, nenhuma capacidade nova foi adicionada ao catálogo.
+
+**Evidência e limites:** commit do contrato `dc7e4673cccb1070b594805a9163d059bfdd6a41`. Revisão documental/estática; nenhum teste, build APK ou validação física foi executado. P2.0.8–P2.0.10 permanecem pendentes.
 
 ## 4. P2.1 — Fundação nativa e autorização
 
