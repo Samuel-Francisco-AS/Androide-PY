@@ -117,12 +117,14 @@
 
 ## P0-5 — Android Bridge mínima
 
-- [ ] **P0-5.1** Definir contratos Kotlin/Python e erros previsíveis para a Bridge.
+- [x] **P0-5.1** Definir contratos Kotlin/Python e erros previsíveis para a Bridge.
 - [ ] **P0-5.2** Implementar `mobile.device.get_info()` com informações não sensíveis e justificadas.
 - [ ] **P0-5.3** Implementar `mobile.apps.launch(package_name)` por API Android pública, respeitando visibilidade de pacotes e restrições de intents.
 - [ ] **P0-5.4** Expor resultados/erros da Bridge ao script Python sem acoplá-lo a classes Android.
 - [ ] **P0-5.5** Criar testes para dispositivo, aplicativo inexistente e falhas de inicialização quando viável.
 - [ ] **P0-5.6** Documentar permissões, package visibility, limites e comportamento esperado.
+
+**Evidência P0-5.1:** contrato [P0_ANDROID_BRIDGE_CONTRACT.md](P0_ANDROID_BRIDGE_CONTRACT.md) publicado, indexado e conferido. Define os métodos Python, payloads de retorno, códigos de erro, limites de package visibility, ausência de permissões em tempo de execução e exclusão de identificadores sensíveis. Commit: `c71c256`.
 
 **Gate P0-5:** ambas as capacidades implementadas e cobertas por testes apropriados.
 
