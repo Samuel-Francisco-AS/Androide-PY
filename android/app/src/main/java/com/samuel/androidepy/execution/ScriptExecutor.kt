@@ -6,8 +6,10 @@ import android.os.Looper
 import android.util.Log
 import com.samuel.androidepy.runtime.PythonRuntime
 import java.io.Closeable
-import java.util.concurrent.Executors
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * Serializes Python executions on one worker thread.
@@ -19,11 +21,19 @@ class ScriptExecutor(context: Context) : Closeable {
 
     private val appContext = context.applicationContext
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val worker = Executors.newSingleThreadExecutor { task ->
-        Thread(task, "AndroidePY-Python").apply {
-            isDaemon = true
-        }
-    }
+    private val worker = ThreadPoolExecutor(
+        1,
+        1,
+        0L,
+        TimeUnit.MILLISECONDS,
+        ArrayBlockingQueue(QUEUE_CAPACITY),
+        { task ->
+            Thread(task, "AndroidePY-Python").apply {
+                isDaemon = true
+            }
+        },
+        ThreadPoolExecutor.AbortPolicy()
+    )
 
     fun submit(
         request: ScriptExecutionRequest,
@@ -140,5 +150,6 @@ class ScriptExecutor(context: Context) : Closeable {
 
     private companion object {
         const val TAG = "AndroidePY.Executor"
+        const val QUEUE_CAPACITY = 16
     }
 }
