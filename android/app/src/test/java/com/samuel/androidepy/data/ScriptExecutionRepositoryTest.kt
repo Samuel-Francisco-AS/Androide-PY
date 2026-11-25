@@ -51,7 +51,7 @@ class ScriptExecutionRepositoryTest {
         assertEquals("partial", saved.stdout)
         assertEquals("warning", saved.stderr)
         assertEquals(5L, saved.durationMs)
-        assertEquals("ValueError", org.json.JSONObject(saved.errorJson).getString("type"))
+        assertEquals("ValueError", org.json.JSONObject(saved.errorJson ?: error("Expected structured error JSON.")).getString("type"))
     }
 
     private class FakeExecutionDao : ScriptExecutionDao {
