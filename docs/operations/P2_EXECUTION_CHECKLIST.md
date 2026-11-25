@@ -64,7 +64,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Concluído em 2026-11-25: Gradle confirma minSdk 24/targetSdk 36/compileSdk 36; Sam executou `mobile.device.get_info()` no Moto G06 e reportou Android 15/API 35, ABI `arm64-v8a`; lifecycle e APIs conferidos na documentação oficial Android. Evidência física identificada como relato do usuário; nenhum teste/build P2 foi executado.
 - [x] **P2.0.6** Definir o protocolo assíncrono Python → Kotlin → AccessibilityService → resultado. Contrato v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; revisão estática concluída em 2026-11-25. Define envelope JSON versionado, request_id UUID, espera síncrona apenas no worker Python, gateway nativo assíncrono, timeout monotônico, cancelamento lógico/callbacks tardios, estados de autorização/conexão, erros estáveis, fila limitada e serialização de gestos. Nenhum código foi implementado ou testado.
 - [x] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação. Contrato v1 publicado em `docs/operations/P2_PYTHON_API.md`; revisão estática concluída em 2026-11-25. Define `ScreenError`, validação local, `get_status`, toque/digitação/deslize/rolagem, Mapas de Coordenadas persistentes e seus métodos de consulta/reutilização, retornos, timeouts, limites e erros. Nenhum código foi implementado ou testado.
-- [ ] **P2.0.8** Revisar implicações de privacidade e segurança: dados visíveis, campos sensíveis, senhas, conteúdo de notificações, captura de tela, overlays e registro de dados.
+- [x] **P2.0.8** Revisar implicações de privacidade e segurança. Revisão documental/estática concluída em 2026-11-25 e publicada em docs/operations/P2_SECURITY_REVIEW.md: abordagem B para leitura comum sob demanda; campos sensíveis bloqueados por padrão, com autorização expressa separada para leitura e escrita, limitada à execução/aplicativo; screenshots e notificações fora do escopo P2 inicial; mapas mínimos em Room privado; overlay temporário/cancelável; logs automáticos sem conteúdo; limitações do histórico P1 e ausência de sandbox documentadas. Nenhum controle foi implementado ou testado.
 - [ ] **P2.0.9** Criar/atualizar ADR quando a decisão alterar fronteiras arquiteturais, permissões, política de dados ou protocolo da Bridge.
 - [ ] **P2.0.10** Atualizar documentação de arquitetura/roadmap/índices se o contrato aprovado exigir.
 
@@ -326,6 +326,25 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 **Conferência técnica:** código atual de `PythonRuntime`, `ScriptExecutor`, `AndroidBridgeAdapter`, `runner.py` e fachada `mobile` revisado. Chaquopy 17.2 documenta liberação do GIL em chamadas Java. Android documenta `CompletableFuture` e `get(timeout, unit)` desde API 24, compatível com minSdk 24; não usar `completeOnTimeout` (API 31) como base do timeout.
 
 **Evidência:** revisão estática e publicação documental. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADR arquitetural será registrado na P2.0.9, conforme decomposição aprovada.
+
+
+### P2.0.8 — Revisão de privacidade e segurança — 2026-11-25
+
+**Documento normativo:** [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md).
+
+**Decisões consolidadas:**
+1. Leitura de conteúdo comum somente sob demanda e limitada à operação solicitada; sem observação contínua ou snapshots persistidos.
+2. Campos sensíveis bloqueados por padrão. A interface hospedeira deverá permitir autorização expressa, com concessões independentes para leitura e preenchimento/alteração, limitadas à execução atual e ao aplicativo de destino. Scripts não podem conceder autorização a si mesmos.
+3. Classificação conservadora por sinais disponíveis; não prometer detecção perfeita nem contornar proteções do Android.
+4. Screenshots e notificações fora do escopo inicial da P2.
+5. Mapas armazenam somente coordenadas e metadados técnicos mínimos, usando Room/repositórios Kotlin e armazenamento privado; sem exportação/compartilhamento automático.
+6. Overlay existe somente durante captura e é removido em concluir, cancelar, timeout, interrupção ou desconexão.
+7. O adaptador não registra conteúdo de tela, texto digitado ou payloads. A saída que scripts imprimem pode continuar persistida pelo histórico P1; essa limitação foi identificada e não é mascarada como resolvida.
+8. O produto não transmite automaticamente dados de acessibilidade. Scripts não são sandbox e podem usar a rede disponível ao processo; esse limite deve ser comunicado.
+
+**Conferência:** manifesto, Bridge, runtime, executor, runner, Room, histórico de execução, fachada Python, catálogo de capacidades, testes existentes e ADRs 0003/0004/0006/0007 revisados. Confirmado que ainda não há serviço, overlay, gateway, configuração XML ou API mobile.screen implementados.
+
+**Evidência:** revisão estática e publicação de P2_SECURITY_REVIEW.md; commit documental af09745bf87055dcfd3382de7cbc60bf742b1882. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADRs de segurança permanecem para P2.0.9.
 
 ## 9. Fora do escopo da P2
 
