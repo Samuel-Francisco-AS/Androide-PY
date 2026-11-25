@@ -119,7 +119,7 @@
 
 - [x] **P0-5.1** Definir contratos Kotlin/Python e erros previsíveis para a Bridge.
 - [x] **P0-5.2** Implementar `mobile.device.get_info()` com informações não sensíveis e justificadas.
-- [ ] **P0-5.3** Implementar `mobile.apps.launch(package_name)` por API Android pública, respeitando visibilidade de pacotes e restrições de intents.
+- [x] **P0-5.3** Implementar o adaptador nativo para abertura de aplicativos por API Android pública, respeitando visibilidade de pacotes e restrições de intents.
 - [ ] **P0-5.4** Expor resultados/erros da Bridge ao script Python sem acoplá-lo a classes Android.
 - [ ] **P0-5.5** Criar testes para dispositivo, aplicativo inexistente e falhas de inicialização quando viável.
 - [ ] **P0-5.6** Documentar permissões, package visibility, limites e comportamento esperado.
@@ -127,6 +127,8 @@
 **Evidência P0-5.1:** contrato [P0_ANDROID_BRIDGE_CONTRACT.md](P0_ANDROID_BRIDGE_CONTRACT.md) publicado, indexado e conferido. Define os métodos Python, payloads de retorno, códigos de erro, limites de package visibility, ausência de permissões em tempo de execução e exclusão de identificadores sensíveis. Commit: `c71c256`.
 
 **Evidência P0-5.2:** `AndroidBridgeAdapter.getDeviceInfoJson()` publica manufacturer, brand, model, device, Android release/API level, supported ABIs, package name e app version. Não coleta serial, IMEI, Android ID, MAC, advertising ID, telefone ou localização. `PythonRuntime.configureBridge()` injeta o adaptador e `mobile.device.get_info()` converte o JSON em dict Python; o executor configura a Bridge antes de cada script. Arquivos recuperados e conferidos no GitHub. Commits: `bfb0019` (adapter), `345d7cb` (configuração runtime), `eea6ede` (executor), `c2b074a` e `ed3278b` (facade e API Python). Build e validação no Android pendentes.
+
+**Evidência P0-5.3:** `AndroidBridgeAdapter.launchAppJson()` valida o nome do pacote e retorna erros estruturados. Em Android 13+ usa `PackageManager.getLaunchIntentSenderForPackage`/IntentSender, que a documentação Android indica como alternativa quando o chamador não pode consultar o pacote; em API 24–32 usa `getLaunchIntentForPackage` e `FLAG_ACTIVITY_NEW_TASK`. O manifesto declara somente consultas MAIN/INFO e MAIN/LAUNCHER para o fallback legado; não usa `QUERY_ALL_PACKAGES`. Arquivos conferidos no GitHub. Commits: `554c62a` (adaptador) e `7196f0d` (queries). Referências oficiais: PackageManager API e package visibility docs.
 
 **Gate P0-5:** ambas as capacidades implementadas e cobertas por testes apropriados.
 
