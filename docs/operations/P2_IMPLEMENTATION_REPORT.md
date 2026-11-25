@@ -169,6 +169,37 @@ Para o Mapa de Coordenadas, `TYPE_ACCESSIBILITY_OVERLAY` permanece a opção pri
 
 **Evidência e limites:** revisão estática do Gradle e documentação oficial; versão/API do aparelho confirmada por execução reportada pelo usuário. Nenhum teste automatizado, build APK ou validação física de funcionalidade P2 foi realizado nesta subetapa.
 
+## 3.3 P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService — 2026-11-25
+
+O contrato completo e normativo foi publicado em [P2_ASYNC_PROTOCOL.md](P2_ASYNC_PROTOCOL.md), versão 1.
+
+### Decisão de execução
+
+A API Python inicial será síncrona do ponto de vista do script, para preservar uma experiência simples e sequencial. Internamente, a chamada será assíncrona: a Bridge Kotlin registra uma solicitação no gateway application-scoped, o gateway encaminha o comando ao handler do AccessibilityService e o callback completa um `CompletableFuture`. O adaptador aguarda com timeout finito exclusivamente no worker serial Python.
+
+Essa escolha reutiliza o executor existente e não cria outro runtime Python, worker ou thread por chamada. O código atual confirma que o executor possui um único worker, configura a Bridge antes da execução e já executa Chaquopy fora da main thread.
+
+### Contrato v1
+
+- Solicitação/resposta trafegam como strings JSON versionadas; scripts não recebem objetos Android.
+- Cada solicitação possui UUID `request_id`, operação, payload validado e `timeout_ms`.
+- Resposta terminal contém `request_id`, `ok`, `result` ou `error` com código estável e mensagem.
+- O prazo é calculado com relógio monotônico. O timeout abrange fila e execução.
+- Timeout/cancelamento são lógicos: callbacks tardios são ignorados; uma ação já despachada pode continuar no Android e não há garantia de rollback.
+- Autorização habilitada é distinta de serviço conectado. Interrupção/desconexão falha pendências; reconexão não restaura solicitações antigas.
+- Gateway nativo mantém fila limitada a 16 solicitações; gestos são serializados e o slot físico só é liberado após callback terminal ou teardown.
+- Resultado distingue aceitação do despacho, conclusão da API Android e efeito real na interface de destino.
+
+### Compatibilidade Chaquopy/Android
+
+A documentação oficial Chaquopy 17.2 informa que o GIL é liberado durante chamadas Python → Java. A documentação Android confirma `CompletableFuture` e `get(timeout, unit)` desde API 24, igual ao minSdk do projeto. O contrato não utiliza `completeOnTimeout`, introduzido na API 31. Portanto, a estratégia proposta não exige elevar minSdk nem adicionar dependência Kotlin.
+
+### Estado e evidência
+
+P2.0.6 foi concluída como definição documental e revisão estática. O contrato foi conferido contra `PythonRuntime`, `ScriptExecutor`, `AndroidBridgeAdapter`, `runner.py`, fachada `mobile`, contrato P0 da Bridge e contrato P0 de execução. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física foi executado.
+
+A criação/atualização do ADR arquitetural permanece planejada para P2.0.9. A API pública Python, defaults por operação e tipos de retorno específicos permanecem para P2.0.7.
+
 ## 4. Decomposição aprovada
 
 A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md).
@@ -248,4 +279,5 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 
 | Data | Alteração |
 |---|---|
-| 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. Checklist commit `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório commit `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice docs commit `3017ad8fa0983feb2d0950b366242eae0349786c`; checklist atualizado com evidências em `4722fce1ccf0d9647c821234e01f6c7668dd8ae0`. |
+| 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. Checklist commit `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório commit `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice docs commit `3017ad8fa0983feb2d0950b366242eae0349786c`. |
+| 2026-11-25 | P2.0.6: contrato assíncrono v1 publicado em `P2_ASYNC_PROTOCOL.md`; decisão de espera no worker Python com gateway Kotlin assíncrono; sem alterações de produção ou execução de testes/build. |
