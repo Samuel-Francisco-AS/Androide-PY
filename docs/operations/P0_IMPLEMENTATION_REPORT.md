@@ -2,7 +2,7 @@
 
 **Branch:** `feat/p0-runtime-bridge`  
 **Base:** `main`  
-**Snapshot comparado:** 46 arquivos alterados; `feat/p0-runtime-bridge` está à frente de `main`, sem commits atrás, conforme comparação GitHub conferida em 2026-11-25. O número de commits à frente não é fixado neste relatório porque as atualizações documentais incrementais também avançam a branch. O histórico é predominantemente composto por commits pequenos de implementação e documentação.  
+**Snapshot comparado:** 46 arquivos alterados; `feat/p0-runtime-bridge` está 166 commits à frente de `main`, sem commits atrás, conforme comparação GitHub conferida em 2026-11-25. HEAD verificado: `e4c91ebe28f7cba3850fef563040b405f98a3fd0`. O número de commits à frente não é fixado neste relatório porque as atualizações documentais incrementais também avançam a branch. O histórico é predominantemente composto por commits pequenos de implementação e documentação.  
 **Última atualização do checklist:** `a219069e14adba02027de2200ebb96bddf9cbda8`.
 
 ## Implementado no repositório
@@ -95,8 +95,8 @@ Esses resultados físicos foram confirmados explicitamente pelo usuário, mas sc
 
 ## Observação sobre histórico Git
 
-A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 162 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido aos 162 commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
+A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 166 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido aos 166 commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
 
-## Próximo passo
+## Estado para integração
 
-Validação automatizada e funcional da P0 registrada. Próximo passo: revisão final da documentação/diff/branch e decisão explícita do usuário sobre squash merge para `main`. Não mesclar sem consentimento final.
+Validação automatizada e funcional da P0 registrada; revisão estática final da documentação, do diff e do estado da branch concluída. O usuário autorizou explicitamente abrir a Pull Request e executar Squash Merge em `main` em 2026-11-25. O merge deve usar o HEAD verificado da branch e ser confirmado pela resposta do GitHub. As verificações complementares de rotação, leitor de tela e truncamento físico não bloqueiam os oito critérios oficiais.
