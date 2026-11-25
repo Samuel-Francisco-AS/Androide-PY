@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Revisão documental e baseline técnica concluídas; fundação Android em preparação.
+**Estado geral:** 🟡 Fundação Android concluída; runtime Python implementado e aguardando build/validação local.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -80,16 +80,20 @@
 
 - [x] **P0-3.1** Integrar a versão de Chaquopy verificada na matriz técnica.
 - [x] **P0-3.2** Configurar Python embarcado 3.13 e o interpretador host exigido pelo processo de build.
-- [ ] **P0-3.3** Criar módulo Python inicial e uma interface Kotlin que encapsule inicialização/acesso ao runtime.
-- [ ] **P0-3.4** Garantir inicialização fora da thread principal e comportamento seguro em chamadas repetidas.
-- [ ] **P0-3.5** Criar teste mínimo de integração Kotlin/Python e documentação de execução.
-- [ ] **P0-3.6** Revisar dependências, inicialização, tratamento de falhas e limites conhecidos do Chaquopy.
+- [x] **P0-3.3** Criar módulo Python inicial e uma interface Kotlin que encapsule inicialização/acesso ao runtime.
+- [x] **P0-3.4** Garantir inicialização fora da thread principal e comportamento seguro em chamadas repetidas.
+- [x] **P0-3.5** Criar smoke check invocável e documentação do fluxo de integração Kotlin/Python.
+- [x] **P0-3.6** Revisar dependências, inicialização, tratamento de falhas e limites conhecidos do Chaquopy.
 
 **Evidência P0-3.1:** plugin Chaquopy 17.2.0 declarado no build raiz e aplicado somente ao módulo `:app`, conforme a documentação do fornecedor. Arquivos conferidos novamente no GitHub. Commits: `ec17207` (versão) e `f6d2762` (aplicação). A configuração da versão Python e a execução real ainda estão pendentes.
 
 **Evidência P0-3.2:** bloco `chaquopy.defaultConfig` configurado com runtime `3.13` e `buildPython("python3.13")`, evitando caminho absoluto específico da máquina. A versão host 3.13.18 foi confirmada pelo usuário no Fedora. Arquivo revisado após publicação; build Chaquopy ainda não executado. Commit: `2f527db`.
 
-**Gate P0-3:** integração implementada e teste automatizado pertinente criado; execução real no dispositivo permanece pendente até validação física.
+**Evidências P0-3.3/P0-3.4/P0-3.5:** `main.py` fornece `runtime_info()` e `smoke_test()`; `PythonRuntime.kt` encapsula o singleton de processo, usa application context, sincronização contra inicializações concorrentes e rejeita chamadas de runtime na thread principal. `runSmokeTest()` invoca o módulo Python. O fluxo e o resultado esperado estão documentados em [P0_RUNTIME_SMOKE.md](P0_RUNTIME_SMOKE.md). Revisão estática dos arquivos confirmou as chamadas e guardas. Commits: `6c14351`, `4c1a979`, `0e485ca`, `eb6cefb`, `855fa9d`.
+
+**Evidência P0-3.6:** revisadas as instruções oficiais Chaquopy 17.2 e documentadas as restrições relevantes: plugin em um único módulo, minSdk 24, ABI explícita, buildPython com major/minor correspondente, ausência de necessidade de NDK adicional, limitações de multiprocessing/stdin e streams direcionados a Logcat por padrão. Erros de inicialização são propagados ao chamador; a camada de execução P0-4 será responsável por convertê-los em resultado/erro visível sem derrubar a UI. Build e execução real continuam pendentes.
+
+**Gate P0-3:** integração implementada e teste mínimo de smoke check criado; execução real no dispositivo permanece pendente até validação física.
 
 ## P0-4 — Execução de scripts e console
 
@@ -184,4 +188,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — governança operacional e baseline técnica concluídas (OP-0.1 a OP-0.4; P0-1.1 a P0-1.5/ADR-0005); fundação Android, configuração Gradle/SDK, manifesto, Activity Compose e ABI arm64-v8a implementados e revisados (P0-2.1 a P0-2.5). Build Android ainda não executado.
+- 2026-11-25 — governança operacional, baseline técnica e fundação Android concluídas (OP-0.1 a OP-0.4; P0-1.1 a P0-1.5; P0-2.1 a P0-2.6). Runtime Chaquopy/Python 3.13 configurado, encapsulado e revisado; smoke check documentado (P0-3.1 a P0-3.6). Nenhum build Android foi executado.
