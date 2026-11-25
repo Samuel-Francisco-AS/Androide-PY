@@ -1,6 +1,6 @@
 # ADR-0003: Persistência local com Room e SQLite
 
-- **Status:** Aceito
+- **Status:** Validado na P0; migração P1 pendente
 - **Data:** 2026-11-24
 
 ## Contexto
