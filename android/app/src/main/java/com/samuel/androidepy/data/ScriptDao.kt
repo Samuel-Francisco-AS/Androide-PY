@@ -53,4 +53,10 @@ interface ScriptDao {
         insertIfAbsent(script)
         insertVersionIfAbsent(version)
     }
+
+    @Transaction
+    suspend fun deleteScriptAndVersions(scriptId: String) {
+        deleteVersions(scriptId)
+        deleteById(scriptId)
+    }
 }
