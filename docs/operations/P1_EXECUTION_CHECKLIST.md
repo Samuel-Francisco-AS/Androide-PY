@@ -196,4 +196,6 @@ cd android
 
 APK esperado: android/app/build/outputs/apk/debug/app-debug.apk. Transfira ao Moto G06 pelo fluxo já utilizado no My-CT; não é necessário ADB.
 
+**Migração:** não desinstalar a versão P0 nem limpar os dados do app. Instalar o APK P1 como atualização sobre a instalação existente para exercitar a migração real.
+
 Na validação física, testar: abertura da biblioteca, CRUD, importação de .py UTF-8, exportação, editor/linhas/realce, parâmetros via params, versões/restauração, histórico após reabrir e migração dos dados existentes da P0.
