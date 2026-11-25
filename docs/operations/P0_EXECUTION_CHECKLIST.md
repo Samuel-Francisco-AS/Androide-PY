@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Testes JVM/Kotlin aprovados; APK compilado, instalado e aberto no Moto G06 conforme relato do usuário. Execução Python pela interface, captura separada de `stdout`/`stderr` e tratamento de exceção com traceback sem encerramento do app foram validados fisicamente conforme relato. Testes Python host, Android Bridge e persistência ainda pendentes.
+**Estado geral:** 🟡 Testes JVM/Kotlin aprovados; APK compilado, instalado e aberto no Moto G06 conforme relato do usuário. Execução Python pela interface, `stdout`/`stderr`, exceção sem crash e consulta real de informações do aparelho por `mobile.device.get_info()` foram validados fisicamente conforme relato. Abertura de aplicativos, persistência e testes Python host ainda pendentes.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -207,7 +207,7 @@ Correção publicada na branch:
 - [ ] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado.
 - [x] **P0-9.4** APK transferido e instalado no Moto G06, conforme relato do usuário em 2026-11-25; método de transferência não especificado.
 - [x] **P0-9.5** Validar execução e console no Moto G06. **Concluída por relato do usuário:** (a) duas mensagens `print()` foram exibidas em `stdout`; (b) `print()` normal e `print(..., file=sys.stderr)` apareceram nos canais separados; (c) `raise ValueError("falha de teste")` foi apresentado como exceção Python, com tipo `ValueError`, mensagem e traceback; (d) `stdout` indicou “(sem saída)” e `stderr` “(Vazio)” nesse último teste, coerente com a ausência de prints; (e) usuário confirmou que o app permaneceu aberto após a exceção. Não há screenshot/log anexado; evidência é o relato explícito do usuário.
-- [ ] **P0-9.6** Usuário valida `mobile.device.get_info()` e `mobile.apps.launch(package_name)`.
+- [ ] **P0-9.6** Usuário valida `mobile.device.get_info()` e `mobile.apps.launch(package_name)`. **Parcialmente demonstrado:** `mobile.device.get_info()` executado no Moto G06 e retornou `schema_version: 1`, fabricante/marca `motorola`, modelo `moto g06`, device `lagos`, Android 15/API 35, ABI `arm64-V8a`, package name `com.samuel.androidepy` e versão `0.1.0`, conforme relato do usuário. A capacidade `mobile.apps.launch(package_name)` ainda não foi testada.
 - [ ] **P0-9.7** Usuário fecha/reabre o app e confirma persistência do script.
 - [ ] **P0-9.8** Registrar modelo, versão Android, resultados, limitações e evidências relatadas.
 
@@ -234,9 +234,11 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 | 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
 | 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados |
 | 2026-11-25 | P0-9.2 / P0-9.4 / P0-9.5 | Usuário informou que a build APK foi concluída, o APK foi instalado no Moto G06 e o aplicativo abriu exibindo a interface. Confirmou execução Python pela UI; duas mensagens em `stdout`; separação de `stdout`/`stderr`; e tratamento de `ValueError: falha de teste` com traceback, sem fechamento do app. Sem print/log por enquanto | Build, instalação, abertura, execução, stdout, stderr e exceção sem crash confirmados por relato; Bridge e persistência pendentes |
+| 2026-11-25 | P0-9.6 | Usuário executou `mobile.device.get_info()` no Moto G06. Retorno: schema_version 1; manufacturer/brand motorola; model moto g06; device lagos; Android 15/API 35; ABI `arm64-V8a`; app package `com.samuel.androidepy`; app version `0.1.0` | Consulta de informações reais do aparelho via Android Bridge e conversão para dict Python confirmadas por relato; abertura de apps ainda pendente |
 
 ## Histórico de atualização
 
+- 2026-11-25 — teste funcional Python no Moto G06: usuário executou `mobile.device.get_info()` e recebeu os dados do Moto G06 (Motorola, moto g06, Android 15/API 35, ABI arm64-V8a, pacote e versão do app). P0-9.6 parcialmente validada; falta `mobile.apps.launch(package_name)`. Também permanecem pendentes persistência e testes Python host.
 - 2026-11-25 — teste funcional Python no Moto G06: além dos testes anteriores de `stdout` e `stderr`, usuário executou `raise ValueError("falha de teste")`. O console exibiu `ValueError: falha de teste` e traceback; `stdout` mostrou “(sem saída)” e `stderr` “(Vazio)”, coerente com o script sem prints; usuário confirmou que o app permaneceu aberto. P0-9.5 concluída por relato explícito. Android Bridge e persistência seguem pendentes.
 - 2026-11-25 — usuário confirmou build APK concluída, instalação no Moto G06 e abertura com interface visível. P0-9.2 e P0-9.4 registradas como concluídas por relato; P0-9.5 permanece parcial, pois execução Python e funcionalidades ainda não foram exercitadas.
 - 2026-11-25 — usuário sincronizou `feat/p0-runtime-bridge`, confirmou Gradle 8.14.8 e executou `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` (31 tarefas executadas, 2m29s). P0-9.1 concluída; testes Python host e `assembleDebug` são os próximos passos. APK e validação física ainda não aprovados.
