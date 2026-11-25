@@ -99,15 +99,17 @@
 
 - [x] **P0-4.1** Definir contrato de execução e resultado (identificador, estado, saída, erro e timestamps essenciais).
 - [x] **P0-4.2** Implementar executor inicial com política serial (uma execução ativa), sem prometer isolamento ou cancelamento forçado.
-- [ ] **P0-4.3** Capturar stdout e stderr separadamente, preservando ordem/limites razoáveis e evitando bloquear a UI.
-- [ ] **P0-4.4** Capturar exceções Python e convertê-las em erro estruturado sem encerrar o aplicativo.
-- [ ] **P0-4.5** Implementar estados mínimos QUEUED, RUNNING, SUCCEEDED, FAILED e CANCELLED, quando suportados pelo escopo inicial.
+- [x] **P0-4.3** Capturar stdout e stderr separadamente, preservando ordem/limites razoáveis e evitando bloquear a UI.
+- [x] **P0-4.4** Capturar exceções Python e convertê-las em erro estruturado sem encerrar o aplicativo.
+- [x] **P0-4.5** Implementar estados QUEUED, RUNNING, SUCCEEDED e FAILED; manter CANCELLED reservado sem interrupção forçada de threads.
 - [ ] **P0-4.6** Criar testes unitários/integrados para sucesso, stderr e exceção.
 - [ ] **P0-4.7** Revisar concorrência, lifecycle, memória e apresentação do console.
 
 **Evidência P0-4.1:** modelos Kotlin `ExecutionModels.kt` e documento [P0_EXECUTION_CONTRACT.md](P0_EXECUTION_CONTRACT.md) publicados e conferidos. Contrato versão 1 define UUID, scriptId, código-fonte, estados, timestamps, stdout/stderr, erro estruturado, limite de 64 KiB por stream e política serial sem interrupção forçada. Commit do modelo: `5b9cb92`; documento: `ee46144`. Revisão estática concluída; compilação Kotlin pendente.
 
 **Evidência P0-4.2:** `ScriptExecutor.kt` publicado e revisado. Usa um `ThreadPoolExecutor` com uma thread, fila limitada a 16 solicitações, rejeição estruturada quando a fila está cheia, callbacks postados no main looper e shutdown cooperativo sem `shutdownNow`. Inicializa Chaquopy e chama o módulo Python em worker. Falhas do host são convertidas em `ExecutionStatus.FAILED`. Verificação estática confirmou serialização, limite da fila, callbacks e ausência de interrupção forçada. Commit: `8dde449` (executor inicial), `8b5007a` (fila limitada). Build ainda não executado.
+
+**Evidências P0-4.3/P0-4.4/P0-4.5:** `runner.py` redireciona stdout e stderr separadamente, limita cada captura a 65.536 caracteres e registra flags de truncamento. Exceções Python (incluindo `SystemExit`) são capturadas como dados com tipo, mensagem e traceback; o resultado JSON contém schema_version, identificadores, estado e timestamps. Kotlin converte o JSON para `ScriptExecutionResult`; o executor encaminha sucesso/falha sem deixar exceção de script escapar para a UI. Estados efetivos: QUEUED, RUNNING, SUCCEEDED e FAILED. CANCELLED permanece reservado porque o P0 não interrompe thread Python em execução. Runner conferido no GitHub (blob `62bce92`); contrato atualizado no commit `8f7b553`. Testes automatizados ainda pendentes.
 
 **Gate P0-4:** execução básica e caminhos de erro cobertos por testes automatizados.
 
