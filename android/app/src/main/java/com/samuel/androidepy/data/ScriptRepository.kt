@@ -143,8 +143,7 @@ class ScriptRepository(
         }
 
     suspend fun delete(scriptId: String) = storage("delete script '$scriptId'") {
-        dao.deleteVersions(scriptId)
-        dao.deleteById(scriptId)
+        dao.deleteScriptAndVersions(scriptId)
     }
 
     suspend fun restoreVersion(scriptId: String, versionNumber: Int): ScriptEntity =
