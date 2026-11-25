@@ -95,8 +95,18 @@ Esses resultados físicos foram confirmados explicitamente pelo usuário, mas sc
 
 ## Observação sobre histórico Git
 
-A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 166 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido ao histórico de commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
+A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 166 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido ao histórico de commits incrementais, prefira squash merge para manter o histórico principal limpo. A PR #1 foi integrada por Squash Merge em `main` em 2026-11-25; commit `69a81e50c74cc9bd38d6c8c62aca319e732aa35c`.
 
 ## Estado para integração
 
-Validação automatizada e funcional da P0 registrada; revisão estática final da documentação, do diff e do estado da branch concluída. O usuário autorizou explicitamente abrir a Pull Request e executar Squash Merge em `main` em 2026-11-25. O merge deve usar o HEAD verificado da branch e ser confirmado pela resposta do GitHub. As verificações complementares de rotação, leitor de tela e truncamento físico não bloqueiam os oito critérios oficiais.
+Validação automatizada e funcional da P0 registrada; revisão estática final da documentação, do diff e do estado da branch concluída. O usuário autorizou explicitamente abrir a Pull Request e executar Squash Merge em `main` em 2026-11-25. A PR #1 foi efetivamente integrada; GitHub retornou `merged: true`, e `main` foi verificada no commit `69a81e50c74cc9bd38d6c8c62aca319e732aa35c`. As verificações complementares de rotação, leitor de tela e truncamento físico não bloqueiam os oito critérios oficiais.
+
+
+## Resultado da integração
+
+- PR: [#1 — feat(p0): add Python runtime and Android Bridge foundation](https://github.com/Samuel-Francisco-AS/Androide-PY/pull/1)
+- Método: Squash Merge.
+- Data: 2026-11-25.
+- Resultado GitHub: `merged: true`.
+- Commit de integração em `main`: `69a81e50c74cc9bd38d6c8c62aca319e732aa35c`.
+- Verificação posterior: branch `main` apontava para o commit de integração.
