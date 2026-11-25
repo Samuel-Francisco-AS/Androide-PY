@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 validada e integrada; evolução da biblioteca de scripts P1 em implementação.
+**Status:** P0 e P1 concluídas e integradas em `main`; contratos e decisões da P2 aceitos documentalmente, implementação P2 ainda não iniciada.
 
 ## 1. Visão geral
 
@@ -140,7 +140,7 @@ Módulos conceituais:
 | Módulo | Capacidade pretendida |
 |---|---|
 | `mobile.apps` | Consultar e iniciar aplicativos/atividades permitidas |
-| `mobile.screen` | Consultar árvore acessível e executar ações de interface |
+| `mobile.screen` | API planejada: estado do serviço, interação geométrica e Mapas de Coordenadas; consulta semântica será ampliada nas prioridades posteriores |
 | `mobile.notifications` | Consultar/reagir a notificações conforme autorização |
 | `mobile.files` | Operar sobre arquivos acessíveis ao aplicativo |
 | `mobile.system` | Consultar informações e recursos do dispositivo |
@@ -148,7 +148,7 @@ Módulos conceituais:
 | `mobile.network` | Operações de rede e conectividade |
 | `mobile.integrations` | Adaptadores opcionais como Shizuku/ADB |
 
-A API pública deve oferecer funções Python estáveis e tipos de retorno previsíveis. Detalhes de Java/Kotlin não devem vazar para os scripts. Na P1, `mobile.__version__`, `mobile.API_VERSION` e `mobile.capabilities.list_available()` identificam a versão e listam somente `device.get_info` e `apps.launch`, que estão implementadas. O catálogo descreve implementação, não garante disponibilidade universal em qualquer dispositivo.
+A API pública deve oferecer funções Python estáveis e tipos de retorno previsíveis. Detalhes de Java/Kotlin não devem vazar para os scripts. Atualmente, `mobile.capabilities.list_available()` anuncia somente `device.get_info` e `apps.launch`, implementadas na P1. As operações `mobile.screen` descritas nos contratos P2 ainda não existem e só poderão ser anunciadas após implementação e testes correspondentes. O catálogo descreve implementação, não garante disponibilidade universal em qualquer dispositivo.
 
 ### 3.5 Persistência e arquivos
 
@@ -168,11 +168,22 @@ Arquivos de scripts, arquivos temporários, backups e artefatos serão armazenad
 
 - `scripts`: código atual, nome, descrição, tags JSON, definições de parâmetros JSON, manifesto de dependências e timestamps.
 - `script_versions`: snapshots imutáveis por script e número sequencial de versão.
-- `script_executions`: histórico desacoplado do ciclo de vida do script, com nome/version snapshot, parâmetros resolvidos, estado, horários, duração, stdout/stderr, erro e flags de truncamento.
+- `script_executions`: histórico desacoplado do ciclo de vida do script, com nome/version snapshot, parâmetros resolvidos, estado, horários, duração, stdout/stderr, erro e flags de truncamento. Exceção de retenção futura: em execução que recebeu autorização de acesso a campos sensíveis, stdout/stderr/tracebacks não serão persistidos por padrão; persistência exige consentimento separado e explícito por execução, conforme ADR-0009.
 - A exclusão de um script remove seus metadados e snapshots de versão em transação; registros de execução permanecem para preservar o histórico.
-- Durante o desenvolvimento, Room utiliza `fallbackToDestructiveMigration()` para recriar o banco quando não houver migração compatível; isso pode descartar todos os scripts, versões e execuções locais. Conforme ADR-0007, migrações de preservação só serão exigidas mediante solicitação expressa. O acesso permanece exclusivamente mediado por DAOs/repositórios Kotlin.
+- Durante o desenvolvimento, Room utiliza `fallbackToDestructiveMigration()` para recriar o banco quando não houver migração compatível; isso pode descartar scripts, versões e execuções locais. Conforme ADR-0007, migrações de preservação só serão exigidas mediante solicitação expressa. O acesso permanece exclusivamente mediado por DAOs/repositórios Kotlin.
+- Mapas de Coordenadas P2 deverão usar a mesma infraestrutura Room, por repositórios Kotlin, armazenando apenas pontos e metadados técnicos mínimos no armazenamento privado. Não serão exportados junto com scripts nem transmitidos automaticamente. Regras de backup/transferência deverão ser revisadas e validadas no Android 15/API 35 antes de afirmar exclusão de backup.
 - O script recebe valores de entrada por um dicionário Python chamado `params`; a validação do esquema e dos valores ocorre no host antes da execução.
 - O manifesto de dependências é declarativo. Não há promessa de instalação pip genérica em runtime; compatibilidade precisa ser confirmada para Chaquopy, CPython 3.13 e ABI Android alvo.
+
+### 3.6 Acessibilidade e interação de interface — direção P2
+
+O AccessibilityService será declarado como serviço Android nativo e terá seu ciclo de vida gerenciado exclusivamente pelo sistema. O usuário habilita/desabilita manualmente o serviço nas configurações. Um gateway application-scoped recebe a instância apenas pelos callbacks do serviço; não instancia o serviço nem retém Activity, e limpa referências e solicitações pendentes no teardown.
+
+A fronteira pública permanece Python-first: scripts chamam funções síncronas em mobile.screen; a Bridge Kotlin e o gateway trabalham assincronamente, encaminhando solicitações ao serviço. A espera finita ocorre somente no worker serial Python existente, nunca na main thread Android. Fila nativa limitada e gestos serializados evitam sobreposição de operações que possam cancelar umas às outras. Timeout e cancelamento são lógicos: uma ação já despachada pode continuar e não há promessa de rollback.
+
+A primeira API pública planejada inclui get_status, tap, type_text, swipe, scroll, capture_coordinates, list_coordinate_maps, get_coordinate_map, delete_coordinate_map e tap_point, com mobile.screen.ScreenError para falhas operacionais. Os estados públicos distinguem not_enabled, disconnected e connected. O contrato completo e os limites estão em [P2_PYTHON_API.md](operations/P2_PYTHON_API.md) e [P2_ASYNC_PROTOCOL.md](operations/P2_ASYNC_PROTOCOL.md). Essas funções não estão implementadas.
+
+TYPE_ACCESSIBILITY_OVERLAY será usado somente durante a captura explícita e cancelável do Mapa de Coordenadas; a camada intercepta intencionalmente toques nesse período. Não solicitar SYSTEM_ALERT_WINDOW para esse caso. Não haverá observação contínua, screenshots, OCR ou persistência de snapshots/árvores na P2 inicial. A consulta de conteúdo será pontual e sob demanda.
 
 ## 4. Contratos entre Kotlin e Python
 
@@ -273,6 +284,10 @@ Scripts Python executam código. Um script pode usar a rede, consumir recursos e
 7. Artefatos devem ser armazenados em locais privados e com nomes controlados.
 8. Ações de alto impacto devem exigir configuração e autorização explícitas.
 9. O produto não deve tentar contornar o modelo de segurança do Android.
+10. Na P2, conteúdo comum de interface será consultado sob demanda e limitado à operação. Campos sensíveis permanecem bloqueados por padrão; leitura sensível e preenchimento/alteração sensível exigem consentimentos independentes, concedidos pela UI hospedeira e limitados à execução e ao aplicativo de destino. O script não pode conceder a própria autorização.
+11. Concessões sensíveis são invalidadas ao trocar o app de destino, encerrar/cancelar a execução ou interromper/desconectar o serviço. Classificação ambígua deve falhar de forma conservadora; não há promessa de detecção perfeita.
+12. Em execuções que receberam acesso sensível, stdout, stderr e tracebacks ficam apenas no console durante a execução e não são persistidos por padrão. Salvar essas saídas exige consentimento adicional, separado e limitado à execução. Essa política ainda exige evolução do executor/histórico P1.
+13. Mapas armazenam somente coordenadas e metadados técnicos mínimos, em Room privado, sem exportação/transmissão automática. Regras Android de backup/transferência precisam de validação específica.
 
 A execução em outro processo com o mesmo UID não isola o script das permissões do aplicativo. Uma sandbox real exigirá desenho específico, restrições de UID/permissões e avaliação própria. Não declarar isolamento forte até que ele seja implementado e testado.
 
@@ -298,4 +313,4 @@ A execução em outro processo com o mesmo UID não isola o script das permissõ
 - Testes físicos em dispositivo Android real.
 - Registro de versão do Android, fabricante e permissões nos relatórios de validação.
 
-O P0 define o primeiro conjunto de critérios verificáveis. Consulte [ROADMAP.md](ROADMAP.md).
+A implementação P2 deverá ser validada em etapas, distinguindo revisão documental, testes automatizados, build e validação física. Nenhuma capacidade P2 descrita acima deve ser apresentada como pronta antes dessas evidências. Consulte [ROADMAP.md](ROADMAP.md), [ADR-0008](adr/0008-accessibility-service-bridge-and-lifecycle.md) e [ADR-0009](adr/0009-sensitive-data-consent-and-retention.md).
