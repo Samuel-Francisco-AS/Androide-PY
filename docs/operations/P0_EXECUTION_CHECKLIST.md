@@ -153,14 +153,16 @@
 
 **Evidência P0-6.6:** inspeção dos cinco módulos Python (`main.py`, `runner.py`, `mobile/__init__.py`, `mobile/device.py`, `mobile/apps.py`) não encontrou referências a Room, SQLite, DAO, Entity ou arquivo de banco. `PythonRuntime` recebe somente o adaptador de capacidades; `ScriptExecutor` recebe o código-fonte no request e não expõe repositório/DAO ao runtime. Verificação estática dos arquivos remotos concluída.
 
-**Evidência P0-6.3:** `MainScreen` carrega o script pelo repositório, salva alterações e, antes de executar, persiste novamente e cria `ScriptExecutionRequest` com o código retornado pelo repositório. Verificação estática confirmou que `repository.save` precede `executor.submit` e que o request usa `saved.sourceCode`. Commit: `82ce719`.\n\n**Gate P0-6:** integração Kotlin concluída; testes JVM e build KSP/Room ainda aguardam execução local.
+**Evidência P0-6.3:** `MainScreen` carrega o script pelo repositório, salva alterações e, antes de executar, persiste novamente e cria `ScriptExecutionRequest` com o código retornado pelo repositório. Verificação estática confirmou que `repository.save` precede `executor.submit` e que o request usa `saved.sourceCode`. Commit: `82ce719`.
+
+**Gate P0-6:** integração Kotlin concluída; testes JVM e build KSP/Room ainda aguardam execução local.
 
 ## P0-7 — Interface mínima integrada
 
 - [x] **P0-7.1** Criar tela Compose com editor/campo de código e área de console.
 - [x] **P0-7.2** Carregar e salvar o script de teste pela camada de persistência.
 - [x] **P0-7.3** Conectar a ação Executar ao executor Python.
-- [ ] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
+- [x] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
 - [ ] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
 - [ ] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
 - [ ] **P0-7.7** Revisar acessibilidade básica, layout em tela móvel e responsividade.
