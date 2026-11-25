@@ -82,7 +82,7 @@ A implementação inicial não continha histórico de versões, entidade de exec
 ### 4.5 Documentação
 
 - Checklist e relatório operacional P1 criados.
-- README, docs/README, roadmap e arquitetura atualizados.
+- README, docs/README, visão, roadmap, arquitetura e ADRs atualizados; ADR-0006 registra o modelo de versionamento e histórico.
 - Contrato Android Bridge estendido com catálogo público.
 - Limitações de dependências, editor e importação registradas.
 
