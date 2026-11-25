@@ -129,8 +129,10 @@ class ScriptRepository(
             if (changed) {
                 val nextVersion = dao.nextVersionNumber(scriptId)
                 dao.upsertWithVersion(saved, saved.toVersion(nextVersion, now))
+                saved
+            } else {
+                previous ?: saved
             }
-            saved
         }
     }
 
