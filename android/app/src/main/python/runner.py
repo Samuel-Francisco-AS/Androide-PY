@@ -10,7 +10,7 @@ import traceback
 from typing import Any
 
 MAX_CAPTURE_CHARS = 65_536
-TRUNCATION_MARKER = "\\n[output truncated: 65536 character limit reached]"
+TRUNCATION_MARKER = "\n[output truncated: 65536 character limit reached]"
 
 
 class _LimitedCapture(io.StringIO):
@@ -52,7 +52,7 @@ def execute(
     script_id: str = "scratch",
     parameters_json: str = "{}",
 ) -> str:
-    """Execute a script with its input values exposed through the `params` dict."""
+    """Execute a script with its input values exposed through params."""
     started_at_ms = int(time.time() * 1000)
     stdout_capture = _LimitedCapture()
     stderr_capture = _LimitedCapture()
