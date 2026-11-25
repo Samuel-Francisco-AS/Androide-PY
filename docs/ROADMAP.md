@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0 integrada; P1 em implementação na branch `feat/p1-script-library`  
+**Status:** P0 e P1 concluídas e integradas em `main`; P2 em preparação documental na branch `feat/p2-accessibility-automation`  
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -67,24 +67,60 @@ Entregas:
 
 **Limites:** não há instalação dinâmica genérica de pacotes PyPI no aparelho. Dependências adicionais precisam de distribuição compatível com Chaquopy/Python 3.13/ABI arm64-v8a e inclusão controlada no build. O editor oferece realce lexical, não análise semântica, autocomplete ou depuração.
 
-**Estado:** implementação em andamento; veja `docs/operations/P1_EXECUTION_CHECKLIST.md` e `docs/operations/P1_IMPLEMENTATION_REPORT.md`.
+**Estado:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. Testes host Python 13/13, testes JVM, build APK e validação física do escopo acordado no Moto G06 foram reportados como aprovados. P1-TF13 e cenários adicionais (tipo inválido, fila cheia, falhas de persistência, manifesto/dependências, desempenho do editor e fallback destrutivo específico) permanecem diferidos, não aprovados nem bloqueadores por decisão explícita do usuário. Consulte o checklist e o relatório P1.
 
 **Gate:** ciclo completo de criar/importar, editar, salvar, executar com parâmetros, consultar versões e histórico validado no Moto G06; comportamento do banco após atualização incompatível documentado; testes automatizados e build aprovados.
 
-## P2 — Integração de acessibilidade
+## P2 — Automação de interfaces Android
 
-**Objetivo:** permitir automações determinísticas de interface por meio de um serviço nativo autorizado.
+**Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-Entregas:
-- AccessibilityService.
-- Configuração e explicação de autorização.
-- Consulta controlada da árvore de acessibilidade.
-- Localização de elementos por atributos disponíveis.
-- Clique, digitação, rolagem e gestos.
-- API Python `mobile.screen`.
-- Verificação de disponibilidade da capacidade.
+**Estado atual:** preparação documental P2.0.1–P2.0.9 concluída; harmonização documental P2.0.10 em andamento. Contratos e ADRs foram aceitos, mas nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
 
-**Gate:** testes em aplicativos de demonstração e aplicativos reais selecionados, documentando elementos não acessíveis e limitações.
+### P2.0 — Preparação, baseline e contratos
+- Confirmar código/branch, SDKs e dispositivo real.
+- Definir protocolo interno assíncrono Python → Kotlin → AccessibilityService → resultado.
+- Definir API pública síncrona Python `mobile.screen`, incluindo `ScreenError`, estados, operações geométricas e Mapas de Coordenadas.
+- Revisar privacidade, consentimento, retenção e riscos residuais.
+- Formalizar ADR-0008 (serviço, gateway, lifecycle e Bridge) e ADR-0009 (consentimento sensível e retenção).
+- Harmonizar visão, arquitetura, roadmap, índices e contratos sem declarar funcionalidade futura como implementada.
+
+### P2.1 — Fundação nativa e autorização
+- Declarar/configurar AccessibilityService e capabilities estritamente necessárias.
+- Explicar a finalidade e orientar o usuário a habilitar/desabilitar manualmente nas configurações Android.
+- Distinguir `not_enabled`, `disconnected` e `connected`.
+- Implementar gateway application-scoped e lifecycle gerenciado pelo Android; não instanciar serviço manualmente nem reter Activity.
+- Tratar interrupção/desconexão, limpar pendências e expor erros estáveis.
+- Testar autorização, reconexão, teardown e ausência de bloqueio da main thread.
+
+### P2.2 — Prioridade A: interação e Mapa de Coordenadas
+- Implementar `tap`, `type_text`, `swipe` e `scroll` conforme contrato Python.
+- Serializar gestos e aplicar timeouts que incluam fila e execução.
+- Implementar captura visual com espera configurável, overlay `TYPE_ACCESSIBILITY_OVERLAY` temporário/cancelável e múltiplos pontos nomeados.
+- Persistir mapas mínimos via Room/repositórios Kotlin, permitir listar/obter/excluir e reutilizar pontos com validação de contexto.
+- Não solicitar `SYSTEM_ALERT_WINDOW`; o overlay intercepta intencionalmente os toques durante a seleção.
+
+### P2.3 — Prioridade B: consulta e coleta
+- Consultar conteúdo comum sob demanda, limitado à operação e ao mínimo necessário.
+- Converter resultados em estruturas simples serializáveis para Python e console.
+- Tratar campos sensíveis como bloqueados por padrão, com consentimentos independentes de leitura e preenchimento/alteração, concedidos pela UI e limitados à execução e ao app.
+- Definir/implementar saída para arquivo somente após contrato explícito de API, destino, autorização e limites; não presumir API Python de arquivos existente.
+
+### P2.4 — Prioridade C: leitura e identificação
+- Expandir leitura controlada da árvore de acessibilidade, com limites de profundidade/quantidade/tamanho.
+- Localizar elementos por atributos e ações que o app de destino efetivamente exponha.
+- Manter referências de nós temporárias, sem persistir snapshots/árvores.
+- Documentar apps/componentes que não expõem conteúdo ou recusam ações.
+
+### P2.5 — Integração, testes e validação
+- Anunciar capacidades apenas depois de implementação e testes correspondentes.
+- Executar testes host/JVM, build APK e validação física no Moto G06, registrando cada categoria separadamente.
+- Validar consentimento, revogação, logs, retenção, mapas, backup/transferência e limitações.
+- Atualizar documentação e revisar o diff antes de propor integração em `main`.
+
+**Decisões transversais P2:** a API dos scripts é síncrona, Kotlin é assíncrono internamente e a espera ocorre somente no worker serial Python; conteúdo comum é consultado sob demanda; campos sensíveis são bloqueados por padrão; consentimentos de leitura e escrita são independentes; saídas de execuções com acesso sensível não são persistidas por padrão e exigem consentimento separado para retenção; scripts não possuem sandbox e podem usar rede; screenshots, OCR e notificações ficam fora do escopo inicial; mapas são mínimos, locais e não exportados/transmitidos automaticamente. Consulte ADR-0008, ADR-0009 e os contratos operacionais P2.
+
+**Gate P2:** nenhuma capacidade é considerada concluída apenas por existir no contrato. Exigir implementação, testes, build e validação física conforme critérios da subetapa; documentar limitações por app/versão Android.
 
 ## P3 — Notificações e eventos
 
