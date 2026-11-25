@@ -1,5 +1,6 @@
 package com.samuel.androidepy.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -8,12 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.border
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -34,7 +34,7 @@ fun PythonCodeEditor(
     enabled: Boolean = true
 ) {
     val colors = MaterialTheme.colorScheme
-    val lineCount = sourceCode.count { it == '\\n' } + 1
+    val lineCount = sourceCode.count { it == '\n' } + 1
     val editorStyle = TextStyle(
         fontFamily = FontFamily.Monospace,
         fontSize = 14.sp,
@@ -50,7 +50,7 @@ fun PythonCodeEditor(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = (1..lineCount).joinToString("\\n"),
+            text = (1..lineCount).joinToString("\n"),
             style = editorStyle.copy(color = colors.onSurfaceVariant),
             modifier = Modifier.padding(end = 12.dp)
         )
@@ -76,10 +76,10 @@ fun PythonCodeEditor(
 }
 
 private class PythonSyntaxTransformation(
-    private val keywordColor: androidx.compose.ui.graphics.Color,
-    private val stringColor: androidx.compose.ui.graphics.Color,
-    private val commentColor: androidx.compose.ui.graphics.Color,
-    private val numberColor: androidx.compose.ui.graphics.Color
+    private val keywordColor: Color,
+    private val stringColor: Color,
+    private val commentColor: Color,
+    private val numberColor: Color
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val builder = AnnotatedString.Builder(text.text)
@@ -90,14 +90,14 @@ private class PythonSyntaxTransformation(
             val current = source[index]
             when {
                 current == '#' -> {
-                    while (index < source.length && source[index] != '\\n') index++
+                    while (index < source.length && source[index] != '\n') index++
                     builder.addStyle(SpanStyle(color = commentColor), start, index)
                 }
                 current == '\'' || current == '"' -> {
                     val quote = current
                     index++
                     while (index < source.length) {
-                        if (source[index] == '\\\\') {
+                        if (source[index] == '\\') {
                             index = (index + 2).coerceAtMost(source.length)
                         } else if (source[index] == quote) {
                             index++
