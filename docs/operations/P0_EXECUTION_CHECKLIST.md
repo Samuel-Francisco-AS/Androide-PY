@@ -98,7 +98,7 @@
 ## P0-4 — Execução de scripts e console
 
 - [x] **P0-4.1** Definir contrato de execução e resultado (identificador, estado, saída, erro e timestamps essenciais).
-- [ ] **P0-4.2** Implementar executor inicial com política serial (uma execução ativa), sem prometer isolamento ou cancelamento forçado.
+- [x] **P0-4.2** Implementar executor inicial com política serial (uma execução ativa), sem prometer isolamento ou cancelamento forçado.
 - [ ] **P0-4.3** Capturar stdout e stderr separadamente, preservando ordem/limites razoáveis e evitando bloquear a UI.
 - [ ] **P0-4.4** Capturar exceções Python e convertê-las em erro estruturado sem encerrar o aplicativo.
 - [ ] **P0-4.5** Implementar estados mínimos QUEUED, RUNNING, SUCCEEDED, FAILED e CANCELLED, quando suportados pelo escopo inicial.
@@ -106,6 +106,8 @@
 - [ ] **P0-4.7** Revisar concorrência, lifecycle, memória e apresentação do console.
 
 **Evidência P0-4.1:** modelos Kotlin `ExecutionModels.kt` e documento [P0_EXECUTION_CONTRACT.md](P0_EXECUTION_CONTRACT.md) publicados e conferidos. Contrato versão 1 define UUID, scriptId, código-fonte, estados, timestamps, stdout/stderr, erro estruturado, limite de 64 KiB por stream e política serial sem interrupção forçada. Commit do modelo: `5b9cb92`; documento: `ee46144`. Revisão estática concluída; compilação Kotlin pendente.
+
+**Evidência P0-4.2:** `ScriptExecutor.kt` publicado e revisado. Usa um `ThreadPoolExecutor` com uma thread, fila limitada a 16 solicitações, rejeição estruturada quando a fila está cheia, callbacks postados no main looper e shutdown cooperativo sem `shutdownNow`. Inicializa Chaquopy e chama o módulo Python em worker. Falhas do host são convertidas em `ExecutionStatus.FAILED`. Verificação estática confirmou serialização, limite da fila, callbacks e ausência de interrupção forçada. Commit: `8dde449` (executor inicial), `8b5007a` (fila limitada). Build ainda não executado.
 
 **Gate P0-4:** execução básica e caminhos de erro cobertos por testes automatizados.
 
