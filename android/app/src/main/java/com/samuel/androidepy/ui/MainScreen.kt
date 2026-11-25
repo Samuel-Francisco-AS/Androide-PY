@@ -143,13 +143,20 @@ fun MainScreen(application: AndroidePyApplication) {
 
     LaunchedEffect(scripts, initialized) {
         if (!initialized) {
-            if (scripts.isEmpty()) {
-                val defaultScript = withContext(Dispatchers.IO) { repository.getOrCreateDefault() }
-                selectedScriptId = defaultScript.id
-            } else {
-                selectedScriptId = scripts.first().id
+            try {
+                if (scripts.isEmpty()) {
+                    val defaultScript = withContext(Dispatchers.IO) { repository.getOrCreateDefault() }
+                    selectedScriptId = defaultScript.id
+                } else {
+                    selectedScriptId = scripts.first().id
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                errorMessage = error.message ?: "Não foi possível carregar a biblioteca."
+            } finally {
+                initialized = true
             }
-            initialized = true
         } else if (selectedScriptId != null && scripts.none { it.id == selectedScriptId }) {
             selectedScriptId = scripts.firstOrNull()?.id
         }
