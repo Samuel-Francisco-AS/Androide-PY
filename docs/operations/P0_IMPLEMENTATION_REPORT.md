@@ -2,8 +2,8 @@
 
 **Branch:** `feat/p0-runtime-bridge`  
 **Base:** `main`  
-**Snapshot comparado:** 46 arquivos alterados; branch 137 commits à frente e 0 atrás da base na comparação final do diff. Os commits de relatório/checklist posteriores são apenas metadados documentais.  
-**Último commit de checklist antes deste relatório:** `8c01d8c7125b8036301035a42d451c7531ec5f35`.
+**Snapshot comparado:** 46 arquivos alterados; branch 162 commits à frente e 0 atrás de `main` na comparação GitHub conferida em 2026-11-25. O histórico é incremental e predominantemente composto por commits pequenos de implementação e documentação.  
+**Última atualização do checklist:** `a219069e14adba02027de2200ebb96bddf9cbda8`.
 
 ## Implementado no repositório
 
@@ -41,28 +41,62 @@
 
 O primeiro comando `:app:testDebugUnitTest` executado pelo usuário falhou em `:app:checkDebugAarMetadata` porque o BOM 2026.09.00 resolveu Compose 1.12.1, que exige compileSdk 37 e AGP 9.1+. O BOM foi fixado em 2026.06.01, que mapeia Compose 1.11.4; o requisito compileSdk 37 aparece a partir da linha 1.12.0. O Gradle Wrapper foi atualizado para 8.14.8 com checksum oficial para remover o aviso de depreciação reportado em 8.14.3. AGP 8.13.2 e SDK 36 foram mantidos.
 
-Esta é uma correção estática orientada pelo log real, ainda sem reteste. O build permanece não validado.
+**Reteste JVM reportado pelo usuário em 2026-11-25:** `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` terminou com `BUILD SUCCESSFUL` em 2m29s (31 tarefas executadas). O usuário também informou que a build APK foi concluída, que instalou o APK no Moto G06 e que o aplicativo abriu. O log detalhado de `assembleDebug` e o APK não foram anexados à conversa; portanto, o resultado da build APK está registrado como relato explícito, não como log inspecionado por nós.
 
-## O que ainda NÃO foi validado
+## Validação concluída e evidências (2026-11-25)
 
-Nenhum dos itens abaixo deve ser considerado aprovado:
+### Testes automatizados host
 
-- Testes Python host.
-- Testes JVM/Kotlin.
-- Processamento KSP e geração de schema Room.
-- Resolução real de plugins/dependências e build Android.
-- Empacotamento do CPython 3.13 pelo Chaquopy.
-- Instalação e execução no Moto G06.
-- Abertura real de aplicativos via Bridge.
-- Persistência após fechar e reabrir o app.
-- Layout, teclado, rotação e leitor de tela no aparelho.
+O usuário executou na raiz do repositório, com Python 3.13:
 
-O código foi publicado e submetido a revisão estática; isso não prova que compila ou funciona no Android.
+```bash
+PYTHONPATH=android/app/src/main/python python3.13 -m unittest discover -s android/app/src/test/python -v
+```
+
+Resultado reportado:
+
+```text
+Ran 10 tests in 0.003s
+
+OK
+```
+
+Os dez testes aprovados cobrem:
+- API mobile: retorno de informações do dispositivo como dict, abertura bem-sucedida simulada, erro estruturado para app ausente, rejeição de pacote que não é string e falha clara quando a Bridge não foi configurada.
+- Runner: limite de saída, exceção Python estruturada, captura separada de stderr, captura de stdout e tratamento de SystemExit.
+
+### Testes JVM/Kotlin
+
+O usuário executou `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` e reportou `BUILD SUCCESSFUL`, 31 tarefas executadas, em 2m29s. Isso cobre os testes JVM/Kotlin, incluindo modelos de execução, validação do nome de pacote e repositório de scripts.
+
+### Build e validação física no Moto G06
+
+O usuário relatou que:
+- a build APK foi concluída;
+- o APK foi instalado e o app abriu no Moto G06;
+- scripts Python executados pela interface exibiram stdout;
+- stdout e stderr foram apresentados em canais separados;
+- `ValueError: falha de teste` foi exibida com traceback, sem encerrar o app;
+- `mobile.device.get_info()` retornou dados do aparelho Motorola moto g06, Android 15/API 35 e ABI arm64-v8a;
+- `mobile.apps.launch("com.android.settings")` abriu as Configurações do Android;
+- pacote inexistente retornou erro estruturado `APP_NOT_FOUND_OR_NOT_LAUNCHABLE`, sem fechar o app;
+- um script editado e executado permaneceu no editor após encerrar completamente e reabrir o app.
+
+Esses resultados físicos foram confirmados explicitamente pelo usuário, mas screenshots, logcat e log completo do comando `assembleDebug` não foram anexados. Não devemos descrevê-los como logs diretamente inspecionados.
+
+### Limitações e verificações adicionais
+
+- Não foram executados testes instrumentados Android que exijam ADB, de acordo com a preferência do usuário.
+- Não há evidência relatada de teste manual de rotação durante execução ou de saída acima de 65.536 caracteres no aparelho; o limite de saída foi coberto pelo teste Python host.
+- Não foi feita validação com leitor de tela.
+- A validação de APK/instalação é baseada no relato do usuário; os testes host e JVM têm comandos e saídas textuais reportados.
+- O código continua sendo executado com o mesmo UID do aplicativo; não existe sandbox para scripts não confiáveis.
+- O escopo P0 não inclui garantia de execução em segundo plano, alarmes exatos, compatibilidade irrestrita com PyPI, múltiplos workers ou controle universal de aplicativos.
 
 ## Observação sobre histórico Git
 
-A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação final do diff registrou 137 commits e 46 arquivos alterados; atualizações documentais posteriores não alteraram o escopo de código. **Não recomendo merge commit direto para main.** Depois que os testes locais e físicos passarem, use squash merge ou uma revisão/squash da branch para manter o histórico principal limpo. A branch ainda não foi mesclada.
+A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 162 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido aos 162 commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
 
 ## Próximo passo
 
-Seguir [P0_BUILD_AND_TEST.md](P0_BUILD_AND_TEST.md) para sincronizar a branch no Fedora, marcar o Wrapper como executável, rodar testes host/JVM e gerar o APK. Depois, transferir o APK manualmente ao Moto G06 e executar [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md).
+Validação automatizada e funcional da P0 registrada. Próximo passo: revisão final da documentação/diff/branch e decisão explícita do usuário sobre squash merge para `main`. Não mesclar sem consentimento final.
