@@ -163,7 +163,7 @@
 - [x] **P0-7.2** Carregar e salvar o script de teste pela camada de persistência.
 - [x] **P0-7.3** Conectar a ação Executar ao executor Python.
 - [x] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
-- [ ] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
+- [x] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
 - [ ] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
 - [ ] **P0-7.7** Revisar acessibilidade básica, layout em tela móvel e responsividade.
 
