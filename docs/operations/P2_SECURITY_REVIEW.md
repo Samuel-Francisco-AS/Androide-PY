@@ -134,7 +134,7 @@ A interface de autorização deve explicar que conceder acesso sensível a uma a
 
 ## 10. Pendências e limites da conclusão
 
-P2.0.8 concluiu a revisão de segurança; P2.0.9 formalizou as decisões nos ADRs-0008 e 0009; P2.0.10 harmoniza a visão, arquitetura, roadmap, índices e contratos. As decisões aceitas orientam a implementação futura, mas não provam que qualquer controle esteja implementado.
+P2.0.8 concluiu a revisão de segurança; P2.0.9 formalizou as decisões nos ADRs-0008 e 0009; P2.0.10 concluiu a harmonização da visão, arquitetura, roadmap, índices e contratos. As decisões aceitas orientam a implementação futura, mas não provam que qualquer controle esteja implementado.
 
 A implementação futura deverá testar, no mínimo: bloqueio sensível sem concessão; leitura e escrita separadas; escopo da concessão por execução/aplicativo; revogação em cancelamento/desconexão; classificação conservadora; ausência de conteúdo em logs do adaptador; descarte de snapshots; overlay removido em todos os caminhos terminais; persistência/exclusão dos mapas; comportamento de backup/exportação.
 
