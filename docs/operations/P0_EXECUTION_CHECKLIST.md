@@ -79,13 +79,15 @@
 ## P0-3 — Runtime Python (Chaquopy)
 
 - [x] **P0-3.1** Integrar a versão de Chaquopy verificada na matriz técnica.
-- [ ] **P0-3.2** Configurar Python embarcado 3.13 e o interpretador host exigido pelo processo de build.
+- [x] **P0-3.2** Configurar Python embarcado 3.13 e o interpretador host exigido pelo processo de build.
 - [ ] **P0-3.3** Criar módulo Python inicial e uma interface Kotlin que encapsule inicialização/acesso ao runtime.
 - [ ] **P0-3.4** Garantir inicialização fora da thread principal e comportamento seguro em chamadas repetidas.
 - [ ] **P0-3.5** Criar teste mínimo de integração Kotlin/Python e documentação de execução.
 - [ ] **P0-3.6** Revisar dependências, inicialização, tratamento de falhas e limites conhecidos do Chaquopy.
 
 **Evidência P0-3.1:** plugin Chaquopy 17.2.0 declarado no build raiz e aplicado somente ao módulo `:app`, conforme a documentação do fornecedor. Arquivos conferidos novamente no GitHub. Commits: `ec17207` (versão) e `f6d2762` (aplicação). A configuração da versão Python e a execução real ainda estão pendentes.
+
+**Evidência P0-3.2:** bloco `chaquopy.defaultConfig` configurado com runtime `3.13` e `buildPython("python3.13")`, evitando caminho absoluto específico da máquina. A versão host 3.13.18 foi confirmada pelo usuário no Fedora. Arquivo revisado após publicação; build Chaquopy ainda não executado. Commit: `2f527db`.
 
 **Gate P0-3:** integração implementada e teste automatizado pertinente criado; execução real no dispositivo permanece pendente até validação física.
 
