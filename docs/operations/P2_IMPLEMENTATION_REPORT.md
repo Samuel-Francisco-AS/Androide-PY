@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.9 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente após harmonização; nenhuma implementação de produção P2 foi iniciada. P2.1 — Fundação nativa e autorização — é a próxima subetapa. Testes automatizados, build APK e validação física de funcionalidades P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -60,7 +60,7 @@ Fluxo pretendido:
 6. A camada pode ser concluída ou cancelada e deixa de interceptar toques.
 7. O script recebe os pontos e pode reutilizá-los em execuções futuras.
 
-A implementação deverá investigar `TYPE_ACCESSIBILITY_OVERLAY` como mecanismo de overlay associado ao AccessibilityService. A camada precisará interceptar o toque durante a seleção; portanto, não é transparente aos eventos de toque nesse intervalo.
+A decisão aceita no ADR-0008 é usar `TYPE_ACCESSIBILITY_OVERLAY` associado ao AccessibilityService durante a captura explícita. A camada intercepta intencionalmente o toque durante a seleção; não é transparente aos eventos nesse intervalo. Não se solicita `SYSTEM_ALERT_WINDOW` para esse caso.
 
 Modelo de coordenadas:
 - armazenar x/y em pixels e normalizados;
@@ -112,15 +112,15 @@ O serviço deverá ser gerenciado pelo Android e expor seu estado a um gerenciad
 
 Separar toque geométrico por coordenadas de ação semântica por nó. Digitação depende de campo editável/foco e de suporte a `ACTION_SET_TEXT`; rolagem pode usar ações de nó ou gesto coordenado. Consultas devem produzir snapshots limitados de dados serializáveis, nunca expor nós Android ao Python nem reter referências obsoletas.
 
-O Mapa de Coordenadas deve ser uma janela `TYPE_ACCESSIBILITY_OVERLAY` do serviço conectado, com captura intencional do toque durante a seleção, múltiplos pontos nomeados e persistência reutilizável. A persistência dos mapas e a API de arquivo de saída continuam decisões abertas.
+O Mapa de Coordenadas deve ser uma janela `TYPE_ACCESSIBILITY_OVERLAY` do serviço conectado, com captura intencional do toque durante a seleção, múltiplos pontos nomeados e persistência reutilizável. A persistência dos mapas foi decidida: Room existente, por repositórios Kotlin, dados mínimos e armazenamento privado, sem exportação/transmissão automática. Regras de backup/transferência ainda precisam ser configuradas e validadas na implementação. A API Python de arquivo de saída continua sem contrato aprovado.
 
 ### Compatibilidade e referências Android
 
-A baseline observada no Gradle é minSdk 24, compileSdk/targetSdk 36, ABI arm64-v8a, Chaquopy 17.2.0/Python 3.13 e Kotlin 2.4.21. As referências oficiais consultadas indicam `dispatchGesture()` desde API 24 (exige `canPerformGestures`), `TYPE_ACCESSIBILITY_OVERLAY` desde API 22, `ACTION_SET_TEXT` desde API 21 e consulta da árvore condicionada a `canRetrieveWindowContent`. A documentação alerta contra `typeAllMask` indiscriminado e informa que a árvore pode mudar ou ficar obsoleta. O nível Android efetivo do Moto G06 ainda precisa ser confirmado por `mobile.device.get_info()`.
+A baseline observada no Gradle é minSdk 24, compileSdk/targetSdk 36, ABI arm64-v8a, Chaquopy 17.2.0/Python 3.13 e Kotlin 2.4.21. As referências oficiais consultadas indicam `dispatchGesture()` desde API 24 (exige `canPerformGestures`), `TYPE_ACCESSIBILITY_OVERLAY` desde API 22, `ACTION_SET_TEXT` desde API 21 e consulta da árvore condicionada a `canRetrieveWindowContent`. A documentação alerta contra `typeAllMask` indiscriminado e informa que a árvore pode mudar ou ficar obsoleta. O usuário confirmou por execução de `mobile.device.get_info()` no Moto G06 Android 15/API 35; o registro está detalhado na seção P2.0.5.
 
 ### Pendências documentais identificadas
 
-README, visão, arquitetura e roadmap ainda possuem referências de status P1 desatualizadas; roadmap não inclui as novas prioridades nem o Mapa de Coordenadas; índice de documentação tem árvore ilustrativa incompleta; índice ADR/ADR-0006 mantêm status de validação P1 antigos; relatório P1 contém uma linha histórica que contradiz a confirmação final do merge. Harmonizar na P2.0.10 após contratos definidos.
+Na revisão P2.0.10 foram confirmadas e corrigidas referências desatualizadas de status P1, a descrição de acessibilidade/`mobile.screen` ainda como fase futura genérica, o roadmap sem prioridades A/B/C e Mapa de Coordenadas, estados antigos dos ADRs-0003/0006, a política de retenção sensível ainda descrita como decisão aberta e referências antigas de preparação ainda pendente. O índice `docs/README.md` já continha os quatro contratos/relatórios P2 e a árvore ADR-0008/0009; foi conferido e mantido.
 
 **Estado:** revisão documental/estática inicial concluída para P2.0.3 e P2.0.4. P2.0.5 ainda depende da confirmação do SDK real no Moto G06 e da conclusão da análise de lifecycle. Nenhum teste, build ou validação física P2 foi executado.
 
@@ -198,7 +198,7 @@ A documentação oficial Chaquopy 17.2 informa que o GIL é liberado durante cha
 
 P2.0.6 foi concluída como definição documental e revisão estática. O contrato foi conferido contra `PythonRuntime`, `ScriptExecutor`, `AndroidBridgeAdapter`, `runner.py`, fachada `mobile`, contrato P0 da Bridge e contrato P0 de execução. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física foi executado.
 
-A criação/atualização do ADR arquitetural permanece planejada para P2.0.9. A API pública Python, defaults por operação e tipos de retorno específicos permanecem para P2.0.7.
+Os ADRs-0008/0009 foram publicados na P2.0.9; a API pública e seus defaults foram definidos na P2.0.7. Ambos permanecem contratos/decisões, não funcionalidades implementadas.
 
 ## 3.4 P2.0.7 — Contrato público Python `mobile.screen` — 25/11/2026
 
@@ -247,7 +247,7 @@ Foram criados dois ADRs aceitos para orientar a implementação futura:
 
 O índice `docs/adr/README.md` foi atualizado. As decisões foram conferidas contra ADRs 0001–0007, visão, arquitetura, roadmap, contratos P2.0.6/P2.0.7 e revisão de segurança P2.0.8.
 
-**Evidência e limites:** ADR-0008 commit `c6b9be89327243ed6164e7b529474d918819a3d8`; ADR-0009 commit `f73f2b0729b683786c2ef4891872472413c06870`. Revisão documental/estática; nenhum código de produção foi alterado e nenhum teste, build APK ou validação física foi executado. Os ADRs estão aceitos como decisões de projeto, não validados por implementação. A harmonização dos documentos principais permanece para P2.0.10.
+**Evidência e limites:** ADR-0008 commit `c6b9be89327243ed6164e7b529474d918819a3d8`; ADR-0009 commit `f73f2b0729b683786c2ef4891872472413c06870`. Revisão documental/estática; nenhum código de produção foi alterado e nenhum teste, build APK ou validação física foi executado. Os ADRs estão aceitos como decisões de projeto, não validados por implementação. A harmonização documental dos documentos principais foi concluída na P2.0.10.
 
 ## 4. Decomposição aprovada
 
@@ -332,3 +332,22 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | P2.0.6: contrato assíncrono v1 publicado em `P2_ASYNC_PROTOCOL.md`; decisão de espera no worker Python com gateway Kotlin assíncrono; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.8: revisão de privacidade e segurança publicada em `P2_SECURITY_REVIEW.md`; autorização sensível separada para leitura/escrita, minimização de dados e riscos residuais P1 documentados; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.9: ADR-0008 e ADR-0009 publicados; fronteira AccessibilityService/Bridge, consentimento sensível e retenção independente de saídas formalizados; sem alterações de produção ou execução de testes/build. |
+| 2026-11-25 | P2.0.10: visão, arquitetura, roadmap, ADRs/índices e contratos harmonizados com as decisões aceitas; sem alterações de produção, testes, build ou validação física. Próxima etapa: P2.1. |
+
+
+## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
+
+A documentação principal e os contratos foram conferidos contra o checklist operacional, AGENTS.md, os ADRs-0003–0009, o estado final da P1 e as decisões aceitas na P2.0.6–P2.0.9.
+
+### Correções harmonizadas
+- README, visão, arquitetura e roadmap agora refletem P0/P1 concluídas e integradas, com as pendências P1 diferidas explicitamente preservadas.
+- Roadmap detalha P2.0–P2.5 e as prioridades A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), sem apresentar contratos como implementação.
+- Arquitetura incorpora a fronteira pública mobile.screen, API Python síncrona/Kotlin assíncrono, lifecycle Android, gateway application-scoped, overlay restrito e política de segurança/retenção.
+- ADR-0003 e ADR-0006 e o índice ADR foram alinhados às evidências finais da P1 e à decisão de mapas/retenção P2.
+- Contrato Python e revisão de segurança deixaram de descrever decisões já aceitas como pendentes/abertas.
+- Índice docs/README.md e árvore de documentos foram conferidos; links P2 e ADR-0008/0009 estão listados.
+
+### Limites preservados
+Os contratos continuam futuros: não existe ainda AccessibilityService, gateway, overlay, mobile.screen, persistência de mapas ou controles de consentimento. Screenshots, OCR e notificações continuam fora do escopo inicial; não há observação contínua. Scripts não possuem sandbox. Mapas dependem de validação futura das regras Android de backup/transferência. Em execuções com acesso sensível, saídas não serão persistidas por padrão; consentimento adicional será necessário para salvá-las, política ainda não implementada.
+
+**Evidência e limites:** revisão documental/estática dos arquivos principais, contratos e ADRs; nenhum código de produção alterado, teste automatizado executado, build APK executado ou validação física P2 realizada. A P2.0.10 é documental e não conclui a P2.1.
