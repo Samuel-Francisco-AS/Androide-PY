@@ -5,6 +5,13 @@ plugins {
     id("com.chaquo.python")
 }
 
+chaquopy {
+    defaultConfig {
+        version = "3.13"
+        buildPython("python3.13")
+    }
+}
+
 android {
     namespace = "com.samuel.androidepy"
     compileSdk = 36
