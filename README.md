@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** P0 e P1 concluídas e integradas em `main`. A P1 foi validada por testes host/JVM, build APK e validação física do escopo acordado no Moto G06. Consulte o checklist e o relatório P1 para pendências explicitamente adiadas e limitações conhecidas.
+> **Status:** P0 e P1 concluídas e integradas em `main`. A P1 teve testes host/JVM, build APK e validação física do escopo acordado reportados como aprovados no Moto G06; itens diferidos permanecem documentados. A P2 está na preparação P2.0, com contratos e ADRs aceitos, mas sem implementação de produção.
 
 ## Objetivos
 
@@ -21,8 +21,8 @@ O projeto adota uma arquitetura *Python-first* com integração Android nativa: 
 
 - **Android:** Kotlin e Jetpack Compose.
 - **Runtime Python:** Chaquopy 17.2.0 configurado para CPython 3.13; execução validada no Moto G06 durante P0.
-- **Persistência:** Room 2.8.5 sobre SQLite, com repositórios Kotlin para scripts, versões e execuções; migração Room 1 → 2 preparada na P1; nenhum acesso Python direto ao banco.
-- **Integração:** Android Bridge com `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e catálogo `mobile.capabilities`; Accessibility e Shizuku permanecem em fases posteriores.
+- **Persistência:** Room 2.8.5 sobre SQLite, com repositórios Kotlin para scripts, versões e execuções; schema P1 versão 2; fallback destrutivo de desenvolvimento pode descartar dados locais, conforme ADR-0007; nenhum acesso Python direto ao banco.
+- **Integração:** Android Bridge atualmente implementa `mobile.device.get_info()` e `mobile.apps.launch(package_name)`; `mobile.screen` está especificada para a P2, mas ainda não implementada. Shizuku/ADB/root permanecem opcionais e fora do núcleo.
 - **Execução:** executor Python serial, parâmetros via `params`, console por execução e histórico persistido; execução em segundo plano permanece em fase posterior.
 
 A arquitetura completa, suas fronteiras e suas limitações estão documentadas em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -41,26 +41,25 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Relatório da implementação P0](docs/operations/P0_IMPLEMENTATION_REPORT.md) | Entregas, evidências e validações da fundação |
 | [Checklist operacional P1](docs/operations/P1_EXECUTION_CHECKLIST.md) | Subetapas, critérios de aceite e evidências da biblioteca de scripts |
 | [Relatório da implementação P1](docs/operations/P1_IMPLEMENTATION_REPORT.md) | Decisões, implementação, testes e limitações da P1 |
+| [Checklist operacional P2](docs/operations/P2_EXECUTION_CHECKLIST.md) | Decomposição, prioridades, contratos e evidências da P2 |
+| [Relatório da implementação P2](docs/operations/P2_IMPLEMENTATION_REPORT.md) | Estado, decisões, riscos e validações da P2 |
+| [Contrato Python P2](docs/operations/P2_PYTHON_API.md) | API planejada `mobile.screen` e Mapas de Coordenadas |
+| [Protocolo assíncrono P2](docs/operations/P2_ASYNC_PROTOCOL.md) | Comunicação interna Python/Kotlin/AccessibilityService |
+| [Revisão de segurança P2](docs/operations/P2_SECURITY_REVIEW.md) | Consentimento, minimização, retenção e riscos P2 |
 
 ## Estado atual
 
 A P0 está integrada em `main`. O usuário reportou build APK, instalação e abertura no Moto G06, execução Python, stdout/stderr, tratamento de exceções, leitura de informações do aparelho, abertura de Configurações e persistência após reabertura. Os testes host Python (10) e JVM/Kotlin (31) foram reportados como aprovados. Consulte o [relatório P0](docs/operations/P0_IMPLEMENTATION_REPORT.md) para distinguir evidências automatizadas e relatos físicos.
 
-A P1 está sendo desenvolvida em `feat/p1-script-library`: biblioteca CRUD, editor com numeração/realce lexical, metadados, parâmetros, versões, histórico de execução, importação/exportação e declaração de dependências. A implementação ainda precisa de build, testes executados e validação física; acompanhe o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md).
+A P1 foi integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo acordado foi validado no Moto G06; P1-TF13 e cenários adicionais de tipo inválido, fila cheia, falhas de persistência, dependências e fallback destrutivo específico permanecem diferidos, sem serem declarados aprovados. Consulte o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md) e o [relatório P1](docs/operations/P1_IMPLEMENTATION_REPORT.md).
 
-Os critérios históricos do P0 foram demonstrados. O gate P1 exige, além dos testes automatizados:
-
-1. Criar, importar, editar, renomear, duplicar, exportar e excluir scripts.
-2. Preservar scripts existentes na migração Room da P0.
-3. Salvar metadados, parâmetros e snapshots de versão.
-4. Executar com parâmetros e consultar histórico de resultados.
-5. Validar o fluxo completo no Moto G06.
+**P2 — estado atual:** P2.0.1–P2.0.9 concluídas documentalmente. A P2.0.10 harmoniza visão, arquitetura, roadmap e índices. Nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A próxima subetapa após o gate P2.0 é P2.1 — Fundação nativa e autorização. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
 
 ## Build e testes
 
 O projeto usa Gradle Wrapper 8.14.8, Compose BOM 2026.06.01 e Python host 3.13. Não é necessário instalar Gradle globalmente nem usar ADB.
 
-Para P0, consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md). Para sincronizar e validar esta entrega P1, siga a seção de comandos do [checklist operacional P1](docs/operations/P1_EXECUTION_CHECKLIST.md). O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
+Para P0, consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md). Para consultar evidências e pendências da P1, siga o [checklist operacional P1](docs/operations/P1_EXECUTION_CHECKLIST.md). Para a futura implementação P2, use o checklist P2; builds e validações físicas continuam sob responsabilidade do usuário no Fedora/Moto G06. O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
 
 ## Segurança e limitações
 
