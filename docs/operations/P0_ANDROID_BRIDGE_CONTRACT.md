@@ -57,11 +57,12 @@ Códigos previstos:
 
 - `INVALID_PACKAGE_NAME`
 - `APP_NOT_FOUND_OR_NOT_VISIBLE`
+- `APP_NOT_FOUND_OR_NOT_LAUNCHABLE`
 - `LAUNCH_ACTIVITY_NOT_FOUND`
 - `LAUNCH_DENIED`
 - `LAUNCH_FAILED`
 
-O adaptador usa `PackageManager.getLaunchIntentForPackage` e `Context.startActivity` com `FLAG_ACTIVITY_NEW_TASK`. A consulta de pacotes é limitada por uma declaração `<queries>` para atividades MAIN/LAUNCHER. Não solicita `QUERY_ALL_PACKAGES`.
+O adaptador usa `PackageManager.getLaunchIntentSenderForPackage` em Android 13 (API 33) ou superior, evitando a necessidade de consultar a visibilidade do pacote. Em API 24–32 usa `getLaunchIntentForPackage` e `Context.startActivity` com `FLAG_ACTIVITY_NEW_TASK`; nesse fallback, o manifesto declara somente intents MAIN/INFO e MAIN/LAUNCHER em `<queries>`. Não solicita `QUERY_ALL_PACKAGES`.
 
 A API inicia apenas atividades lançáveis que o Android permite consultar. Não promete iniciar componentes privados, serviços, activities sem launcher ou aplicativos bloqueados por políticas do sistema.
 
@@ -77,6 +78,15 @@ Não requer permissão Android em tempo de execução, mas depende das regras de
 
 ## Testes
 
+Os módulos Python usam um objeto Kotlin configurado pelo executor; os scripts não recebem classes Android. O teste host usa um adaptador falso para validar a conversão JSON/dict e os códigos de erro sem aparelho conectado.
+
 - Python: módulos testáveis com um adaptador falso, sem Android/ADB.
 - Kotlin: validar nomes de pacote e respostas estruturadas; a integração PackageManager depende de validação no Android.
 - Validação física: executar as duas APIs no Moto G06 e confirmar comportamento de app instalado e pacote inexistente.
+
+
+## Referências Android oficiais
+
+- Package visibility: https://developer.android.com/training/package-visibility/declaring
+- PackageManager.getLaunchIntentForPackage / getLaunchIntentSenderForPackage: https://developer.android.com/reference/android/content/pm/PackageManager
+- Interação com apps sob package visibility limitada: https://developer.android.com/training/package-visibility/use-cases
