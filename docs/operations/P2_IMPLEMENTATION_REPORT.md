@@ -339,6 +339,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | P2.0.9: ADR-0008 e ADR-0009 publicados; fronteira AccessibilityService/Bridge, consentimento sensível e retenção independente de saídas formalizados; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.10: visão, arquitetura, roadmap, ADRs/índices e contratos harmonizados com as decisões aceitas; sem alterações de produção, testes, build ou validação física. Próxima etapa: P2.1. |
 | 2026-11-25 | Decomposição P2.1 simplificada por aprovação de Sam: os nove requisitos originais foram preservados e agrupados em P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). Nenhuma implementação foi iniciada nesta atualização documental. |
+| 2026-11-25 | P2.1-A: implementação inicial do AccessibilityService, configuração mínima, declaração no manifesto e gateway application-scoped publicada e revisada estaticamente. Sem build, testes automatizados ou validação física; esses gates permanecem pendentes. |
 
 
 ## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
