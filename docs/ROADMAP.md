@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** preparação documental P2.0.1–P2.0.9 concluída; harmonização documental P2.0.10 em andamento. Contratos e ADRs foram aceitos, mas nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
+**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A próxima subetapa é P2.1 — Fundação nativa e autorização. Contratos e ADRs foram aceitos, mas nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
