@@ -3,15 +3,8 @@ package com.samuel.androidepy
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.samuel.androidepy.ui.MainScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -20,26 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Androide PY",
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                        Text(
-                            text = "Fundação Android — P0",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
+                MainScreen()
             }
         }
     }
