@@ -143,7 +143,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
 - [x] Marcar PR #2 pronta para revisão após revisão final do escopo acordado; fallback destrutivo e demais cenários não executados estão formalmente adiados, não aprovados.
-- [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
+- [x] Fazer Squash Merge após revisão final e autorização explícita. PR #2 integrada à `main` em 25/11/2026; merge commit `3196115a7fae0318f258cdd9611a373e32564679`.
 
 ## Evidências da validação física — Moto G06
 
@@ -220,8 +220,8 @@ A validação física da biblioteca mobile foi concluída: `device.get_info()` e
 | Instalação | APK do commit f403049b1a3fda0c5638133298a877aceaa47d30, transferido via My-CT e instalado no Moto G06 |
 | Validação física | TF01–TF12 e TF14–TF15 registrados; renomeação/pesquisa/exclusão, entrada/linhas/rolagem do editor e `mobile.device.get_info()`/`mobile.apps.launch()` aprovados. TF13 inconclusivo/diferido; realce parcial, ergonomia e desempenho do editor pendentes/diferidos. |
 | Fallback destrutivo | Inicialização do app/biblioteca confirmada; cenário específico de migração incompatível ainda precisa de evidência isolada |
-| PR | #2 aberta em draft; validação física do escopo acordado concluída; revisão final e transição para ready ainda pendentes. |
-| Merge | Não realizado. Usuário autorizou o merge após conclusão da validação mobile e revisão final; executar somente após esses passos. |
+| PR | #2 fechada como merged; Squash Merge concluído em 25/11/2026. |
+| Merge | **Concluído:** Squash Merge da PR #2 na `main`; commit `3196115a7fae0318f258cdd9611a373e32564679`. |
 
 ## Bloqueios e desvios
 
@@ -229,7 +229,7 @@ A validação física da biblioteca mobile foi concluída: `device.get_info()` e
 - A migração Room 1 → 2 foi removida conforme ADR-0007. `fallbackToDestructiveMigration()` permite recriar o banco quando a versão instalada não é compatível; scripts, versões e execuções locais podem ser descartados. A exportação de schemas históricos está desabilitada nesta etapa.
 - O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
 - Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
-- Escopo de encerramento acordado em 25/11/2026: executar apenas a validação física da biblioteca mobile nesta etapa; os demais testes não executados ficam PENDENTES para fase posterior e não bloqueiam o fechamento da P1, desde que limitações e resultados inconclusivos permaneçam explícitos. A autorização do usuário para o Squash Merge aplica-se após a revisão final.
+- Escopo de encerramento acordado em 25/11/2026: executar apenas a validação física da biblioteca mobile nesta etapa; os demais testes não executados ficam PENDENTES para fase posterior e não bloqueiam o fechamento da P1, desde que limitações e resultados inconclusivos permaneçam explícitos. A autorização foi exercida: PR #2 integrada à `main` por Squash Merge em 25/11/2026.
 
 
 ## Execução local após sincronização
