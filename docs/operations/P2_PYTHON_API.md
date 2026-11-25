@@ -192,11 +192,12 @@ Erros de validação de argumentos ocorrem antes da solicitação e usam `TypeEr
 
 Esta API inicial não captura screenshots, não faz OCR, não lê conteúdo de tela em lote e não monitora continuamente outros aplicativos. O Mapa de Coordenadas persiste somente posições e metadados mínimos de calibração; não persiste texto ou imagem da tela.
 
-A revisão de privacidade e segurança da P2.0.8 permanece obrigatória antes da implementação do serviço e do overlay. Ela poderá restringir ou ajustar detalhes operacionais sem alterar a fronteira Python estável.
+A revisão de privacidade P2.0.8 e os ADRs-0008/0009 foram concluídos e aceitos como direção para a implementação. A API pública aqui definida permanece estável; os controles de consentimento e retenção deverão ser implementados na UI hospedeira e na camada nativa, sem permitir que o script conceda a própria autorização.
 
 ## 9. Verificação e estado
 
 - Revisão estática do contrato contra `mobile/__init__.py`, `device.py`, `apps.py`, `capabilities.py`, `runner.py`, testes Python, `AndroidBridgeAdapter`, `ScriptExecutor` e protocolo P2.0.6.
 - Nenhum código Python/Kotlin foi alterado.
 - Nenhum teste host/JVM, build APK ou validação física foi executado.
-- Próximas dependências de preparação: P2.0.8 (privacidade/segurança), P2.0.9 (ADRs) e P2.0.10 (harmonização documental).
+- Preparação documental: P2.0.8 (revisão de segurança) e P2.0.9 (ADRs) concluídas; P2.0.10 harmoniza os documentos principais. Após o gate P2.0, a próxima subetapa é P2.1 (fundação nativa e autorização).
+- O contrato descreve funções futuras; `mobile.screen` e suas capacidades não estão implementadas nem anunciadas pelo catálogo atual.
