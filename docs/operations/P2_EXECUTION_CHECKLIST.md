@@ -61,7 +61,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.2** Criar checklist operacional e relatório da P2.
 - [x] **P2.0.3** Reler integralmente AGENTS.md, README.md, docs/README.md, PROJECT_VISION.md, ARCHITECTURE.md, ROADMAP.md, ADRs 0001–0007 aplicáveis e contratos operacionais P0/P1. Revisão documental concluída em 2026-11-25; inconsistências e atualizações necessárias registradas abaixo.
 - [x] **P2.0.4** Inspecionar a estrutura real da branch, AndroidManifest, AndroidBridgeAdapter, PythonRuntime, ScriptExecutor, módulos `mobile`, registro de capacidades, testes e APIs de arquivo existentes. Revisão estática concluída em 2026-11-25; nenhum serviço de acessibilidade ou API `mobile.screen` existe ainda.
-- [ ] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Baseline de build e níveis mínimos das APIs consultadas foram pré-conferidos; confirmação do dispositivo e análise final do lifecycle permanecem pendentes.
+- [x] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Concluído em 2026-11-25: Gradle confirma minSdk 24/targetSdk 36/compileSdk 36; Sam executou `mobile.device.get_info()` no Moto G06 e reportou Android 15/API 35, ABI `arm64-v8a`; lifecycle e APIs conferidos na documentação oficial Android. Evidência física identificada como relato do usuário; nenhum teste/build P2 foi executado.
 - [ ] **P2.0.6** Definir o protocolo assíncrono de chamadas Python → Kotlin → AccessibilityService → resultado, incluindo correlação de requisições, timeout, cancelamento lógico, erros e estado de autorização.
 - [ ] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação; nomes apresentados em exemplos/conversas são propostas, não contratos finais.
 - [ ] **P2.0.8** Revisar implicações de privacidade e segurança: dados visíveis, campos sensíveis, senhas, conteúdo de notificações, captura de tela, overlays e registro de dados.
@@ -70,6 +70,59 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 
 **Gate P2.0:** contratos e limites técnicos definidos com base no código real e documentação Android oficial; nenhuma API pública presumida como implementada.
 
+
+### P2.0.5 — Baseline Android, compatibilidade e lifecycle — 2026-11-25
+
+**Baseline do projeto conferida no arquivo** `android/app/build.gradle.kts`:
+- `minSdk = 24`; `targetSdk = 36`; `compileSdk = 36`.
+- ABI configurada: `arm64-v8a`.
+- JVM target 17; Chaquopy 17.2.0 com Python 3.13.
+
+**Dispositivo físico — resultado reportado por Sam após executar `mobile.device.get_info()` no Moto G06:**
+- Manufacturer/brand: Motorola.
+- Model: `moto G06`; device: `lagos`.
+- Android release: `15`; API level: `35`.
+- ABI: `arm64-v8a`.
+- App package: `com.samuel.androidepy`; app version: `0.1.0`.
+- Schema version: 1.
+
+O resultado confirma que o dispositivo de validação está acima do minSdk 24 e abaixo do targetSdk 36; o APK deve respeitar o comportamento real de API 35 no teste físico. O dado é um relato físico explícito do usuário, não uma execução observada diretamente pela integração GitHub.
+
+**Matriz de compatibilidade:**
+
+| Recurso | API mínima documentada | Baseline do projeto/dispositivo | Conclusão |
+|---|---:|---|---|
+| `AccessibilityService` e lifecycle | API 4+ | min 24 / aparelho 35 | Compatível |
+| `ACTION_SET_TEXT` | API 21 | min 24 / aparelho 35 | Compatível; suporte depende do nó/app |
+| `TYPE_ACCESSIBILITY_OVERLAY` | API 22 | min 24 / aparelho 35 | Compatível para overlay do serviço conectado |
+| Consulta de conteúdo/árvore | API 18 para capability | min 24 / aparelho 35 | Compatível; exige `canRetrieveWindowContent` |
+| `dispatchGesture()` | API 24 | min 24 / aparelho 35 | Compatível; exige `canPerformGestures` |
+
+**Lifecycle consolidado a partir da documentação oficial:**
+1. O ciclo de vida é administrado exclusivamente pelo Android. O serviço só é iniciado quando o usuário o habilita nas configurações.
+2. Após o sistema realizar o bind, chama `onServiceConnected()`; esse é o ponto de inicialização de recursos e publicação do estado conectado.
+3. Enquanto conectado, o sistema encaminha eventos conforme o filtro declarado; `onInterrupt()` deve tratar interrupção e `onUnbind()` representa a desconexão.
+4. O serviço pode parar quando o usuário o desabilita ou quando chama `disableSelf()`.
+5. A aplicação deve distinguir autorização habilitada nas configurações de conexão efetiva/disponibilidade operacional. A referência do serviço deve ser removida do gerenciador application-scoped na desconexão e também protegida contra limpeza incompleta no encerramento.
+6. Não criar/instanciar o serviço manualmente nem reter Activity. O gerenciador application-scoped recebe a instância apenas pelos callbacks do ciclo de vida.
+
+**Decisões/limites para as próximas etapas:**
+- Manter minSdk 24; não há motivo de compatibilidade para elevá-lo.
+- Declarar somente capacidades necessárias: `canPerformGestures` para gestos e `canRetrieveWindowContent` para consultas; evitar filtros de eventos amplos sem necessidade.
+- Não solicitar screenshot, touch exploration, captura de teclas ou outras capabilities sem requisito aprovado.
+- A compatibilidade por nível de API não garante suporte universal dos aplicativos: `ACTION_SET_TEXT` depende do componente; conteúdo pode não estar exposto; gestos podem ser cancelados por gestos concorrentes.
+- `dispatchGesture()` cancela gestos atualmente em andamento; o protocolo deverá serializar gestos/ações incompatíveis e reportar falha de despacho separadamente de confirmação de resultado na UI.
+- `TYPE_ACCESSIBILITY_OVERLAY` não exige adicionar `SYSTEM_ALERT_WINDOW` para esse uso; durante a seleção do Mapa de Coordenadas o overlay interceptará intencionalmente os toques.
+- A API 35 do Moto G06 passa a ser a baseline física concreta para validação P2; targetSdk 36 permanece como configuração de compilação/alvo do app, não como versão do aparelho.
+
+**Referências oficiais consultadas:**
+- https://developer.android.com/reference/android/accessibilityservice/AccessibilityService — lifecycle administrado pelo sistema, habilitação explícita pelo usuário, bind e `onServiceConnected()`, declaração e `dispatchGesture()`.
+- https://developer.android.com/reference/android/accessibilityservice/AccessibilityServiceInfo — capabilities de gestos e consulta de conteúdo.
+- https://developer.android.com/guide/topics/ui/accessibility/views/service — sequência dos callbacks de lifecycle, incluindo `onServiceConnected()`, `onAccessibilityEvent()`, `onInterrupt()` e `onUnbind()`.
+
+**Verificação:** revisão estática da configuração Gradle e documentação oficial; confirmação do dispositivo por execução reportada por Sam. Nenhum teste automatizado, build APK ou nova validação física da P2 foi executado nesta subetapa.
+
+---
 
 ### Resultado da revisão técnica inicial — 2026-11-25
 
