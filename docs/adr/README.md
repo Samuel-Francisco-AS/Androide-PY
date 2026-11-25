@@ -14,6 +14,7 @@ ADRs preservam o contexto de uma escolha, alternativas consideradas, consequênc
 | [ADR-0004](0004-capability-based-android-bridge.md) | Android Bridge baseada em capacidades e adaptadores | Aceito |
 | [ADR-0005](0005-p0-toolchain-baseline.md) | Baseline de ferramentas e dependências da P0 | Validado |
 | [ADR-0006](0006-script-library-versioning-and-execution-history.md) | Versionamento, parâmetros e histórico P1 | Aceito; validar migração e build P1 |
+| [ADR-0007](0007-local-data-preservation-policy.md) | Preservação de dados locais durante o desenvolvimento | Aceito |
 
 ## Modelo
 
