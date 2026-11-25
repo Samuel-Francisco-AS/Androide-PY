@@ -133,6 +133,8 @@ fun MainScreen(application: AndroidePyApplication) {
         executor.updates.collect { update ->
             try {
                 withContext(Dispatchers.IO) { executionRepository.recordUpdate(update) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (error: Exception) {
                 Log.e("AndroidePY.History", "Unable to persist execution update ${update.executionId}", error)
             }
