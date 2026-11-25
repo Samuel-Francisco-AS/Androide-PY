@@ -28,6 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.samuel.androidepy.AndroidePyApplication
 import com.samuel.androidepy.data.ScriptRepository
@@ -230,6 +234,7 @@ fun MainScreen(application: AndroidePyApplication) {
         ) {
             Text(
                 text = "Androide PY",
+                modifier = Modifier.semantics { heading() },
                 style = MaterialTheme.typography.headlineLarge
             )
             Text(
@@ -308,6 +313,7 @@ fun MainScreen(application: AndroidePyApplication) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(
                     onClick = saveScript,
+                    modifier = Modifier.weight(1f),
                     enabled = editorEnabled
                 ) {
                     Text(if (isSaving) "Salvando..." else "Salvar")
@@ -315,6 +321,7 @@ fun MainScreen(application: AndroidePyApplication) {
 
                 Button(
                     onClick = executeScript,
+                    modifier = Modifier.weight(1f),
                     enabled = editorEnabled
                 ) {
                     Text(if (isPreparingExecution || isExecuting) "Executando..." else "Executar")
@@ -338,12 +345,19 @@ fun MainScreen(application: AndroidePyApplication) {
             if (storageError.isNotBlank()) {
                 Text(
                     text = storageError,
+                    modifier = Modifier.semantics {
+                        liveRegion = LiveRegionMode.Polite
+                    },
                     color = MaterialTheme.colorScheme.error
                 )
             }
 
             Text(
                 text = "Console — $executionStatus",
+                modifier = Modifier.semantics {
+                    heading()
+                    liveRegion = LiveRegionMode.Polite
+                },
                 style = MaterialTheme.typography.titleMedium
             )
 
