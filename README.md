@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** planejamento e validação arquitetural. O primeiro marco de implementação é o protótipo P0, descrito em [ROADMAP.md](docs/ROADMAP.md).
+> **Status:** implementação P0 publicada na branch `feat/p0-runtime-bridge`. A fundação Android, runtime Python, executor, Bridge, persistência e primeira interface estão no repositório. Build, testes locais e validação física ainda estão pendentes; código publicado não é código validado.
 
 ## Objetivos
 
@@ -20,9 +20,9 @@ O projeto adota uma arquitetura *Python-first* com integração Android nativa: 
 ## Arquitetura em poucas palavras
 
 - **Android:** Kotlin e Jetpack Compose.
-- **Runtime Python:** Chaquopy como candidato inicial, sujeito à validação no P0.
-- **Persistência:** Room sobre SQLite, com acesso mediado por uma camada de repositório.
-- **Integração:** Android Bridge com adaptadores nativos e capacidades opcionais, como Accessibility e Shizuku.
+- **Runtime Python:** Chaquopy 17.2.0 configurado para CPython 3.13; a inicialização real ainda depende do primeiro build e teste no aparelho.
+- **Persistência:** Room 2.8.5 sobre SQLite, com acesso mediado por `ScriptRepository`; nenhum acesso Python direto ao banco.
+- **Integração:** Android Bridge com `mobile.device.get_info()` e `mobile.apps.launch(package_name)` implementados; Accessibility e Shizuku permanecem fora do escopo P0.
 - **Execução:** gerenciador de execuções, workers e mecanismos Android apropriados para tarefas em segundo plano.
 
 A arquitetura completa, suas fronteiras e suas limitações estão documentadas em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -35,10 +35,14 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Arquitetura](docs/ARCHITECTURE.md) | Componentes, responsabilidades, comunicação e segurança |
 | [Roadmap](docs/ROADMAP.md) | Marcos, entregas e critérios de validação |
 | [Decisões arquiteturais](docs/adr/README.md) | Índice dos Architecture Decision Records |
+| [Checklist operacional P0](docs/operations/P0_EXECUTION_CHECKLIST.md) | Fases, subetapas e evidências |
+| [Build e testes](docs/operations/P0_BUILD_AND_TEST.md) | Sincronização e build sem ADB |
+| [Plano de integração](docs/operations/P0_INTEGRATION_TEST_PLAN.md) | Testes host/JVM e roteiro físico |
+| [Relatório da implementação](docs/operations/P0_IMPLEMENTATION_REPORT.md) | Entregas e validações pendentes |
 
 ## Estado atual
 
-O repositório está na fase de documentação e preparação do protótipo. As tecnologias indicadas são decisões iniciais de arquitetura, não evidência de que a integração já foi implementada ou validada em dispositivo físico.
+O repositório já contém a primeira implementação funcional planejada para P0: editor Compose, script default persistido, execução serial Python, captura de stdout/stderr/exceções e duas capacidades Android. Ainda não existe evidência de build ou execução real. A matriz de validação e o estado detalhado estão em [P0_EXECUTION_CHECKLIST.md](docs/operations/P0_EXECUTION_CHECKLIST.md).
 
 O primeiro protótipo deverá demonstrar, no mínimo:
 
@@ -49,9 +53,11 @@ O primeiro protótipo deverá demonstrar, no mínimo:
 5. Abertura de um aplicativo instalado por meio de uma API Android autorizada.
 6. Persistência do script entre sessões.
 
-## Plataforma de desenvolvimento
+## Build e testes
 
-O alvo inicial de validação física é um dispositivo Android real. O desenvolvimento será realizado com ferramentas Android/Gradle e código Python, mantendo testes automatizados e documentação das decisões técnicas.
+O projeto usa Gradle Wrapper 8.14.8, Compose BOM 2026.06.01 e Python host 3.13. Não é necessário instalar Gradle globalmente nem usar ADB.
+
+Consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md) para sincronizar a branch, executar os testes e gerar `app-debug.apk`. O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
 
 ## Segurança e limitações
 

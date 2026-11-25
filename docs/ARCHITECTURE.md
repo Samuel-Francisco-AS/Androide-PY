@@ -54,7 +54,11 @@ O diagrama representa responsabilidades lógicas, não exige que cada caixa seja
 | Interação com interface | AccessibilityService | Serviço nativo, consentimento explícito |
 | Notificações | NotificationListenerService | Acesso especial concedido pelo usuário |
 | Integração avançada | Shizuku / ADB / root | Adaptadores opcionais, sem pressupor disponibilidade |
-| Build | Gradle | Projeto Android |
+| Build | Gradle Wrapper 8.14.8 + AGP 8.13.2 | Matriz inicial registrada no ADR-0005 
+| Kotlin | 2.4.21 | KGP e Compose Compiler Plugin na mesma versão 
+| Runtime Python | Chaquopy 17.2.0 + Python 3.13 | Python host 3.13.x para tarefas de build 
+| Persistência | Room 2.8.5 + KSP 2.3.12 | Acesso mediado por repositórios Kotlin 
+| Compose | BOM 2026.06.01 (Compose 1.11.4) + Activity Compose 1.13.0 | Compatível com compileSdk 36; Compose 1.12+ exige API 37 e AGP 9.2+ |
 
 As versões de ferramentas e dependências deverão ser fixadas e verificadas no início da implementação. Compatibilidade de pacotes Python será validada individualmente.
 

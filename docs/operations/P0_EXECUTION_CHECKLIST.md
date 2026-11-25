@@ -1,0 +1,253 @@
+# P0 — Checklist Operacional de Implementação
+
+**Projeto:** Androide PY  
+**Branch de trabalho:** `feat/p0-runtime-bridge`  
+**Base:** `main`  
+**Responsável pela implementação remota:** assistente, via integração GitHub  
+**Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
+**Última atualização:** 2026-11-25  
+**Estado geral:** 🟡 Validação automatizada e funcional da P0 concluída; revisão final estática do diff, documentação e estado da branch também concluída. Os oito critérios funcionais foram demonstrados no Moto G06 conforme relatos do usuário; os testes JVM/Kotlin passaram (`BUILD SUCCESSFUL`, 31 tarefas), os 10 testes Python host passaram (`Ran 10 tests ... OK`) e a build APK/instalação/abertura foram relatadas como concluídas. A branch permanece sem merge; aguarda decisão explícita do usuário sobre squash merge para `main`.
+
+> Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
+
+## Regras de atualização
+
+1. Trabalhar em uma única subetapa por vez.
+2. Antes de cada subetapa, reler este checklist e os documentos relevantes indicados em `AGENTS.md`.
+3. Implementar somente o escopo da subetapa atual.
+4. Conferir o diff/arquivos criados, coerência arquitetural, referências e testes aplicáveis.
+5. Registrar evidências concretas: caminhos, commits, comandos, resultados de testes ou validação relatada pelo usuário.
+6. Só então marcar a subetapa como concluída e publicar a atualização do checklist.
+7. Reler o checklist atualizado e selecionar a próxima subetapa não concluída.
+8. Nunca declarar build local, instalação ou teste físico como concluído sem evidência fornecida pelo ambiente de execução ou pelo usuário.
+9. Se houver bloqueio ou decisão arquitetural nova, registrar o motivo e interromper a sequência dependente. Não contornar silenciosamente um ADR.
+
+### Legenda
+
+- ⬜ Não iniciada
+- 🟡 Em andamento
+- ☑️ Concluída com evidência registrada
+- ⏸ Bloqueada — depende de decisão, acesso ou correção
+
+---
+
+## OP-0 — Governança operacional
+
+- [x] **OP-0.1** Criar este checklist operacional — publicado e conferido no GitHub.
+- [x] **OP-0.2** Criar `AGENTS.md` com a rotina obrigatória de leitura, implementação, conferência e atualização — publicado e conferido no GitHub.
+- [x] **OP-0.3** Conferir no GitHub o conteúdo dos dois arquivos e confirmar que estão na branch de trabalho.
+- [x] **OP-0.4** Relê-los e confirmar que os caminhos e instruções são coerentes com o repositório.
+
+**Evidências:**
+- OP-0.1: commit `f901ef3f1fc30ffd28e16797dd32572978e2307f`; arquivo conferido no GitHub (blob `48ce49b2eb327c80031e1647f41777821a2358c5`).
+- OP-0.2: commit `2fd00ed1991f194a1593b0b64f7e366987b3df9c`; arquivo conferido no GitHub (blob `370ce8503642878ddaba3fa1d1d0ab3e148ea988`).
+- OP-0.3/OP-0.4: ambos os arquivos recuperados da branch `feat/p0-runtime-bridge`; verificadas as instruções do ciclo obrigatório, referências ao checklist e decomposição das fases P0.
+
+## P0-1 — Revisão documental e decisões técnicas
+
+- [x] **P0-1.1** Ler integralmente README, visão do projeto, arquitetura, roadmap e ADRs 0001–0004.
+- [x] **P0-1.2** Extrair os requisitos e critérios de aceite da P0, distinguindo escopo obrigatório e itens fora de escopo.
+- [x] **P0-1.3** Verificar compatibilidade oficial da matriz Gradle / AGP / Kotlin / Compose / Chaquopy / Python / SDK.
+- [x] **P0-1.4** Definir e registrar as versões exatas e repositórios necessários; não presumir que versões mencionadas em conversas anteriores estejam corretas.
+- [x] **P0-1.5** Registrar ADR adicional ou atualizar ADR existente se a implementação exigir mudança arquitetural relevante.
+
+**Evidências P0-1.1/P0-1.2:** README, docs/README, PROJECT_VISION, ARCHITECTURE (seções 1–10), ROADMAP e ADRs 0001–0004 recuperados da branch e revisados. Escopo confirmado: host Kotlin/Compose, Chaquopy, execução serial fora da UI, stdout/stderr/exceções, `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e persistência Room/SQLite mediada por Kotlin. Fora do P0: editor profissional, background, Accessibility, Shizuku/ADB/root, múltiplos workers, workflow visual e sandbox para código não confiável. Critérios de aceite preservados conforme roadmap.
+
+**Evidências P0-1.3/P0-1.4/P0-1.5:** matriz técnica e decisão registradas em [ADR-0005](../adr/0005-p0-toolchain-baseline.md), indexado em `docs/adr/README.md` e refletido em `docs/ARCHITECTURE.md`. Versões adotadas: Gradle 8.14.8; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Compose BOM 2026.06.01 (Compose 1.11.4); Activity Compose 1.13.0; Chaquopy 17.2.0; Python host/runtime 3.13.x; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0; compile/target SDK 36; minSdk 24; ABI inicial arm64-v8a; JDK 21 e bytecode JVM 17. Documentação oficial consultada: Kotlin release/compatibility, KSP quickstart, Android AGP 8.13, Compose BOM/release notes, Activity, Room e Chaquopy. O Compose BOM 2026.11.01 foi evitado por exigir compileSdk 37.1. Build e validação física continuam pendentes.
+
+**Gate P0-1:** decisões técnicas rastreáveis e sem conflito conhecido com os ADRs aceitos.
+
+## P0-2 — Fundação Android
+
+- [x] **P0-2.1** Criar estrutura Gradle multi-módulo mínima com módulo `:app` e Gradle Wrapper 8.14.3.
+- [x] **P0-2.2** Configurar AGP, Kotlin, Compose e SDK conforme matriz verificada.
+- [x] **P0-2.3** Configurar identificador de aplicação, manifesto, atividade principal e recursos mínimos.
+- [x] **P0-2.4** Configurar ABI(s) de destino de forma explícita e compatível com o dispositivo-alvo; justificar qualquer restrição.
+- [x] **P0-2.5** Revisar arquivos Gradle, manifesto e estrutura; remover configurações copiadas do My-CT que não sejam necessárias.
+- [x] **P0-2.6** Publicar a fundação Android sem declarar build aprovado antes da execução real.
+
+**Evidência P0-2.1:** estrutura publicada na branch `feat/p0-runtime-bridge`: Gradle Wrapper 8.14.3 (scripts, JAR e properties copiados da configuração funcional do My-CT); `settings.gradle.kts` com repositórios Google/Maven Central e módulo `:app`; arquivos Gradle raiz e do módulo; `gradle.properties` com heap de 2 GiB e workers limitados a 2; `.gitignore` para builds e configurações locais. Arquivos recuperados novamente do GitHub após publicação. Commit de fundação do wrapper: `3af18dbe8c15b8b03b69a0cd950591cae429a8b4`; commits de estrutura: `bd087d4`, `946a39f`, `bf9d9c3`, `ee15acd`. Nenhum build Android foi executado remotamente.
+
+**Evidência P0-2.2:** arquivos Gradle conferidos após publicação. AGP 8.13.2, Kotlin Android 2.4.21, Compose Compiler Plugin 2.4.21; compileSdk/targetSdk 36, minSdk 24; compatibilidade Java/Kotlin JVM 17. Commits: `69a42b9` (plugins) e `5bf2e19` (módulo Android). Revisão de configuração estática concluída; build local ainda não executado.
+
+**Evidências P0-2.3/P0-2.4/P0-2.5:** identificador `com.samuel.androidepy`, manifesto com Activity launcher explícita/exportada, recurso `app_name` e Activity Compose inicial publicados. ABI inicial restrita a `arm64-v8a` para o Moto G06, reduzindo o tamanho do APK; a ABI real será confirmada na validação física. Revisão estática de settings, plugins, SDK, dependências Compose, manifesto, recursos, Activity, wrapper e propriedades Gradle concluída; verificações automatizadas de conteúdo dos arquivos retornaram todos os itens esperados. Não foi executado build Android. Commits relevantes: `ae097a4` (Compose dependencies), `3b43abd` (manifesto), `80e18ed` (strings), `621aaa0` (Activity), `2e70249` (ABI).
+
+**Evidência P0-2.6:** fundação publicada na branch remota `feat/p0-runtime-bridge`, arquivos confirmados por leitura posterior no GitHub. O checklist preserva explicitamente que o build ainda não foi executado.
+
+**Gate P0-2:** estrutura Android coerente, revisada e pronta para integração do runtime.
+
+## P0-3 — Runtime Python (Chaquopy)
+
+- [x] **P0-3.1** Integrar a versão de Chaquopy verificada na matriz técnica.
+- [x] **P0-3.2** Configurar Python embarcado 3.13 e o interpretador host exigido pelo processo de build.
+- [x] **P0-3.3** Criar módulo Python inicial e uma interface Kotlin que encapsule inicialização/acesso ao runtime.
+- [x] **P0-3.4** Garantir inicialização fora da thread principal e comportamento seguro em chamadas repetidas.
+- [x] **P0-3.5** Criar smoke check invocável e documentação do fluxo de integração Kotlin/Python.
+- [x] **P0-3.6** Revisar dependências, inicialização, tratamento de falhas e limites conhecidos do Chaquopy.
+
+**Evidência P0-3.1:** plugin Chaquopy 17.2.0 declarado no build raiz e aplicado somente ao módulo `:app`, conforme a documentação do fornecedor. Arquivos conferidos novamente no GitHub. Commits: `ec17207` (versão) e `f6d2762` (aplicação). A configuração da versão Python e a execução real ainda estão pendentes.
+
+**Evidência P0-3.2:** bloco `chaquopy.defaultConfig` configurado com runtime `3.13` e `buildPython("python3.13")`, evitando caminho absoluto específico da máquina. A versão host 3.13.18 foi confirmada pelo usuário no Fedora. Arquivo revisado após publicação; build Chaquopy ainda não executado. Commit: `2f527db`.
+
+**Evidências P0-3.3/P0-3.4/P0-3.5:** `main.py` fornece `runtime_info()` e `smoke_test()`; `PythonRuntime.kt` encapsula o singleton de processo, usa application context, sincronização contra inicializações concorrentes e rejeita chamadas de runtime na thread principal. `runSmokeTest()` invoca o módulo Python. O fluxo e o resultado esperado estão documentados em [P0_RUNTIME_SMOKE.md](P0_RUNTIME_SMOKE.md). Revisão estática dos arquivos confirmou as chamadas e guardas. Commits: `6c14351`, `4c1a979`, `0e485ca`, `eb6cefb`, `855fa9d`.
+
+**Evidência P0-3.6:** revisadas as instruções oficiais Chaquopy 17.2 e documentadas as restrições relevantes: plugin em um único módulo, minSdk 24, ABI explícita, buildPython com major/minor correspondente, ausência de necessidade de NDK adicional, limitações de multiprocessing/stdin e streams direcionados a Logcat por padrão. Erros de inicialização são propagados ao chamador; a camada de execução P0-4 será responsável por convertê-los em resultado/erro visível sem derrubar a UI. Build e execução real continuam pendentes.
+
+**Gate P0-3:** integração implementada e teste mínimo de smoke check criado; execução real no dispositivo permanece pendente até validação física.
+
+## P0-4 — Execução de scripts e console
+
+- [x] **P0-4.1** Definir contrato de execução e resultado (identificador, estado, saída, erro e timestamps essenciais).
+- [x] **P0-4.2** Implementar executor inicial com política serial (uma execução ativa), sem prometer isolamento ou cancelamento forçado.
+- [x] **P0-4.3** Capturar stdout e stderr separadamente, preservando ordem/limites razoáveis e evitando bloquear a UI.
+- [x] **P0-4.4** Capturar exceções Python e convertê-las em erro estruturado sem encerrar o aplicativo.
+- [x] **P0-4.5** Implementar estados QUEUED, RUNNING, SUCCEEDED e FAILED; manter CANCELLED reservado sem interrupção forçada de threads.
+- [x] **P0-4.6** Criar testes unitários/integrados para sucesso, stderr e exceção.
+- [x] **P0-4.7** Revisar concorrência, lifecycle e memória do executor; revisar a apresentação do console junto à UI em P0-7.4.
+
+**Evidência P0-4.1:** modelos Kotlin `ExecutionModels.kt` e documento [P0_EXECUTION_CONTRACT.md](P0_EXECUTION_CONTRACT.md) publicados e conferidos. Contrato versão 1 define UUID, scriptId, código-fonte, estados, timestamps, stdout/stderr, erro estruturado, limite de 65.536 caracteres por stream e política serial sem interrupção forçada. Commit do modelo: `5b9cb92`; documento: `ee46144`. Revisão estática concluída; compilação Kotlin pendente.
+
+**Evidência P0-4.2:** `ScriptExecutor.kt` publicado e revisado. Usa um `ThreadPoolExecutor` com uma thread, fila limitada a 16 solicitações e rejeição estruturada quando a fila está cheia. O executor é criado lazy no `Application` e publica estados via `SharedFlow`, evitando callbacks que retenham Activities destruídas. Inicializa Chaquopy e chama o módulo Python em worker. Falhas do host são convertidas em `ExecutionStatus.FAILED`. Verificação estática confirmou serialização, limite da fila, callbacks e ausência de interrupção forçada. Commit: `8dde449` (executor inicial), `8b5007a` (fila limitada). Build ainda não executado.
+
+**Evidências P0-4.3/P0-4.4/P0-4.5:** `runner.py` redireciona stdout e stderr separadamente, limita cada captura a 65.536 caracteres e registra flags de truncamento. Exceções Python (incluindo `SystemExit`) são capturadas como dados com tipo, mensagem e traceback; o resultado JSON contém schema_version, identificadores, estado e timestamps. Kotlin converte o JSON para `ScriptExecutionResult`; o executor encaminha sucesso/falha sem deixar exceção de script escapar para a UI. Estados efetivos: QUEUED, RUNNING, SUCCEEDED e FAILED. CANCELLED permanece reservado porque o P0 não interrompe thread Python em execução. Runner conferido no GitHub (blob `62bce92`); contrato atualizado no commit `8f7b553`. Testes automatizados ainda pendentes.
+
+**Evidências P0-4.6/P0-4.7:** testes host Python em `src/test/python/test_runner.py` cobrem sucesso/stdout, stderr, exceção, SystemExit e truncamento. Testes JVM em `ExecutionModelsTest.kt` cobrem parse de sucesso, erro estruturado e rejeição de schema desconhecido; dependências JUnit 4.13.2 e org.json 20260814 adicionadas. Comandos documentados em `P0_EXECUTION_CONTRACT.md`. Testes foram escritos e conferidos no GitHub, mas **ainda não foram executados**. Revisão estática identificou risco de callbacks vinculados ao lifecycle da Activity; executor foi ajustado para escopo do Application e SharedFlow, com fila de 16, buffer de eventos 64, stdout/stderr limitados e sem interrupção forçada. Commits: `132a14c`, `1800a85`, `0b32e09`, `565a9db`, `af51357`, `9985cc6`, `863dbec`, `f7b6bd9`.
+
+**Gate P0-4:** implementação e testes host/JVM executados com sucesso em 2026-11-25. O usuário reportou `Ran 10 tests ... OK` para Python host e `BUILD SUCCESSFUL` (31 tarefas) para JVM/Kotlin. Validação física de execução, canais de saída e exceções também foi relatada como concluída.
+
+## P0-5 — Android Bridge mínima
+
+- [x] **P0-5.1** Definir contratos Kotlin/Python e erros previsíveis para a Bridge.
+- [x] **P0-5.2** Implementar `mobile.device.get_info()` com informações não sensíveis e justificadas.
+- [x] **P0-5.3** Implementar o adaptador nativo para abertura de aplicativos por API Android pública, respeitando visibilidade de pacotes e restrições de intents.
+- [x] **P0-5.4** Expor resultados/erros da Bridge ao script Python sem acoplá-lo a classes Android.
+- [x] **P0-5.5** Criar testes para dispositivo, aplicativo inexistente e falhas de inicialização quando viável.
+- [x] **P0-5.6** Documentar permissões, package visibility, limites e comportamento esperado.
+
+**Evidência P0-5.1:** contrato [P0_ANDROID_BRIDGE_CONTRACT.md](P0_ANDROID_BRIDGE_CONTRACT.md) publicado, indexado e conferido. Define os métodos Python, payloads de retorno, códigos de erro, limites de package visibility, ausência de permissões em tempo de execução e exclusão de identificadores sensíveis. Commit: `c71c256`.
+
+**Evidência P0-5.2:** `AndroidBridgeAdapter.getDeviceInfoJson()` publica manufacturer, brand, model, device, Android release/API level, supported ABIs, package name e app version. Não coleta serial, IMEI, Android ID, MAC, advertising ID, telefone ou localização. `PythonRuntime.configureBridge()` injeta o adaptador e `mobile.device.get_info()` converte o JSON em dict Python; o executor configura a Bridge antes de cada script. Arquivos recuperados e conferidos no GitHub. Commits: `bfb0019` (adapter), `345d7cb` (configuração runtime), `eea6ede` (executor), `c2b074a` e `ed3278b` (facade e API Python). Build e validação no Android pendentes.
+
+**Evidência P0-5.3:** `AndroidBridgeAdapter.launchAppJson()` valida o nome do pacote e retorna erros estruturados. Em Android 13+ usa `PackageManager.getLaunchIntentSenderForPackage`/IntentSender, que a documentação Android indica como alternativa quando o chamador não pode consultar o pacote; em API 24–32 usa `getLaunchIntentForPackage` e `FLAG_ACTIVITY_NEW_TASK`. O manifesto declara somente consultas MAIN/INFO e MAIN/LAUNCHER para o fallback legado; não usa `QUERY_ALL_PACKAGES`. Arquivos conferidos no GitHub. Commits: `554c62a` (adaptador) e `7196f0d` (queries). Referências oficiais: PackageManager API e package visibility docs.
+
+**Evidências P0-5.4/P0-5.5/P0-5.6:** `mobile.configure(bridge)` guarda o adaptador Kotlin no pacote Python; `mobile.device.get_info()` e `mobile.apps.launch(package_name)` retornam dicts Python e não expõem Context/Activity/PackageManager. O executor injeta o adaptador antes de cada execução. Testes host `test_mobile_api.py` cobrem retorno de device info, abertura simulada, app inexistente, tipo inválido e Bridge não configurada; teste Kotlin cobre validação de nomes de pacote. Contrato atualizado e indexado com comportamento API33+ IntentSender, fallback API24–32, queries restritas e ausência de QUERY_ALL_PACKAGES. Testes ainda não executados. Commits: `c7ebe23` (apps API), `f84b629` (testes Python), `3f7e354` (validador Kotlin), `601e2c9` (documentação).
+
+**Gate P0-5:** testes host Python/JVM executados com sucesso; `mobile.device.get_info()` e abertura positiva/negativa de aplicativos foram demonstradas no Moto G06 conforme relatos do usuário.
+
+## P0-6 — Persistência local mínima
+
+- [x] **P0-6.1** Configurar Room/SQLite e processamento KSP conforme ADR-0003.
+- [x] **P0-6.2** Definir entidade/DAO/repositório mínimos para o script de teste e seu conteúdo.
+- [x] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
+- [x] **P0-6.4** Tratar primeira inicialização, ausência de registro e falhas de persistência.
+- [x] **P0-6.5** Criar testes de persistência e recuperação.
+- [x] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
+
+**Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Entidades/DAO/database/repositório foram concluídos em P0-6.2. Arquivos Gradle recuperados e conferidos. Commits: `107a99c` e `b3ec8d3`. Build KSP/Room ainda não executado.
+
+**Evidência P0-6.2:** criados `ScriptEntity`, `ScriptDao`, `AppDatabase` e `ScriptRepository`. O schema inicial contém id, nome, source_code, created_at e updated_at; DAO oferece leitura por id, inserção sem sobrescrever e upsert; repository cria o script default de forma race-safe, preserva createdAt e atualiza updatedAt. Banco `androide_py.db` fica no armazenamento privado padrão do app e não usa migração destrutiva automática. Arquivos recuperados e revisados no GitHub. Commits: `7bce5b7`, `e56b51d`, `f40a1c1`, `e369f7b`. Compilação KSP/Room pendente.
+
+**Evidência P0-6.4:** `AndroidePyApplication` disponibiliza `ScriptRepository` lazy no escopo do processo. `getOrCreateDefault()` trata registro ausente com `insertIfAbsent` e relê o resultado; `save()` preserva criação e atualiza modificação. Erros Room/SQLite são convertidos em `ScriptStorageException`, enquanto cancelamento é propagado; não há fallback destrutivo. Documentação `P0_PERSISTENCE.md` publicada e indexada. Commits: `647fd24`, `9d0c124`, `af4919f`, `0d7894f`, `55bc867`, `585ed70`. Leitura/gravação e execução agora estão integradas: o botão Executar salva primeiro e envia ao executor exatamente o sourceCode retornado pelo repositório.
+
+**Evidência P0-6.5:** `ScriptRepositoryTest.kt` cobre criação única do script default, atualização preservando createdAt, atualização de updatedAt, nome vazio, erro de banco, propagação de cancelamento, erro do Flow e rejeição de id vazio. Usa DAO falso para rodar em JVM sem ADB. Comando documentado em `P0_PERSISTENCE.md`: `./gradlew :app:testDebugUnitTest`. Fonte conferida no GitHub (blob `6217f38fae6cff332cd3bb07854494d17c933691`); **os testes ainda não foram executados**.
+
+**Evidência P0-6.6:** inspeção dos cinco módulos Python (`main.py`, `runner.py`, `mobile/__init__.py`, `mobile/device.py`, `mobile/apps.py`) não encontrou referências a Room, SQLite, DAO, Entity ou arquivo de banco. `PythonRuntime` recebe somente o adaptador de capacidades; `ScriptExecutor` recebe o código-fonte no request e não expõe repositório/DAO ao runtime. Verificação estática dos arquivos remotos concluída.
+
+**Evidência P0-6.3:** `MainScreen` carrega o script pelo repositório, salva alterações e, antes de executar, persiste novamente e cria `ScriptExecutionRequest` com o código retornado pelo repositório. Verificação estática confirmou que `repository.save` precede `executor.submit` e que o request usa `saved.sourceCode`. Commit: `82ce719`.
+
+**Gate P0-6:** integração Kotlin concluída e testes JVM executados com sucesso (31 tarefas, conforme relato do usuário); persistência após encerramento completo/reabertura foi demonstrada no Moto G06 conforme relato.
+
+## P0-7 — Interface mínima integrada
+
+- [x] **P0-7.1** Criar tela Compose com editor/campo de código e área de console.
+- [x] **P0-7.2** Carregar e salvar o script de teste pela camada de persistência.
+- [x] **P0-7.3** Conectar a ação Executar ao executor Python.
+- [x] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
+- [x] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
+- [x] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
+- [x] **P0-7.7** Revisar acessibilidade básica, layout em tela móvel e responsividade.
+
+**Gate P0-7:** fluxo completo de editar, salvar, executar e observar resultado conectado às camadas reais.
+
+## P0-8 — Qualidade, documentação e pacote
+
+- [x] **P0-8.1** Adicionar testes unitários Kotlin e Python compatíveis com a arquitetura.
+- [x] **P0-8.2** Documentar testes de integração sem ADB e roteiro físico para runtime, executor, Bridge e persistência.
+- [x] **P0-8.3** Executar revisão estática do código, imports, permissões, manifesto e dependências.
+- [x] **P0-8.4** Atualizar README e documentação técnica com instruções reproduzíveis de build e limites reais.
+- [x] **P0-8.5** Conferir que nenhum segredo, dado pessoal, caminho absoluto da máquina de desenvolvimento ou configuração local foi publicado.
+- [x] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
+- [x] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
+
+**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Em 2026-11-25, o usuário executou os testes Python host com Python 3.13.18: `Ran 10 tests in 0.003s` / `OK` (10/10 aprovados). Também reportou anteriormente `BUILD SUCCESSFUL` para `:app:testDebugUnitTest` (31 tarefas executadas).
+
+**Evidência P0-8.2:** [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md) reúne comandos host/JVM e roteiro manual para runtime Chaquopy, executor, Bridge, Room, exceções, truncamento, rotação e persistência. Não foram criados testes instrumentados que exijam ADB, conforme preferência do usuário. Testes host Python (10/10) e JVM/Kotlin (31 tarefas) foram executados com sucesso; os oito critérios oficiais foram demonstrados no Moto G06 conforme relatos do usuário. Rotação, leitor de tela e truncamento acima de 65.536 caracteres no dispositivo permanecem verificações complementares não realizadas.
+
+**Evidências P0-8.3/P0-8.4/P0-8.5:** revisão estática dos arquivos Gradle, Manifest, Kotlin, Python e testes; configuração de plugins/dependências coerente com a baseline; Manifest sem `uses-permission`, sem `QUERY_ALL_PACKAGES`; Bridge não coleta identificadores sensíveis; módulos Python não referenciam Room/SQLite; varredura dos arquivos consultados não encontrou caminhos locais absolutos, tokens, chaves ou dados pessoais do usuário. `.gitignore` contém somente a regra normal para ignorar `local.properties`. README principal, índice docs, smoke check, contratos, plano de integração e guia Fedora atualizados.
+
+**Evidência P0-8.6:** comparação GitHub `main...feat/p0-runtime-bridge` retornou 46 arquivos alterados; a branch está à frente de `main`, sem commits atrás. Diff revisado por categorias (Gradle/manifesto, runtime/executor, Bridge, Room, UI, testes e documentação), e os arquivos centrais de configuração, manifesto, adaptador Android, executor, UI e documentação operacional foram recuperados e inspecionados novamente. O relatório [P0_IMPLEMENTATION_REPORT.md](P0_IMPLEMENTATION_REPORT.md) foi atualizado com resultados reais de testes e validação física. Revisão final estática concluída; a branch não foi mesclada. Devido ao histórico incremental, recomenda-se squash merge, sujeito à decisão explícita do usuário.
+
+**Evidência P0-8.7:** [P0_BUILD_AND_TEST.md](P0_BUILD_AND_TEST.md) documenta sincronização segura da branch, remoção apenas das cópias locais do Wrapper após conferência, `chmod +x android/gradlew`, testes Python/JVM, build APK e transferência manual pelo fluxo My-CT. Nenhum desses comandos foi executado pela assistente no Fedora.
+
+### Registro da primeira falha e correção (2026-11-25)
+
+O usuário executou `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2`. A configuração concluiu, mas `:app:checkDebugAarMetadata` falhou: Compose 1.12.1 exigia compileSdk 37 e AGP 9.1+, enquanto o projeto usa API 36/AGP 8.13.2. A falha foi causada pelo Compose BOM 2026.09.00 selecionado na implementação remota.
+
+Correção publicada na branch:
+- Compose BOM alterado para 2026.06.01, que mapeia Compose 1.11.4; a linha 1.12.0 é a que introduz o requisito compileSdk 37.
+- Gradle Wrapper atualizado de 8.14.3 para 8.14.8, patch oficial da mesma linha, com checksum SHA-256 publicado pelo Gradle.
+- AGP 8.13.2, compileSdk 36, targetSdk 36 e minSdk 24 preservados.
+
+**Estado após reteste (2026-11-25):** o usuário sincronizou a branch e confirmou Gradle Wrapper 8.14.8. O comando `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` terminou com `BUILD SUCCESSFUL` em 2m29s (31 actionable tasks: 31 executed). Isso comprova que os testes JVM/Kotlin passaram e que a configuração/dependências necessárias para essa tarefa foram resolvidas. Ainda não comprova `assembleDebug`, empacotamento Chaquopy/APK nem execução no Android. Testes Python host passaram (10/10); montagem do APK foi informada como concluída pelo usuário.
+
+## P0-9 — Validação local e física (dependente do usuário)
+
+- [x] **P0-9.1** Usuário sincroniza a branch no Fedora — `git pull --ff-only` avançou de `ea1fea9` para `af03e05`; Wrapper 8.14.8 confirmado.
+- [x] **P0-9.2** Usuário executa `:app:assembleDebug`; build concluída e APK instalado no Moto G06, conforme relato de 2026-11-25. O log detalhado/artefato ainda não foi compartilhado.
+- [x] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado. **Concluída:** incompatibilidade do Compose BOM 2026.09.00 com API 36/AGP 8.13.2 corrigida para BOM 2026.06.01; Wrapper atualizado para 8.14.8. O usuário confirmou `BUILD SUCCESSFUL` nos testes JVM e informou que a build APK foi concluída e instalada no Moto G06.
+- [x] **P0-9.4** APK transferido e instalado no Moto G06, conforme relato do usuário em 2026-11-25; método de transferência não especificado.
+- [x] **P0-9.5** Validar execução e console no Moto G06. **Concluída por relato do usuário:** (a) duas mensagens `print()` foram exibidas em `stdout`; (b) `print()` normal e `print(..., file=sys.stderr)` apareceram nos canais separados; (c) `raise ValueError("falha de teste")` foi apresentado como exceção Python, com tipo `ValueError`, mensagem e traceback; (d) `stdout` indicou “(sem saída)” e `stderr` “(Vazio)” nesse último teste, coerente com a ausência de prints; (e) usuário confirmou que o app permaneceu aberto após a exceção. Não há screenshot/log anexado; evidência é o relato explícito do usuário.
+- [x] **P0-9.6** Usuário valida `mobile.device.get_info()` e `mobile.apps.launch(package_name)`. **Concluída por relato do usuário:** `mobile.device.get_info()` executado no Moto G06 e retornou `schema_version: 1`, fabricante/marca `motorola`, modelo `moto g06`, device `lagos`, Android 15/API 35, ABI `arm64-V8a`, package name `com.samuel.androidepy` e versão `0.1.0`. Em teste separado, `mobile.apps.launch("com.android.settings")` executou, abriu o aplicativo Configurações do Android e o usuário retornou ao Androide PY. Em seguida, `mobile.apps.launch("com.exemplo.pacote.inexistente")` retornou `ok: false`, `package_name` preservado, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`; o usuário confirmou que o Androide PY permaneceu aberto. Retorno e comportamento relatados explicitamente; sem screenshot/log anexado.
+- [x] **P0-9.7** Usuário fecha/reabre o app e confirma persistência do script. **Concluída por relato do usuário:** substituiu o conteúdo do editor por duas linhas Python com marcadores `PERSISTENCIA-P0-2026`; tocou Executar; confirmou as mensagens no stdout; encerrou o app e o dispensou pelo seletor de recentes; reabriu o Androide PY e confirmou que as duas linhas continuavam no editor. Isso demonstra gravação antes da execução e recuperação do conteúdo após encerramento do processo, no Moto G06.
+- [x] **P0-9.8** Registrar modelo, versão Android, resultados, limitações e evidências relatadas. **Registro consolidado neste checklist:** aparelho Moto G06, fabricante Motorola, Android 15/API 35, ABI arm64-v8a; testes físicos relatados para instalação/abertura, execução Python, stdout/stderr, exceção sem crash, `mobile.device.get_info()`, abertura de Configurações, falha estruturada para pacote não inicializável e persistência. Limitações de evidência: sem screenshots/logcat anexados; build e testes físicos foram relatados pelo usuário. Testes Python host executados com sucesso (10/10).
+
+**Gate P0-9:** todos os oito critérios do roadmap demonstrados no dispositivo físico; testes automatizados host e JVM também executados com sucesso.
+
+## Critérios oficiais de aceite da P0
+
+A P0 só poderá ser declarada concluída quando todos forem demonstrados:
+
+1. APK instala e abre no dispositivo de validação.
+2. Runtime Python inicializa.
+3. Script Python executa pela interface.
+4. stdout e stderr aparecem no console.
+5. Exceção Python é apresentada sem encerrar o aplicativo.
+6. Python consulta informações básicas do dispositivo.
+7. Python inicia aplicativo instalado por API Android autorizada.
+8. Script permanece salvo após fechar e reabrir o aplicativo.
+
+## Registro de evidências
+
+| Data | Subetapa | Evidência (commit, teste, comando ou relato) | Resultado |
+|---|---|---|---|
+| 2026-11-25 | Preparação do ambiente local | Fedora 44, JDK 21.0.10, Python 3.13.18, SDK 36 e Gradle Wrapper 8.14.3 reportados pelo usuário | Confirmado pelo usuário; não equivale a build Android |
+| 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
+| 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados |
+| 2026-11-25 | P0-4.6 / P0-5.5 / P0-8.1 / P0-9 | Usuário executou `PYTHONPATH=android/app/src/main/python python3.13 -m unittest discover -s android/app/src/test/python -v` na raiz do repositório. Os 10 testes passaram: 5 testes de API mobile (dict de device info, sucesso de launch, erro de app ausente, rejeição de pacote não string e Bridge não configurada) e 5 testes do runner (limite de saída, exceção estruturada, captura separada de stderr, stdout e SystemExit). Saída final: `Ran 10 tests in 0.003s` / `OK` | Testes Python host aprovados, 10/10 |
+| 2026-11-25 | P0-9.2 / P0-9.4 / P0-9.5 | Usuário informou que a build APK foi concluída, o APK foi instalado no Moto G06 e o aplicativo abriu exibindo a interface. Confirmou execução Python pela UI; duas mensagens em `stdout`; separação de `stdout`/`stderr`; e tratamento de `ValueError: falha de teste` com traceback, sem fechamento do app. Sem print/log por enquanto | Build, instalação, abertura, execução, stdout, stderr e exceção sem crash confirmados por relato; Bridge e persistência pendentes |
+| 2026-11-25 | P0-9.6 | Usuário executou `mobile.device.get_info()` no Moto G06. Retorno: schema_version 1; manufacturer/brand motorola; model moto g06; device lagos; Android 15/API 35; ABI `arm64-V8a`; app package `com.samuel.androidepy`; app version `0.1.0`. Em seguida, `mobile.apps.launch("com.android.settings")` abriu as Configurações do Android. Teste negativo com `mobile.apps.launch("com.exemplo.pacote.inexistente")` retornou `ok: false`, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`; o app permaneceu aberto | Capacidades positiva e negativa da Android Bridge demonstradas fisicamente conforme relato; sem screenshot/log anexado |
+| 2026-11-25 | P0-9.7 | Usuário substituiu o script por duas linhas com marcador `PERSISTENCIA-P0-2026`, executou, encerrou completamente o app pelo seletor de recentes, reabriu e confirmou que as duas linhas permaneceram no editor | Persistência após encerramento e reabertura demonstrada no Moto G06 conforme relato explícito; sem screenshot/log anexado |
+
+## Histórico de atualização
+
+- 2026-11-25 — revisão final após aprovação dos testes Python host: comparação GitHub `main...feat/p0-runtime-bridge` confirmou 46 arquivos alterados, branch à frente de `main` e 0 commits atrás. Revisados novamente AGENTS.md, relatório, guia de build, Gradle, Manifest, AndroidBridgeAdapter, ScriptExecutor e MainScreen; relatório reconciliado com os resultados reais (10/10 Python, JVM `BUILD SUCCESSFUL`, APK e validações físicas conforme relatos). Nenhuma alteração funcional pendente identificada nesta revisão estática. Branch permanece sem merge; aguarda consentimento explícito para squash merge.
+- 2026-11-25 — usuário executou os testes Python host com Python 3.13.18: 10/10 aprovados (`Ran 10 tests in 0.003s`, `OK`). P0-4.6, P0-5.5 e P0-8.1 passam a ter evidência de execução host, além dos testes JVM/Kotlin já aprovados. Com os oito critérios físicos demonstrados por relato, a validação está concluída; resta revisão final do diff/documentação/branch antes de decidir sobre encerramento e squash merge.
+- 2026-11-25 — usuário concluiu o teste físico de persistência no Moto G06: executou o script com duas linhas marcadoras, encerrou completamente o Androide PY pelo seletor de recentes, reabriu o app e confirmou que ambas as linhas permaneceram no editor. P0-9.7 concluída por relato. P0-9.8 também registrada com modelo/versão, resultados e limitações de evidência. Os oito critérios funcionais oficiais foram demonstrados; testes Python host foram posteriormente aprovados (10/10).
+- 2026-11-25 — usuário executou `mobile.apps.launch("com.exemplo.pacote.inexistente")`. Retorno: `ok: false`, `package_name` preservado, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`. O Androide PY permaneceu aberto. P0-9.6 agora registra tanto a abertura de aplicativo existente quanto o tratamento do pacote não inicializável. Próximo: validar persistência após fechar e reabrir o app; testes Python host continuam pendentes.
+- 2026-11-25 — usuário confirmou o teste de `mobile.apps.launch("com.android.settings")`: o script foi executado, abriu o aplicativo Configurações do Android e o usuário retornou ao Androide PY. Com isso, P0-9.6 foi concluída por relato explícito, somando-se à validação anterior de `mobile.device.get_info()`. O payload impresso pela chamada `launch()` não foi compartilhado. Próximo teste físico: persistência do script após fechar e reabrir o app; testes Python host também pendentes.
+- 2026-11-25 — teste funcional Python no Moto G06: usuário executou `mobile.device.get_info()` e recebeu os dados do Moto G06 (Motorola, moto g06, Android 15/API 35, ABI arm64-V8a, pacote e versão do app). P0-9.6 parcialmente validada; falta `mobile.apps.launch(package_name)`. Também permanecem pendentes persistência e testes Python host.
+- 2026-11-25 — teste funcional Python no Moto G06: além dos testes anteriores de `stdout` e `stderr`, usuário executou `raise ValueError("falha de teste")`. O console exibiu `ValueError: falha de teste` e traceback; `stdout` mostrou “(sem saída)” e `stderr` “(Vazio)”, coerente com o script sem prints; usuário confirmou que o app permaneceu aberto. P0-9.5 concluída por relato explícito. Android Bridge e persistência seguem pendentes.
+- 2026-11-25 — usuário confirmou build APK concluída, instalação no Moto G06 e abertura com interface visível. P0-9.2 e P0-9.4 registradas como concluídas por relato; P0-9.5 permanece parcial, pois execução Python e funcionalidades ainda não foram exercitadas.
+- 2026-11-25 — usuário sincronizou `feat/p0-runtime-bridge`, confirmou Gradle 8.14.8 e executou `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` (31 tarefas executadas, 2m29s). P0-9.1 concluída; testes Python host e `assembleDebug` são os próximos passos. APK e validação física ainda não aprovados.
+- 2026-11-25 — primeira falha local de build identificou incompatibilidade Compose 1.12.1/API 37 com AGP 8.13.2/API 36; BOM ajustado para 2026.06.01 (Compose 1.11.4) e Wrapper para 8.14.8. Build ainda pendente.
+- 2026-11-25 — implementação remota da P0 concluída em código na branch `feat/p0-runtime-bridge`: host Android/Compose, Chaquopy/Python 3.13, executor, console, Android Bridge, Room/SQLite, testes e documentação. Revisão estática concluída. Nenhum teste/build foi executado; P0-9 aguarda sincronização e validação pelo usuário.
