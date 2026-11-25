@@ -29,6 +29,7 @@ Depois:
 ```bash
 git fetch origin
 git switch --track -c feat/p0-runtime-bridge origin/feat/p0-runtime-bridge
+chmod +x android/gradlew
 git status
 ```
 
@@ -72,7 +73,7 @@ Transfira `app-debug.apk` ao Moto G06 usando o mesmo fluxo manual que já utiliz
 ## Recursos e diagnóstico
 
 - JDK 21 e Python host 3.13 precisam estar no PATH/ambiente.
-- O projeto usa Gradle Wrapper 8.14.3; não instale Gradle global.
+- O projeto usa Gradle Wrapper 8.14.3; não instale Gradle global. O arquivo `gradlew` é marcado como executável localmente com `chmod +x` após o checkout.
 - O primeiro build pode baixar plugins, dependências e o runtime Python; precisa de internet.
 - Builds estão limitados a dois workers e sem paralelismo de projetos para reduzir pressão de RAM.
 - Não execute builds simultâneos.
