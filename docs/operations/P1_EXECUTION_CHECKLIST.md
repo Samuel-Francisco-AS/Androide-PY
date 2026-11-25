@@ -120,7 +120,8 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [ ] Validar migração de dados P0 no aparelho.
 - [ ] Registrar resultados físicos como relato do usuário, sem atribuir logs não fornecidos.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
-- [ ] Criar PR para revisão.
+- [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
+- [ ] Marcar PR pronta para revisão após testes/build/migração.
 - [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
 
 ## Critérios de aceite P1
@@ -146,7 +147,8 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 | Testes JVM/Kotlin | Escritos; execução pendente |
 | Build APK P1 | Pendente |
 | Migração e validação física | Pendente |
-| PR/merge | Pendente |
+| PR | #2 aberta em draft; aguarda validação |
+| Merge | Não realizado; autorização específica P1 ainda não concedida |
 
 ## Bloqueios e desvios
 
