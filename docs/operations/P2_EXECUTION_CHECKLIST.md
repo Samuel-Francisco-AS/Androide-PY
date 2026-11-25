@@ -182,7 +182,7 @@ O resultado confirma que o dispositivo de validação está acima do minSdk 24 e
 
 Pontos confirmados nas referências: `dispatchGesture()` requer `canPerformGestures` e existe desde API 24; `TYPE_ACCESSIBILITY_OVERLAY` existe desde API 22 e é reservado a AccessibilityService conectado; `ACTION_SET_TEXT` existe desde API 21; consulta da árvore requer `canRetrieveWindowContent`. A documentação alerta que `typeAllMask` pode ser oneroso e que a hierarquia pode mudar/ficar obsoleta. A configuração deve solicitar somente eventos e capacidades necessários. A política de distribuição deverá ser reavaliada se o projeto futuramente buscar publicação na Play Store.
 
-**Status desta revisão:** P2.0.3 e P2.0.4 concluídas por revisão documental/estática; P2.0.5 parcialmente preparada, ainda pendente de confirmação do nível Android real no Moto G06 e fechamento da análise de lifecycle. P2.0.6–P2.0.10 permanecem pendentes. Nenhuma implementação, teste, build ou validação física P2 foi realizada.
+**Status na data da revisão técnica inicial:** P2.0.3 e P2.0.4 concluídas por revisão documental/estática; P2.0.5 ainda aguardava confirmação do nível Android e fechamento da análise de lifecycle. As conclusões posteriores de P2.0.5, P2.0.6 e P2.0.7 estão registradas nas respectivas seções deste checklist. Nenhuma implementação de produção P2, teste, build ou validação física de funcionalidade P2 foi realizada.
 
 ### P2.0.7 — Contrato público Python `mobile.screen` — 2026-11-25
 
