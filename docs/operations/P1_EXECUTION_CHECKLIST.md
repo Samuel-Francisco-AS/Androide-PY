@@ -32,7 +32,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 
 ## P1.1 — Modelo de dados e persistência
 
-**Estado:** IMPLEMENTADO — TESTE PENDENTE.
+**Estado:** IMPLEMENTADO — TESTES JVM EXECUTADOS; validação física pendente.
 
 - [x] Expandir ScriptEntity com descrição, tags, parâmetros, dependências e metadados.
 - [x] Criar entidade de versões imutáveis do script.
@@ -40,7 +40,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Implementar DAOs e operações transacionais para gravação de script/versão e exclusão.
 - [x] Remover migração Room 1 → 2 e configurar `fallbackToDestructiveMigration()`; atualizações incompatíveis podem descartar o banco local.
 - [x] Escrever testes de repositório, histórico e persistência de execução.
-- [ ] Executar testes JVM/Kotlin.
+- [x] Executar `:app:testDebugUnitTest`; resultado relatado pelo usuário: `BUILD SUCCESSFUL`.
 - [x] Desabilitar exportação de schemas históricos Room nesta etapa (`exportSchema = false`), pois não há migração retrocompatível a manter.
 - [ ] Validar instalação/atualização P1 e confirmar inicialização do banco versão 2 no Moto G06; dados locais anteriores podem ser descartados.
 
@@ -93,7 +93,8 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Catalogar somente device.get_info e apps.launch como implementados.
 - [x] Documentar módulos futuros como planejados, não disponíveis.
 - [x] Escrever teste host Python do catálogo.
-- [ ] Executar testes host Python e confirmar execução no runtime Android.
+- [x] Executar testes host Python: 13/13 aprovados, conforme saída relatada pelo usuário.
+- [ ] Confirmar execução no runtime Android P1.
 
 ## P1.6 — Dependências Python compatíveis
 
@@ -111,9 +112,9 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 
 **Estado:** PENDENTE.
 
-- [x] Revisar estaticamente os 34 arquivos do diff completo; build e testes continuam pendentes.
-- [ ] Executar testes Python host.
-- [ ] Executar testes JVM/Kotlin.
+- [x] Revisar estaticamente os 35 arquivos do diff completo; build e testes continuam pendentes.
+- [x] Executar testes Python host: 13/13 PASS, conforme saída relatada pelo usuário.
+- [x] Executar `:app:testDebugUnitTest`: `BUILD SUCCESSFUL`, conforme saída relatada pelo usuário.
 - [ ] Executar build debug localmente pelo usuário.
 - [ ] Validar ciclo biblioteca → editor → salvar → executar com parâmetros → histórico no Moto G06.
 - [ ] Validar importação/exportação no aparelho.
@@ -121,7 +122,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [ ] Registrar resultados físicos como relato do usuário, sem atribuir logs não fornecidos.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
-- [ ] Marcar PR pronta para revisão após testes/build/migração.
+- [ ] Marcar PR pronta para revisão após build e validação física do fallback.
 - [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
 
 ## Critérios de aceite P1
@@ -196,6 +197,6 @@ cd android
 
 APK esperado: android/app/build/outputs/apk/debug/app-debug.apk. Transfira ao Moto G06 pelo fluxo já utilizado no My-CT; não é necessário ADB.
 
-**Migração:** não desinstalar a versão P0 nem limpar os dados do app. Instalar o APK P1 como atualização sobre a instalação existente para exercitar a migração real.
+**Fallback destrutivo:** instalar o APK P1 como atualização sobre a instalação P0 pode acionar `fallbackToDestructiveMigration()` e apagar o banco local antigo. Não é necessário desinstalar o app nem limpar dados manualmente; considerar os scripts e registros locais descartáveis neste teste.
 
-Na validação física, testar: abertura da biblioteca, CRUD, importação de .py UTF-8, exportação, editor/linhas/realce, parâmetros via params, versões/restauração, histórico após reabrir e migração dos dados existentes da P0.
+Na validação física, testar: abertura da biblioteca, CRUD, importação de .py UTF-8, exportação, editor/linhas/realce, parâmetros via params, versões/restauração, histórico após reabrir e inicialização do banco versão 2 após o fallback destrutivo (dados P0 podem ser descartados).
