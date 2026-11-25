@@ -47,4 +47,4 @@ A P1 mantém Room/SQLite como fonte de verdade e eleva o schema para a versão 2
 - excluir um script remove seus metadados e versões em transação, preservando os registros de execução;
 - o runner recebe parâmetros pelo dicionário Python params, sem acesso direto ao banco.
 
-A migração manual 1 → 2 foi implementada, sem fallback destrutivo. A validação da migração em banco P0 real e o teste de migração continuam pendentes até build e teste físico P1.
+A migração manual 1 → 2 foi implementada, sem fallback destrutivo. A branch ainda não contém os JSONs de schema exportado Room v1/v2: o schema v1 deve ser recuperado/gerado da baseline P0, e o v2 gerado pelo build P1. Ambos devem ser versionados. A validação em banco P0 real continua pendente.
