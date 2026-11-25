@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2 em preparação documental, sem implementação de produção.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental concluída; P2.1-A com implementação inicial publicada, ainda sem build/testes.
 
 ## 1. Resumo
 
@@ -111,7 +111,7 @@ Código de terceiros será considerado não confiável. A primeira versão será
 
 - **P0:** concluída e integrada em `main`.
 - **P1:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo físico acordado foi validado; P1-TF13 e verificações adicionais permanecem explicitamente diferidas nos documentos operacionais.
-- **P2:** preparação documental em andamento na branch `feat/p2-accessibility-automation`. Os contratos `mobile.screen`, protocolo assíncrono e decisões de segurança foram definidos, mas não há AccessibilityService, gateway, overlay, Mapas de Coordenadas ou API `mobile.screen` implementados.
+- **P2:** preparação documental em andamento na branch `feat/p2-accessibility-automation`. Os contratos `mobile.screen`, protocolo assíncrono e decisões de segurança foram definidos. A P2.1-A publicou a classe inicial do AccessibilityService, configuração XML, declaração no manifesto e gateway application-scoped; overlay, Mapas de Coordenadas e API `mobile.screen` continuam não implementados.
 
 A P2 adota três prioridades funcionais: A — interação geométrica e Mapa de Coordenadas; B — consulta/coleta sob demanda; C — leitura e identificação semântica de elementos. A fundação nativa e autorização precedem essas entregas. Screenshots, OCR e notificações não integram a P2 inicial.
 
