@@ -109,7 +109,7 @@ Assim:
 - A P2 não deve adicionar conteúdo de interface aos logs automaticamente.
 - Um script que deliberadamente imprima um valor obtido pela API poderá fazer esse valor aparecer no console e no histórico atual.
 - Não há redaction confiável e universal de stdout/stderr sem alterar o contrato de execução; não declarar que o histórico atual é livre de dados sensíveis.
-- A futura UI/implementação deverá deixar claro esse comportamento antes de conceder acesso sensível. A decisão sobre persistência de stdout/stderr/traceback em execuções que receberam autorização sensível permanece aberta para P2.0.9: recomendação inicial é não persistir essas saídas por padrão, mantendo-as disponíveis apenas no console da execução, e exigir consentimento separado caso Sam queira salvá-las no histórico.
+- A futura UI/implementação deverá deixar claro esse comportamento antes de conceder acesso sensível. A decisão foi formalizada e aceita no ADR-0009: em uma execução que recebeu autorização para acessar campos sensíveis, stdout/stderr/tracebacks ficam disponíveis apenas no console enquanto a execução estiver ativa e não são persistidos no histórico por padrão. Persistir essas saídas exige consentimento adicional, separado, explícito e limitado à execução. Essa política ainda não está implementada e exigirá evolução explícita do executor/histórico P1.
 
 ## 8. Rede e confiança dos scripts
 
@@ -134,7 +134,7 @@ A interface de autorização deve explicar que conceder acesso sensível a uma a
 
 ## 10. Pendências e limites da conclusão
 
-P2.0.8 concluiu a revisão e a definição documental de política. As decisões arquiteturais foram formalizadas na P2.0.9 pelos ADRs-0008 e 0009; isso não prova que os controles estejam implementados. A P2.0.10 harmonizará arquitetura, roadmap, índices e contratos.
+P2.0.8 concluiu a revisão de segurança; P2.0.9 formalizou as decisões nos ADRs-0008 e 0009; P2.0.10 harmoniza a visão, arquitetura, roadmap, índices e contratos. As decisões aceitas orientam a implementação futura, mas não provam que qualquer controle esteja implementado.
 
 A implementação futura deverá testar, no mínimo: bloqueio sensível sem concessão; leitura e escrita separadas; escopo da concessão por execução/aplicativo; revogação em cancelamento/desconexão; classificação conservadora; ausência de conteúdo em logs do adaptador; descarte de snapshots; overlay removido em todos os caminhos terminais; persistência/exclusão dos mapas; comportamento de backup/exportação.
 
