@@ -12,6 +12,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Smoke check do runtime Python](operations/P0_RUNTIME_SMOKE.md): contrato inicial e validação manual sem ADB.
 - [Contrato de execução P0](operations/P0_EXECUTION_CONTRACT.md): estados, payload JSON e limites do executor.
 - [Contrato da Android Bridge P0](operations/P0_ANDROID_BRIDGE_CONTRACT.md): APIs Python, dados, erros e package visibility.
+- [Persistência P0](operations/P0_PERSISTENCE.md): Room, script inicial, gravação e tratamento de falhas.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
@@ -22,12 +23,19 @@ docs/
 ├── PROJECT_VISION.md
 ├── ARCHITECTURE.md
 ├── ROADMAP.md
+├── operations/
+│   ├── P0_EXECUTION_CHECKLIST.md
+│   ├── P0_RUNTIME_SMOKE.md
+│   ├── P0_EXECUTION_CONTRACT.md
+│   ├── P0_ANDROID_BRIDGE_CONTRACT.md
+│   └── P0_PERSISTENCE.md
 └── adr/
     ├── README.md
     ├── 0001-android-native-host.md
     ├── 0002-python-runtime-chaquopy.md
     ├── 0003-local-persistence-room-sqlite.md
-    └── 0004-capability-based-android-bridge.md
+    ├── 0004-capability-based-android-bridge.md
+    └── 0005-p0-toolchain-baseline.md
 ```
 
 ## Convenções documentais
