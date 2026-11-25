@@ -1,6 +1,6 @@
 # ADR-0002: Chaquopy como runtime Python inicial
 
-- **Status:** Aceito para prototipação; validar no P0
+- **Status:** Validado na P0 (Chaquopy 17.2.0 / Python 3.13, testes e validação física relatados)
 - **Data:** 2026-11-24
 
 ## Contexto
