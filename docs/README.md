@@ -10,6 +10,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [ADRs](adr/README.md): registro das decisões arquiteturais relevantes.
 - [Checklist operacional P0](operations/P0_EXECUTION_CHECKLIST.md): fases, subetapas, critérios de aceite e evidências.
 - [Smoke check do runtime Python](operations/P0_RUNTIME_SMOKE.md): contrato inicial e validação manual sem ADB.
+- [Contrato de execução P0](operations/P0_EXECUTION_CONTRACT.md): estados, payload JSON e limites do executor.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
