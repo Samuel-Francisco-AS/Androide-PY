@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟢 Governança operacional concluída; revisão técnica P0 ainda não iniciada.
+**Estado geral:** 🟡 Revisão documental e baseline técnica concluídas; fundação Android em preparação.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -51,7 +51,9 @@
 - [x] **P0-1.4** Definir e registrar as versões exatas e repositórios necessários; não presumir que versões mencionadas em conversas anteriores estejam corretas.
 - [x] **P0-1.5** Registrar ADR adicional ou atualizar ADR existente se a implementação exigir mudança arquitetural relevante.
 
-**Evidências P0-1.1/P0-1.2:** README, docs/README, PROJECT_VISION, ARCHITECTURE (seções 1–10), ROADMAP e ADRs 0001–0004 recuperados da branch e revisados. Escopo confirmado: host Kotlin/Compose, Chaquopy, execução serial fora da UI, stdout/stderr/exceções, `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e persistência Room/SQLite mediada por Kotlin. Fora do P0: editor profissional, background, Accessibility, Shizuku/ADB/root, múltiplos workers, workflow visual e sandbox para código não confiável. Critérios de aceite preservados conforme roadmap.\n\n**Evidências P0-1.3/P0-1.4/P0-1.5:** matriz técnica e decisão registradas em [ADR-0005](../adr/0005-p0-toolchain-baseline.md), indexado em `docs/adr/README.md` e refletido em `docs/ARCHITECTURE.md`. Versões adotadas: Gradle 8.14.3; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Compose BOM 2026.09.00; Activity Compose 1.13.0; Chaquopy 17.2.0; Python host/runtime 3.13.x; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0; compile/target SDK 36; minSdk 24; ABI inicial arm64-v8a; JDK 21 e bytecode JVM 17. Documentação oficial consultada: Kotlin release/compatibility, KSP quickstart, Android AGP 8.13, Compose BOM/release notes, Activity, Room e Chaquopy. O Compose BOM 2026.11.01 foi evitado por exigir compileSdk 37.1. Build e validação física continuam pendentes.
+**Evidências P0-1.1/P0-1.2:** README, docs/README, PROJECT_VISION, ARCHITECTURE (seções 1–10), ROADMAP e ADRs 0001–0004 recuperados da branch e revisados. Escopo confirmado: host Kotlin/Compose, Chaquopy, execução serial fora da UI, stdout/stderr/exceções, `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e persistência Room/SQLite mediada por Kotlin. Fora do P0: editor profissional, background, Accessibility, Shizuku/ADB/root, múltiplos workers, workflow visual e sandbox para código não confiável. Critérios de aceite preservados conforme roadmap.
+
+**Evidências P0-1.3/P0-1.4/P0-1.5:** matriz técnica e decisão registradas em [ADR-0005](../adr/0005-p0-toolchain-baseline.md), indexado em `docs/adr/README.md` e refletido em `docs/ARCHITECTURE.md`. Versões adotadas: Gradle 8.14.3; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Compose BOM 2026.09.00; Activity Compose 1.13.0; Chaquopy 17.2.0; Python host/runtime 3.13.x; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0; compile/target SDK 36; minSdk 24; ABI inicial arm64-v8a; JDK 21 e bytecode JVM 17. Documentação oficial consultada: Kotlin release/compatibility, KSP quickstart, Android AGP 8.13, Compose BOM/release notes, Activity, Room e Chaquopy. O Compose BOM 2026.11.01 foi evitado por exigir compileSdk 37.1. Build e validação física continuam pendentes.
 
 **Gate P0-1:** decisões técnicas rastreáveis e sem conflito conhecido com os ADRs aceitos.
 
@@ -170,4 +172,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — checklist e `AGENTS.md` publicados e conferidos; OP-0.1 a OP-0.4 concluídos. Documentação e escopo P0 revisados (P0-1.1/P0-1.2). Matriz técnica verificada e ADR-0005 publicado (P0-1.3 a P0-1.5). Nenhum código de produção foi iniciado.
+- 2026-11-25 — checklist e `AGENTS.md` publicados e conferidos; OP-0.1 a OP-0.4 concluídos. Documentação e escopo P0 revisados (P0-1.1/P0-1.2). Matriz técnica verificada e ADR-0005 publicado (P0-1.3 a P0-1.5). Fundação Android ainda não iniciada.
