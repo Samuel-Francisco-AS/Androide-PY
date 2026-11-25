@@ -137,13 +137,15 @@
 ## P0-6 — Persistência local mínima
 
 - [x] **P0-6.1** Configurar Room/SQLite e processamento KSP conforme ADR-0003.
-- [ ] **P0-6.2** Definir entidade/DAO/repositório mínimos para o script de teste e seu conteúdo.
+- [x] **P0-6.2** Definir entidade/DAO/repositório mínimos para o script de teste e seu conteúdo.
 - [ ] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
 - [ ] **P0-6.4** Tratar primeira inicialização, ausência de registro e falhas de persistência.
 - [ ] **P0-6.5** Criar testes de persistência e recuperação.
 - [ ] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
 
 **Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Arquivos Gradle recuperados e conferidos após publicação. Commits: `107a99c` e `b3ec8d3`. Entidades/DAO/database/repositório ainda serão implementados na subetapa P0-6.2; build não executado.
+
+**Evidência P0-6.2:** criados `ScriptEntity`, `ScriptDao`, `AppDatabase` e `ScriptRepository`. O schema inicial contém id, nome, source_code, created_at e updated_at; DAO oferece leitura por id, inserção sem sobrescrever e upsert; repository cria o script default de forma race-safe, preserva createdAt e atualiza updatedAt. Banco `androide_py.db` fica no armazenamento privado padrão do app e não usa migração destrutiva automática. Arquivos recuperados e revisados no GitHub. Commits: `7bce5b7`, `e56b51d`, `f40a1c1`, `e369f7b`. Compilação KSP/Room pendente.
 
 **Gate P0-6:** script salvo e recuperável por repositório Kotlin, com testes de persistência.
 
