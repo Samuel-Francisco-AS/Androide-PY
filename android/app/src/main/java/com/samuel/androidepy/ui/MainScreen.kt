@@ -266,6 +266,43 @@ fun MainScreen(application: AndroidePyApplication) {
                 enabled = editorEnabled
             )
 
+            Text(
+                text = "Exemplos da Android Bridge",
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        sourceCode = "import mobile.device\\n\\nprint(mobile.device.get_info())"
+                        saveMessage = ""
+                        storageError = ""
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = editorEnabled
+                ) {
+                    Text("Inserir exemplo: informações do aparelho")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        sourceCode = "import mobile.apps\\n\\n# Substitua pelo pacote de um app instalado.\\nresult = mobile.apps.launch(\\"com.example.app\\")\\nprint(result)"
+                        saveMessage = ""
+                        storageError = ""
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = editorEnabled
+                ) {
+                    Text("Inserir exemplo: abrir aplicativo")
+                }
+            }
+
+            Text(
+                text = "Os exemplos preenchem o editor; toque em Executar para testá-los.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(
                     onClick = saveScript,
