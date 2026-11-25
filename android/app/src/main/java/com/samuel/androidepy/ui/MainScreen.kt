@@ -1,9 +1,9 @@
 package com.samuel.androidepy.ui
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +40,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.samuel.androidepy.AndroidePyApplication
 import com.samuel.androidepy.data.ScriptEntity
-import com.samuel.androidepy.execution.ExecutionStatus
 import com.samuel.androidepy.execution.ScriptExecutionRequest
 import com.samuel.androidepy.execution.ScriptParameterResolver
 import java.io.ByteArrayOutputStream
@@ -124,7 +123,11 @@ fun MainScreen(application: AndroidePyApplication) {
 
     LaunchedEffect(executor, executionRepository) {
         executor.updates.collect { update ->
-            withContext(Dispatchers.IO) { executionRepository.recordUpdate(update) }
+            try {
+                withContext(Dispatchers.IO) { executionRepository.recordUpdate(update) }
+            } catch (error: Exception) {
+                Log.e("AndroidePY.History", "Unable to persist execution update ${update.executionId}", error)
+            }
         }
     }
 
@@ -356,7 +359,7 @@ private fun ScriptEditorScreen(
     val history by executionRepository.observeForScript(script.id).collectAsState(initial = emptyList())
     val versions by repository.observeVersions(script.id).collectAsState(initial = emptyList())
 
-    LaunchedEffect(script.updatedAtEpochMs) {
+    LaunchedEffect(script) {
         name = script.name
         description = script.description
         tagsText = parseStringArray(script.tagsJson).joinToString(", ")
@@ -480,7 +483,7 @@ private fun ScriptEditorScreen(
                         busy = true
                         try {
                             saveCurrent()
-                            onFeedback("Script salvo e nova versão registrada.")
+                            onFeedback("Script salvo. Uma versão é criada quando o código ou os metadados mudam.")
                         } catch (error: Exception) {
                             onError(error.message ?: "Falha ao salvar.")
                         } finally { busy = false }
