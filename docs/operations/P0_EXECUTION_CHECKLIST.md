@@ -61,14 +61,16 @@
 
 - [x] **P0-2.1** Criar estrutura Gradle multi-módulo mínima com módulo `:app` e Gradle Wrapper 8.14.3.
 - [x] **P0-2.2** Configurar AGP, Kotlin, Compose e SDK conforme matriz verificada.
-- [ ] **P0-2.3** Configurar identificador de aplicação, manifesto, atividade principal e recursos mínimos.
-- [ ] **P0-2.4** Configurar ABI(s) de destino de forma explícita e compatível com o dispositivo-alvo; justificar qualquer restrição.
-- [ ] **P0-2.5** Revisar arquivos Gradle, manifesto e estrutura; remover configurações copiadas do My-CT que não sejam necessárias.
+- [x] **P0-2.3** Configurar identificador de aplicação, manifesto, atividade principal e recursos mínimos.
+- [x] **P0-2.4** Configurar ABI(s) de destino de forma explícita e compatível com o dispositivo-alvo; justificar qualquer restrição.
+- [x] **P0-2.5** Revisar arquivos Gradle, manifesto e estrutura; remover configurações copiadas do My-CT que não sejam necessárias.
 - [ ] **P0-2.6** Publicar a fundação Android sem declarar build aprovado antes da execução real.
 
 **Evidência P0-2.1:** estrutura publicada na branch `feat/p0-runtime-bridge`: Gradle Wrapper 8.14.3 (scripts, JAR e properties copiados da configuração funcional do My-CT); `settings.gradle.kts` com repositórios Google/Maven Central e módulo `:app`; arquivos Gradle raiz e do módulo; `gradle.properties` com heap de 2 GiB e workers limitados a 2; `.gitignore` para builds e configurações locais. Arquivos recuperados novamente do GitHub após publicação. Commit de fundação do wrapper: `3af18dbe8c15b8b03b69a0cd950591cae429a8b4`; commits de estrutura: `bd087d4`, `946a39f`, `bf9d9c3`, `ee15acd`. Nenhum build Android foi executado remotamente.
 
 **Evidência P0-2.2:** arquivos Gradle conferidos após publicação. AGP 8.13.2, Kotlin Android 2.4.21, Compose Compiler Plugin 2.4.21; compileSdk/targetSdk 36, minSdk 24; compatibilidade Java/Kotlin JVM 17. Commits: `69a42b9` (plugins) e `5bf2e19` (módulo Android). Revisão de configuração estática concluída; build local ainda não executado.
+
+**Evidências P0-2.3/P0-2.4/P0-2.5:** identificador `com.samuel.androidepy`, manifesto com Activity launcher explícita/exportada, recurso `app_name` e Activity Compose inicial publicados. ABI inicial restrita a `arm64-v8a` para o Moto G06, reduzindo o tamanho do APK; a ABI real será confirmada na validação física. Revisão estática de settings, plugins, SDK, dependências Compose, manifesto, recursos, Activity, wrapper e propriedades Gradle concluída; verificações automatizadas de conteúdo dos arquivos retornaram todos os itens esperados. Não foi executado build Android. Commits relevantes: `ae097a4` (Compose dependencies), `3b43abd` (manifesto), `80e18ed` (strings), `621aaa0` (Activity), `2e70249` (ABI).
 
 **Gate P0-2:** estrutura Android coerente, revisada e pronta para integração do runtime.
 
@@ -176,4 +178,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — governança operacional e baseline técnica concluídas (OP-0.1 a OP-0.4; P0-1.1 a P0-1.5/ADR-0005); estrutura Gradle/Wrapper criada (P0-2.1) e plugins/SDK configurados (P0-2.2). Manifesto, ABI e atividade principal ainda pendentes. Build Android não executado.
+- 2026-11-25 — governança operacional e baseline técnica concluídas (OP-0.1 a OP-0.4; P0-1.1 a P0-1.5/ADR-0005); fundação Android, configuração Gradle/SDK, manifesto, Activity Compose e ABI arm64-v8a implementados e revisados (P0-2.1 a P0-2.5). Build Android ainda não executado.
