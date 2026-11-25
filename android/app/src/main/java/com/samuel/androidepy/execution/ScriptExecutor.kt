@@ -2,6 +2,7 @@ package com.samuel.androidepy.execution
 
 import android.content.Context
 import android.util.Log
+import com.samuel.androidepy.bridge.AndroidBridgeAdapter
 import com.samuel.androidepy.runtime.PythonRuntime
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -65,6 +66,7 @@ class ScriptExecutor(context: Context) {
                 val startedAt = System.currentTimeMillis()
                 val result = try {
                     PythonRuntime.initialize(appContext)
+                    PythonRuntime.configureBridge(AndroidBridgeAdapter(appContext))
                     val json = PythonRuntime
                         .getModule("runner")
                         .callAttr(
