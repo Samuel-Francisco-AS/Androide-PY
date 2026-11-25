@@ -170,7 +170,7 @@ Arquivos de scripts, arquivos temporários, backups e artefatos serão armazenad
 - `script_versions`: snapshots imutáveis por script e número sequencial de versão.
 - `script_executions`: histórico desacoplado do ciclo de vida do script, com nome/version snapshot, parâmetros resolvidos, estado, horários, duração, stdout/stderr, erro e flags de truncamento.
 - A exclusão de um script remove seus metadados e snapshots de versão em transação; registros de execução permanecem para preservar o histórico.
-- A migração Room 1 → 2 adiciona os metadados e tabelas novas sem descartar scripts P0. O acesso permanece exclusivamente mediado por DAOs/repositórios Kotlin.
+- Durante o desenvolvimento, Room utiliza `fallbackToDestructiveMigration()` para recriar o banco quando não houver migração compatível; isso pode descartar todos os scripts, versões e execuções locais. Conforme ADR-0007, migrações de preservação só serão exigidas mediante solicitação expressa. O acesso permanece exclusivamente mediado por DAOs/repositórios Kotlin.
 - O script recebe valores de entrada por um dicionário Python chamado `params`; a validação do esquema e dos valores ocorre no host antes da execução.
 - O manifesto de dependências é declarativo. Não há promessa de instalação pip genérica em runtime; compatibilidade precisa ser confirmada para Chaquopy, CPython 3.13 e ABI Android alvo.
 
