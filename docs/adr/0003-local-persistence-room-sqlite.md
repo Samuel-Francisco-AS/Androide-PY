@@ -1,6 +1,6 @@
 # ADR-0003: Persistência local com Room e SQLite
 
-- **Status:** Validado na P0; estratégia destrutiva de desenvolvimento aceita na P1
+- **Status:** Validado na P0; Room/schema P1 implementados; fallback destrutivo específico não validado isoladamente
 - **Data:** 2026-11-24
 
 ## Contexto
@@ -50,3 +50,8 @@ A P1 mantém Room/SQLite como fonte de verdade e utiliza o schema versão 2:
 Conforme o ADR-0007, a preservação de dados locais não é requisito padrão durante o desenvolvimento. O `Room.databaseBuilder` utiliza `fallbackToDestructiveMigration()`: quando a versão instalada não possui caminho de migração compatível, Room recria o banco usando o schema atual. Isso pode apagar scripts, versões e execuções locais. Migrações explícitas só serão adicionadas quando houver solicitação expressa de preservação.
 
 O schema Room não é exportado/versionado nesta etapa (`exportSchema = false`), pois não há migrações históricas a validar. A integridade do schema atual continua sendo verificada pelos testes de persistência e pelo build.
+
+
+## Evolução P2 — Mapas de Coordenadas
+
+Os Mapas de Coordenadas previstos na P2 reutilizarão a infraestrutura Room existente, com persistência mediada por repositórios Kotlin. Os registros conterão apenas nome, pontos/coordenadas e metadados técnicos mínimos de calibração; não armazenarão texto de tela, valores de campos, screenshots ou credenciais. Os mapas permanecerão no armazenamento privado e não serão exportados junto com scripts nem transmitidos automaticamente. As regras Android de backup/transferência deverão ser revisadas e validadas no Android 15/API 35 antes de afirmar que esses dados estão excluídos de toda modalidade de backup. Ver ADR-0009.
