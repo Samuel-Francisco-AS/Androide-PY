@@ -15,6 +15,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Persistência P0](operations/P0_PERSISTENCE.md): Room, script inicial, gravação e tratamento de falhas.
 - [Plano de testes de integração P0](operations/P0_INTEGRATION_TEST_PLAN.md): comandos sem ADB e roteiro físico no Moto G06.
 - [Build e testes no Fedora](operations/P0_BUILD_AND_TEST.md): sincronização segura da branch, testes e geração do APK sem ADB.
+- [Relatório da implementação P0](operations/P0_IMPLEMENTATION_REPORT.md): escopo entregue, limites e validações pendentes.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
