@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Fundação Android, runtime Python e executor implementados; testes e build aguardam execução no Fedora.
+**Estado geral:** 🟡 Implementação remota P0 publicada e revisada estaticamente; testes, build e validação física aguardam execução no Fedora/Moto G06.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -143,7 +143,7 @@
 - [x] **P0-6.5** Criar testes de persistência e recuperação.
 - [x] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
 
-**Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Arquivos Gradle recuperados e conferidos após publicação. Commits: `107a99c` e `b3ec8d3`. Entidades/DAO/database/repositório ainda serão implementados na subetapa P0-6.2; build não executado.
+**Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Entidades/DAO/database/repositório foram concluídos em P0-6.2. Arquivos Gradle recuperados e conferidos. Commits: `107a99c` e `b3ec8d3`. Build KSP/Room ainda não executado.
 
 **Evidência P0-6.2:** criados `ScriptEntity`, `ScriptDao`, `AppDatabase` e `ScriptRepository`. O schema inicial contém id, nome, source_code, created_at e updated_at; DAO oferece leitura por id, inserção sem sobrescrever e upsert; repository cria o script default de forma race-safe, preserva createdAt e atualiza updatedAt. Banco `androide_py.db` fica no armazenamento privado padrão do app e não usa migração destrutiva automática. Arquivos recuperados e revisados no GitHub. Commits: `7bce5b7`, `e56b51d`, `f40a1c1`, `e369f7b`. Compilação KSP/Room pendente.
 
@@ -173,15 +173,21 @@
 
 - [x] **P0-8.1** Adicionar testes unitários Kotlin e Python compatíveis com a arquitetura.
 - [x] **P0-8.2** Documentar testes de integração sem ADB e roteiro físico para runtime, executor, Bridge e persistência.
-- [ ] **P0-8.3** Executar revisão estática do código, imports, permissões, manifesto e dependências.
-- [ ] **P0-8.4** Atualizar README e documentação técnica com instruções reproduzíveis de build e limites reais.
-- [ ] **P0-8.5** Conferir que nenhum segredo, dado pessoal, caminho absoluto da máquina de desenvolvimento ou configuração local foi publicado.
-- [ ] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
-- [ ] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
+- [x] **P0-8.3** Executar revisão estática do código, imports, permissões, manifesto e dependências.
+- [x] **P0-8.4** Atualizar README e documentação técnica com instruções reproduzíveis de build e limites reais.
+- [x] **P0-8.5** Conferir que nenhum segredo, dado pessoal, caminho absoluto da máquina de desenvolvimento ou configuração local foi publicado.
+- [x] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
+- [x] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
 
 **Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Testes escritos e conferidos no GitHub; ainda não executados. Comandos locais estão nos documentos operacionais.
 
 **Evidência P0-8.2:** [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md) reúne comandos host/JVM e roteiro manual para runtime Chaquopy, executor, Bridge, Room, exceções, truncamento, rotação e persistência. Não foram criados testes instrumentados que exijam ADB, conforme preferência do usuário. A execução automatizada e o roteiro físico continuam pendentes.
+
+**Evidências P0-8.3/P0-8.4/P0-8.5:** revisão estática dos arquivos Gradle, Manifest, Kotlin, Python e testes; configuração de plugins/dependências coerente com a baseline; Manifest sem `uses-permission`, sem `QUERY_ALL_PACKAGES`; Bridge não coleta identificadores sensíveis; módulos Python não referenciam Room/SQLite; varredura dos arquivos consultados não encontrou caminhos locais absolutos, tokens, chaves ou dados pessoais do usuário. `.gitignore` contém somente a regra normal para ignorar `local.properties`. README principal, índice docs, smoke check, contratos, plano de integração e guia Fedora atualizados.
+
+**Evidência P0-8.6:** comparação GitHub `main...feat/p0-runtime-bridge` retornou 45 arquivos alterados, branch 130 commits à frente e 0 atrás. Diff revisado por categorias (Gradle/manifesto, runtime/executor, Bridge, Room, UI, testes e documentação). Relatório [P0_IMPLEMENTATION_REPORT.md](P0_IMPLEMENTATION_REPORT.md) publicado no commit `aeb9cff9a230a552237afaeb11422a62e15636b5`. A branch não foi mesclada; devido ao histórico incremental, recomenda-se squash merge somente depois da validação P0-9.
+
+**Evidência P0-8.7:** [P0_BUILD_AND_TEST.md](P0_BUILD_AND_TEST.md) documenta sincronização segura da branch, remoção apenas das cópias locais do Wrapper após conferência, `chmod +x android/gradlew`, testes Python/JVM, build APK e transferência manual pelo fluxo My-CT. Nenhum desses comandos foi executado pela assistente no Fedora.
 
 ## P0-9 — Validação local e física (dependente do usuário)
 
@@ -218,4 +224,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — governança, baseline técnica e fundação Android concluídas (OP-0; P0-1; P0-2). Runtime Chaquopy/Python 3.13 implementado e documentado (P0-3). Contrato, executor serial, captura de streams/exceções, testes host/JVM e revisão de lifecycle concluídos em código (P0-4); testes e build aguardam execução local.
+- 2026-11-25 — implementação remota da P0 concluída em código na branch `feat/p0-runtime-bridge`: host Android/Compose, Chaquopy/Python 3.13, executor, console, Android Bridge, Room/SQLite, testes e documentação. Revisão estática concluída. Nenhum teste/build foi executado; P0-9 aguarda sincronização e validação pelo usuário.
