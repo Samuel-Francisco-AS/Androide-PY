@@ -168,12 +168,13 @@ Esses itens não foram aprovados; foram mantidos como pendências explícitas po
 
 ## 8. Critério para encerramento
 
-P1 só poderá ser considerada concluída após todos os critérios de aceite do checklist. Testes automatizados e build local foram executados; a validação física está em andamento e já cobre P1-TF01–TF12. Ainda faltam os cenários de erro de parâmetros, importação/exportação, operações restantes da biblioteca, editor, dependências e a confirmação isolada do fallback destrutivo. Não há requisito de preservar dados P0. PR e merge são etapas de integração, não substituem validação funcional.
+P1 foi encerrada conforme o escopo acordado em 25/11/2026: testes automatizados e build local executados; validação física do fluxo principal e das duas capacidades mobile concluída no Moto G06. P1-TF13 permanece inconclusivo/diferido; os cenários de tipo inválido, fila cheia, falhas de persistência, manifesto/dependências, desempenho do editor e fallback destrutivo específico foram deliberadamente adiados e permanecem pendentes, sem serem declarados aprovados. Não há requisito de preservar dados P0. Essa decisão de escopo e suas limitações estão documentadas no checklist operacional.
 
 ## 9. Integração
 
 - Branch: feat/p1-script-library.
-- Diff: 34 arquivos; 2.091 adições e 568 remoções no último comparativo.
-- Base: main.
-- PR #2: https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2 — aberta em draft, aguardando testes/build/validação.
-- Squash Merge: não realizado; requer revisão final e autorização explícita para a P1.
+- Diff integrado: 37 arquivos; 2.234 adições e 587 remoções (dados da PR no momento do merge).
+- Base: `main`.
+- PR #2: https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2 — fechada como merged em 25/11/2026.
+- Squash Merge concluído: `3196115a7fae0318f258cdd9611a373e32564679`.
+- Checklist operacional atualizado após o merge; pendências futuras e limitações permanecem explicitamente registradas.
