@@ -33,7 +33,9 @@ docs/
 │   ├── P0_RUNTIME_SMOKE.md
 │   ├── P0_EXECUTION_CONTRACT.md
 │   ├── P0_ANDROID_BRIDGE_CONTRACT.md
-│   └── P0_PERSISTENCE.md
+│   ├── P0_PERSISTENCE.md
+│   ├── P1_EXECUTION_CHECKLIST.md
+│   └── P1_IMPLEMENTATION_REPORT.md
 └── adr/
     ├── README.md
     ├── 0001-android-native-host.md
