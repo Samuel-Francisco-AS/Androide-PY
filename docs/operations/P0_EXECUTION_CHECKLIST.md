@@ -136,12 +136,14 @@
 
 ## P0-6 — Persistência local mínima
 
-- [ ] **P0-6.1** Implementar persistência de metadados com Room/SQLite conforme ADR-0003.
+- [x] **P0-6.1** Configurar Room/SQLite e processamento KSP conforme ADR-0003.
 - [ ] **P0-6.2** Definir entidade/DAO/repositório mínimos para o script de teste e seu conteúdo.
 - [ ] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
 - [ ] **P0-6.4** Tratar primeira inicialização, ausência de registro e falhas de persistência.
 - [ ] **P0-6.5** Criar testes de persistência e recuperação.
 - [ ] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
+
+**Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Arquivos Gradle recuperados e conferidos após publicação. Commits: `107a99c` e `b3ec8d3`. Entidades/DAO/database/repositório ainda serão implementados na subetapa P0-6.2; build não executado.
 
 **Gate P0-6:** script salvo e recuperável por repositório Kotlin, com testes de persistência.
 
