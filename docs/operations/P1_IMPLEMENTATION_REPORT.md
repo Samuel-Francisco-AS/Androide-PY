@@ -139,5 +139,5 @@ P1 só poderá ser considerada concluída após todos os critérios de aceite do
 
 - Branch: feat/p1-script-library.
 - Base: main.
-- PR: ainda não criada.
-- Squash Merge: não autorizado nesta fase até confirmação explícita do usuário.
+- PR #2: https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2 — aberta em draft, aguardando testes/build/validação.
+- Squash Merge: não realizado; requer revisão final e autorização explícita para a P1.
