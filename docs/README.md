@@ -7,7 +7,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Visão do projeto](PROJECT_VISION.md): propósito, público, objetivos, escopo e princípios.
 - [Arquitetura](ARCHITECTURE.md): visão lógica, componentes, contratos, execução, persistência e segurança.
 - [Roadmap](ROADMAP.md): fases de desenvolvimento, entregáveis e critérios de aceite.
-- [ADRs](adr/README.md): registro das decisões arquiteturais relevantes.\n- [Checklist operacional P0](operations/P0_EXECUTION_CHECKLIST.md): fases, subetapas, critérios de aceite e evidências.\n- [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
+- [ADRs](adr/README.md): registro das decisões arquiteturais relevantes.\n- [Checklist operacional P0](operations/P0_EXECUTION_CHECKLIST.md): fases, subetapas, critérios de aceite e evidências.\n- [Smoke check do runtime Python](operations/P0_RUNTIME_SMOKE.md): contrato inicial e validação manual sem ADB.\n- [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
 
