@@ -73,14 +73,28 @@ class ScriptRepository(
         script
     }
 
+    /** Preserve existing metadata for callers that only update name/source. */
+    suspend fun save(scriptId: String, name: String, sourceCode: String): ScriptEntity {
+        val previous = getById(scriptId)
+        return save(
+            scriptId = scriptId,
+            name = name,
+            sourceCode = sourceCode,
+            description = previous?.description.orEmpty(),
+            tagsJson = previous?.tagsJson ?: "[]",
+            parametersJson = previous?.parametersJson ?: "[]",
+            dependenciesJson = previous?.dependenciesJson ?: "[]"
+        )
+    }
+
     suspend fun save(
         scriptId: String,
         name: String,
         sourceCode: String,
-        description: String = "",
-        tagsJson: String = "[]",
-        parametersJson: String = "[]",
-        dependenciesJson: String = "[]"
+        description: String,
+        tagsJson: String,
+        parametersJson: String,
+        dependenciesJson: String
     ): ScriptEntity {
         require(scriptId.isNotBlank()) { "scriptId cannot be blank." }
         return storage("save script '$scriptId'") {
