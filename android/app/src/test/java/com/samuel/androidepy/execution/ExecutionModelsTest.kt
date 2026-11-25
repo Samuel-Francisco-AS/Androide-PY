@@ -18,7 +18,7 @@ class ExecutionModelsTest {
               "execution_id": "exec-1",
               "script_id": "scratch",
               "status": "SUCCEEDED",
-              "stdout": "hello\\n",
+              "stdout": "hello\n",
               "stderr": "",
               "error": null,
               "started_at_ms": 100,
@@ -34,7 +34,7 @@ class ExecutionModelsTest {
         assertEquals("exec-1", result.executionId)
         assertEquals("scratch", result.scriptId)
         assertEquals(ExecutionStatus.SUCCEEDED, result.status)
-        assertEquals("hello\\n", result.stdout)
+        assertEquals("hello\n", result.stdout)
         assertEquals("", result.stderr)
         assertNull(result.error)
         assertEquals(25L, result.durationMs)
@@ -49,12 +49,12 @@ class ExecutionModelsTest {
               "execution_id": "exec-2",
               "script_id": "scratch",
               "status": "FAILED",
-              "stdout": "before\\n",
-              "stderr": "warning\\n",
+              "stdout": "before\n",
+              "stderr": "warning\n",
               "error": {
                 "type": "ValueError",
                 "message": "boom",
-                "traceback": "Traceback...\\nValueError: boom"
+                "traceback": "Traceback...\nValueError: boom"
               },
               "started_at_ms": 200,
               "finished_at_ms": 205,
@@ -67,8 +67,8 @@ class ExecutionModelsTest {
         val result = ScriptExecutionResult.fromJson(json)
 
         assertEquals(ExecutionStatus.FAILED, result.status)
-        assertEquals("before\\n", result.stdout)
-        assertEquals("warning\\n", result.stderr)
+        assertEquals("before\n", result.stdout)
+        assertEquals("warning\n", result.stderr)
         assertNotNull(result.error)
         assertEquals("ValueError", result.error?.type)
         assertEquals("boom", result.error?.message)
