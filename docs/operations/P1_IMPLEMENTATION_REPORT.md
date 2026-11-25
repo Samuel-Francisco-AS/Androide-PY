@@ -5,7 +5,7 @@
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
 **Data do registro:** 2026-11-25  
-**Estado:** implementação publicada; testes host Python 13/13 PASS, testes JVM `:app:testDebugUnitTest` BUILD SUCCESSFUL, build debug `:app:assembleDebug` concluído e APK (~32 MB) instalado no Moto G06. Validação física P1-TF01–TF11 em andamento, conforme relatos do usuário.
+**Estado:** implementação publicada; testes host Python 13/13 PASS, testes JVM `:app:testDebugUnitTest` BUILD SUCCESSFUL, build debug `:app:assembleDebug` concluído e APK (~32 MB) instalado no Moto G06. Validação física P1-TF01–TF12 em andamento, conforme relatos do usuário.
 
 ## 1. Objetivo
 
@@ -100,7 +100,7 @@ Essas correções e os arquivos do diff foram revisados estaticamente. As APIs d
 
 ## 6. Testes e validações
 
-Testes Python host (13/13 PASS), testes JVM (`:app:testDebugUnitTest` — BUILD SUCCESSFUL) e build debug (`:app:assembleDebug` — BUILD SUCCESSFUL; APK de aproximadamente 32 MB) foram executados pelo usuário e relatados nas conversas do projeto. O APK associado ao commit `f403049b1a3fda0c5638133298a877aceaa47d30` foi transferido pelo My-CT, instalado e aberto no Moto G06. A validação física está em andamento; P1-TF01 a P1-TF11 foram concluídos conforme relato do usuário.
+Testes Python host (13/13 PASS), testes JVM (`:app:testDebugUnitTest` — BUILD SUCCESSFUL) e build debug (`:app:assembleDebug` — BUILD SUCCESSFUL; APK de aproximadamente 32 MB) foram executados pelo usuário e relatados nas conversas do projeto. O APK associado ao commit `f403049b1a3fda0c5638133298a877aceaa47d30` foi transferido pelo My-CT, instalado e aberto no Moto G06. A validação física está em andamento; P1-TF01 a P1-TF12 foram concluídos conforme relato do usuário.
 
 | Categoria | Estado |
 |---|---|
@@ -109,7 +109,7 @@ Testes Python host (13/13 PASS), testes JVM (`:app:testDebugUnitTest` — BUILD 
 | Testes JVM/Kotlin | `:app:testDebugUnitTest` — BUILD SUCCESSFUL (relatado pelo usuário) |
 | Build APK P1 | `:app:assembleDebug` — BUILD SUCCESSFUL; APK ~32 MB (relatado pelo usuário) |
 | Instalação | APK do commit `f403049b1a3fda0c5638133298a877aceaa47d30`, transferido via My-CT e instalado no Moto G06 |
-| Validação física Moto G06 | P1-TF01–TF11 concluídos conforme relato do usuário; demais testes pendentes |
+| Validação física Moto G06 | P1-TF01–TF12 concluídos conforme relato do usuário; demais testes pendentes |
 | Fallback destrutivo | App/biblioteca inicializam; cenário específico de migração incompatível ainda não isolado como teste |
 | PR | #2 aberta em draft; aguarda validação |
 
@@ -138,10 +138,11 @@ Os resultados desta seção são relatos do usuário, não medições/logs obtid
 | P1-TF09 | Descrição | Salvou descrição, criou v6 e moveu o card para o topo da biblioteca. |
 | P1-TF10 | Tags | Salvou validacao-p1 e criou v7. |
 | P1-TF11 | Parâmetros | JSON de cidade como string obrigatório aceito; nova versão criada; persistência confirmada após sair e voltar. Número da versão não informado. |
+| P1-TF12 | Entrega de parâmetros | Valor `{"cidade":"Recife"}` informado no JSON de execução; `print(params["cidade"])` executado e `stdout` retornou `Recife`. Passagem básica de parâmetro string aprovada. |
 
 Sequência confirmada: v2 código original; v3 edição do código; v4 restauração de v2; v5 restauração de v3; v6 descrição; v7 tags; versão posterior para parâmetros (número não informado).
 
-Próximo teste: P1-TF12 deve validar a passagem real de valores JSON ao Python por `params`, usando `{"cidade":"Recife"}` e um script que imprima `params["cidade"]`. Em seguida, testar separadamente parâmetro obrigatório ausente e tipo inválido. Importação/exportação, busca, renomeação, exclusão, editor (teclado/linhas/realce), manifesto de dependências, catálogo mobile e fallback destrutivo específico permanecem pendentes.
+P1-TF12 aprovado: a passagem de `{"cidade":"Recife"}` ao Python foi confirmada por `print(params["cidade"])`, com `Recife` em stdout. Próximos testes de parâmetros: verificar separadamente parâmetro obrigatório ausente e tipo inválido. Importação/exportação, busca, renomeação, exclusão, editor (teclado/linhas/realce), manifesto de dependências, catálogo mobile e fallback destrutivo específico permanecem pendentes.
 ## 7. Limitações e riscos remanescentes
 
 - `fallbackToDestructiveMigration()` pode apagar scripts, versões e execuções locais quando o app for atualizado de uma versão de banco sem migração compatível. Esse comportamento é intencional durante o desenvolvimento e deve ser informado antes da instalação/validação. A abertura da biblioteca no Moto G06 confirma inicialização funcional do banco usado pelo APK, mas não documenta isoladamente qual caminho de fallback ocorreu nem quais dados foram descartados.
@@ -155,7 +156,7 @@ Próximo teste: P1-TF12 deve validar a passagem real de valores JSON ao Python p
 
 ## 8. Critério para encerramento
 
-P1 só poderá ser considerada concluída após todos os critérios de aceite do checklist. Testes automatizados e build local foram executados; a validação física está em andamento e já cobre P1-TF01–TF11. Ainda faltam o fluxo real de parâmetros, importação/exportação, operações restantes da biblioteca, editor, dependências e a confirmação isolada do fallback destrutivo. Não há requisito de preservar dados P0. PR e merge são etapas de integração, não substituem validação funcional.
+P1 só poderá ser considerada concluída após todos os critérios de aceite do checklist. Testes automatizados e build local foram executados; a validação física está em andamento e já cobre P1-TF01–TF12. Ainda faltam os cenários de erro de parâmetros, importação/exportação, operações restantes da biblioteca, editor, dependências e a confirmação isolada do fallback destrutivo. Não há requisito de preservar dados P0. PR e merge são etapas de integração, não substituem validação funcional.
 
 ## 9. Integração
 
