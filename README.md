@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** P0 e P1 concluídas e integradas em `main`. A P1 teve testes host/JVM, build APK e validação física do escopo acordado reportados como aprovados no Moto G06; itens diferidos permanecem documentados. A P2 está na preparação P2.0, com contratos e ADRs aceitos, mas sem implementação de produção.
+> **Status:** P0 e P1 concluídas e integradas em `main`. A P1 teve testes host/JVM, build APK e validação física do escopo acordado reportados como aprovados no Moto G06; itens diferidos permanecem documentados. A P2.0 documental foi concluída; a fundação inicial do AccessibilityService e do gateway (P2.1-A) foi publicada na branch de trabalho, ainda sem build ou validação.
 
 ## Objetivos
 
@@ -53,7 +53,7 @@ A P0 está integrada em `main`. O usuário reportou build APK, instalação e ab
 
 A P1 foi integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo acordado foi validado no Moto G06; P1-TF13 e cenários adicionais de tipo inválido, fila cheia, falhas de persistência, dependências e fallback destrutivo específico permanecem diferidos, sem serem declarados aprovados. Consulte o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md) e o [relatório P1](docs/operations/P1_IMPLEMENTATION_REPORT.md).
 
-**P2 — estado atual:** P2.0.1–P2.0.10 concluídas documentalmente. A próxima subetapa é P2.1 — Fundação nativa e autorização. Nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A próxima subetapa após o gate P2.0 é P2.1 — Fundação nativa e autorização. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
+**P2 — estado atual:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — teve a implementação inicial publicada e revisada estaticamente; build, testes e validação física permanecem pendentes. P2.1-B e P2.1-C ainda não foram iniciadas. A próxima subetapa após o gate P2.0 é P2.1 — Fundação nativa e autorização. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
 
 ## Build e testes
 
