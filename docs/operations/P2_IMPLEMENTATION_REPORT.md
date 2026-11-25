@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente após harmonização; nenhuma implementação de produção P2 foi iniciada. P2.1 — Fundação nativa e autorização — é a próxima subetapa. Testes automatizados, build APK e validação física de funcionalidades P2 ainda não foram executados.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente após harmonização; nenhuma implementação de produção P2 foi iniciada. P2.1-A — Fundação nativa — é a próxima subetapa. Testes automatizados, build APK e validação física de funcionalidades P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -251,10 +251,15 @@ O índice `docs/adr/README.md` foi atualizado. As decisões foram conferidas con
 
 ## 4. Decomposição aprovada
 
-A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md).
+A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md). Por decisão de Sam em 25/11/2026, cada fase terá no máximo três subetapas de execução; requisitos internos permanecem como critérios verificáveis, não como entregas fragmentadas.
 
 1. **P2.0 — Preparação, baseline e contratos:** leitura da documentação e código real, confirmação das versões/API, protocolo assíncrono, API Python, privacidade e ADRs.
-2. **P2.1 — Fundação nativa e autorização:** AccessibilityService, manifesto/configuração, explicação e estado de autorização, lifecycle, erros e testes básicos.
+2. **P2.1 — Fundação nativa e autorização**, dividida em:
+   - **P2.1-A — Fundação nativa:** AccessibilityService, XML/manifesto, gateway application-scoped e lifecycle.
+   - **P2.1-B — Autorização e integração:** explicação e acesso às configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis.
+   - **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação no Moto G06.
+   
+   Os nove requisitos originais P2.1.1–P2.1.9 foram mapeados nas três entregas e permanecem preservados no checklist.
 3. **P2.2 — Prioridade A: interação e Mapa de Coordenadas:** toques/cliques, digitação, rolagem, gestos básicos e mapa visual com timer, overlay, múltiplos pontos, persistência e reutilização.
 4. **P2.3 — Prioridade B: consulta e coleta:** snapshot/consulta sob demanda, estruturas Python, filtros, console, opção de arquivo e proteção de dados sensíveis.
 5. **P2.4 — Prioridade C: leitura e identificação:** árvore limitada, atributos, busca semântica, referências temporárias e ações sobre elementos.
@@ -333,6 +338,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | P2.0.8: revisão de privacidade e segurança publicada em `P2_SECURITY_REVIEW.md`; autorização sensível separada para leitura/escrita, minimização de dados e riscos residuais P1 documentados; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.9: ADR-0008 e ADR-0009 publicados; fronteira AccessibilityService/Bridge, consentimento sensível e retenção independente de saídas formalizados; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.10: visão, arquitetura, roadmap, ADRs/índices e contratos harmonizados com as decisões aceitas; sem alterações de produção, testes, build ou validação física. Próxima etapa: P2.1. |
+| 2026-11-25 | Decomposição P2.1 simplificada por aprovação de Sam: os nove requisitos originais foram preservados e agrupados em P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). Nenhuma implementação foi iniciada nesta atualização documental. |
 
 
 ## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
