@@ -73,7 +73,8 @@ class ScriptExecutor(context: Context) {
                             "execute",
                             request.sourceCode,
                             request.executionId,
-                            request.scriptId
+                            request.scriptId,
+                            request.parametersJson
                         )
                         .toString()
 
