@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.5 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
+**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.6 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -256,7 +256,7 @@ Os resultados históricos da P0/P1 não são evidência de funcionamento da P2.
 ## 8. Riscos e questões técnicas a resolver
 
 1. Viabilidade e comportamento de `TYPE_ACCESSIBILITY_OVERLAY` nas versões Android suportadas e no Moto G06.
-2. Protocolo assíncrono entre execução Python serial e serviço Android, evitando bloqueio da UI e chamadas indefinidas.
+2. Implementar e testar o protocolo assíncrono já especificado entre execução Python serial e serviço Android, evitando bloqueio da UI, callbacks tardios e chamadas indefinidas.
 3. Limitações de `dispatchGesture`, ações de texto e ações de nós conforme API level e aplicativo de destino.
 4. Conversão correta entre coordenadas físicas, densidade, orientação, barras do sistema, insets e área útil.
 5. Persistência e versionamento de mapas de coordenadas sem criar acoplamento desnecessário.
