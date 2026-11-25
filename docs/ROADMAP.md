@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2 em preparação documental na branch `feat/p2-accessibility-automation`  
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental concluída e P2.1-A com implementação inicial publicada na branch `feat/p2-accessibility-automation`, ainda sem build/testes.  
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A próxima subetapa é P2.1 — Fundação nativa e autorização. Contratos e ADRs foram aceitos, mas nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
+**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. A implementação inicial da P2.1-A está publicada e revisada estaticamente; build, testes e validação física ainda estão pendentes. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
@@ -86,12 +86,13 @@ Entregas:
 - Harmonizar visão, arquitetura, roadmap, índices e contratos sem declarar funcionalidade futura como implementada.
 
 ### P2.1 — Fundação nativa e autorização
-- Declarar/configurar AccessibilityService e capabilities estritamente necessárias.
-- Explicar a finalidade e orientar o usuário a habilitar/desabilitar manualmente nas configurações Android.
-- Distinguir `not_enabled`, `disconnected` e `connected`.
-- Implementar gateway application-scoped e lifecycle gerenciado pelo Android; não instanciar serviço manualmente nem reter Activity.
-- Tratar interrupção/desconexão, limpar pendências e expor erros estáveis.
-- Testar autorização, reconexão, teardown e ausência de bloqueio da main thread.
+
+A execução está limitada a três subetapas:
+- **P2.1-A — Fundação nativa:** classe AccessibilityService, XML e manifesto, gateway application-scoped e lifecycle gerenciado pelo Android. Implementação inicial publicada; build pendente.
+- **P2.1-B — Autorização e integração:** explicação e instruções para configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis.
+- **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação de habilitação/revogação/reconexão no Moto G06.
+
+A fundação inicial recebe somente `typeWindowStateChanged`; não declara capacidade de recuperar conteúdo nem de executar gestos. A tela de autorização e os estados públicos ainda não foram implementados.
 
 ### P2.2 — Prioridade A: interação e Mapa de Coordenadas
 - Implementar `tap`, `type_text`, `swipe` e `scroll` conforme contrato Python.
