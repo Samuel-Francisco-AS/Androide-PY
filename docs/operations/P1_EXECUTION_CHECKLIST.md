@@ -110,9 +110,9 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 
 ## P1.7 — Revisão, testes e gate
 
-**Estado:** PENDENTE.
+**Estado:** TESTES AUTOMATIZADOS EXECUTADOS; build APK e validação física pendentes.
 
-- [x] Revisar estaticamente os 35 arquivos do diff completo; build e testes continuam pendentes.
+- [x] Revisar estaticamente os 36 arquivos do diff completo; build APK e validação física continuam pendentes.
 - [x] Executar testes Python host: 13/13 PASS, conforme saída relatada pelo usuário.
 - [x] Executar `:app:testDebugUnitTest`: `BUILD SUCCESSFUL`, conforme saída relatada pelo usuário.
 - [ ] Executar build debug localmente pelo usuário.
