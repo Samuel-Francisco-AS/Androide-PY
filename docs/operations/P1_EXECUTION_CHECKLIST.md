@@ -3,7 +3,7 @@
 **Branch:** feat/p1-script-library  
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
-**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM :app:testDebugUnitTest BUILD SUCCESSFUL; build debug :app:assembleDebug concluído e APK (~32 MB) transferido/instalado no Moto G06. Validação física em andamento: P1-TF01 a P1-TF12 concluídos conforme relatos do usuário; testes seguintes pendentes.
+**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM :app:testDebugUnitTest BUILD SUCCESSFUL; build debug :app:assembleDebug concluído e APK (~32 MB) transferido/instalado no Moto G06. Validação física em andamento: P1-TF01 a P1-TF12 aprovados/concluídos e P1-TF13 inconclusivo, conforme relatos do usuário; melhoria de feedback para parâmetros obrigatórios ausentes diferida para a próxima fase.
 
 Este documento é a fonte de verdade do progresso da P1. Publicação no GitHub não equivale a build, teste ou validação física.
 
@@ -17,7 +17,7 @@ Para cada subetapa, seguir obrigatoriamente:
 4. **MARCA:** atualizar este checklist somente com evidência.
 5. **CONFERE:** reler o estado atualizado antes de avançar.
 
-Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TESTADO, VALIDADO FISICAMENTE.
+Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE PENDENTE, TESTADO, VALIDADO FISICAMENTE.
 
 ## P1.0 — Preparação e contratos
 
@@ -88,7 +88,8 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Testes JVM executados: :app:testDebugUnitTest — BUILD SUCCESSFUL (relato do usuário).
 - [x] Validar execução básica, saída no console e registro no histórico; fechar/reabrir o app e confirmar persistência do script e conseguir executar novamente.
 - [x] Validar execução com parâmetro string: P1-TF12 recebeu `{"cidade":"Recife"}` e produziu `Recife` em stdout.
-- [ ] Validar parâmetro obrigatório ausente, tipo inválido, fila cheia e falhas de persistência.
+- [ ] Validar tipo inválido, fila cheia e falhas de persistência.
+- [ ] **P1-TF13 — INCONCLUSIVO / DIFERIDO:** parâmetro obrigatório `cidade` ausente (`{}`) impediu a execução, mas não houve mensagem visual, saída no console nem registro no histórico. A evidência não permite distinguir bloqueio de validação sem feedback de falha silenciosa; não marcar como aprovado. Adiar a correção para a próxima fase: informar claramente o parâmetro ausente, bloquear o runner antes da execução e cobrir ausência/tipo inválido com testes automatizados.
 
 ## P1.5 — Biblioteca Python mobile
 
@@ -125,7 +126,8 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Transferir pelo My-CT, instalar e abrir o APK no Moto G06; APK associado ao commit f403049b1a3fda0c5638133298a877aceaa47d30.
 - [x] Registrar resultados físicos P1-TF01 a P1-TF12 como relatos do usuário (detalhes na seção Evidências físicas).
 - [x] Validar ciclo básico de parâmetros: P1-TF12 forneceu `{"cidade":"Recife"}`, executou `print(params["cidade"])` e recebeu `Recife` em stdout.
-- [ ] Validar parâmetro obrigatório ausente e tipo inválido.
+- [ ] Validar tipo inválido.
+- [ ] P1-TF13: registrado como INCONCLUSIVO; não repetir nesta fase. Implementar na próxima fase feedback visível para parâmetro obrigatório ausente, bloqueio explícito antes do runner e testes automatizados.
 - [ ] Validar importação/exportação, renomeação, exclusão, pesquisa, editor (teclado/linhas/realce) e manifesto de dependências no aparelho.
 - [ ] Isolar e confirmar o comportamento do fallback destrutivo em atualização incompatível; dados P0 não precisam ser preservados conforme ADR-0007.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
@@ -151,6 +153,7 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | P1-TF10 | Edição das tags | Aprovado: tag validacao-p1 salva; nova versão 7 criada. |
 | P1-TF11 | Definição JSON de parâmetros | Aprovado: JSON com parâmetro obrigatório cidade do tipo string aceito; salvar criou nova versão; após sair e voltar à tela do script, a definição persistiu. Número dessa versão não foi informado. |
 | P1-TF12 | Entrega de parâmetros ao Python | Aprovado: valor `{"cidade":"Recife"}` informado em Valores para esta execução — JSON; código `print(params["cidade"])`; `stdout` retornou `Recife`. Confirma a entrega e leitura de um parâmetro string no runtime. |
+| P1-TF13 | Parâmetro obrigatório ausente | **INCONCLUSIVO / DIFERIDO:** com `cidade` obrigatório e JSON `{}`, a execução não ocorreu; não houve mensagem visual, saída no console (stdout/stderr) nem entrada no histórico. Não é possível confirmar se a validação bloqueou corretamente ou se houve falha silenciosa. Não aprovado; correção e testes automatizados adiados para a próxima fase. |
 
 ### Sequência de versões observada
 
@@ -165,7 +168,7 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 ### Próximos testes físicos
 
 1. P1-TF12 aprovado: `{"cidade":"Recife"}` foi entregue ao Python e `params["cidade"]` produziu `Recife` em stdout.
-2. Validar separadamente parâmetro obrigatório ausente e tipo inválido, sem misturar cenários.
+2. Tipo inválido permanece pendente. P1-TF13 (parâmetro obrigatório ausente) foi registrado como inconclusivo e diferido para a próxima fase; não repetir nesta P1.
 3. Validar importação/exportação, pesquisa, renomeação e exclusão.
 4. Validar editor no aparelho (teclado, numeração de linhas, realce, rolagem e desempenho).
 5. Validar manifesto de dependências e catálogo mobile no runtime Android.
@@ -193,7 +196,7 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | Testes JVM/Kotlin | :app:testDebugUnitTest — BUILD SUCCESSFUL (relato do usuário) |
 | Build APK P1 | :app:assembleDebug — BUILD SUCCESSFUL; APK ~32 MB (relato do usuário) |
 | Instalação | APK do commit f403049b1a3fda0c5638133298a877aceaa47d30, transferido via My-CT e instalado no Moto G06 |
-| Validação física | P1-TF01–TF12 concluídos conforme relatos do usuário; próximos testes pendentes |
+| Validação física | P1-TF01–TF12 concluídos conforme relatos do usuário; P1-TF13 inconclusivo/diferido; demais testes pendentes |
 | Fallback destrutivo | Inicialização do app/biblioteca confirmada; cenário específico de migração incompatível ainda precisa de evidência isolada |
 | PR | #2 aberta em draft; aguarda validação |
 | Merge | Não realizado; autorização específica P1 ainda não concedida |
