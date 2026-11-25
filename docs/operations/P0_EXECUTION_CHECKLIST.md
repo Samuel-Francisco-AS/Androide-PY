@@ -138,7 +138,7 @@
 
 - [x] **P0-6.1** Configurar Room/SQLite e processamento KSP conforme ADR-0003.
 - [x] **P0-6.2** Definir entidade/DAO/repositório mínimos para o script de teste e seu conteúdo.
-- [ ] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
+- [x] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
 - [x] **P0-6.4** Tratar primeira inicialização, ausência de registro e falhas de persistência.
 - [x] **P0-6.5** Criar testes de persistência e recuperação.
 - [x] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
@@ -147,19 +147,19 @@
 
 **Evidência P0-6.2:** criados `ScriptEntity`, `ScriptDao`, `AppDatabase` e `ScriptRepository`. O schema inicial contém id, nome, source_code, created_at e updated_at; DAO oferece leitura por id, inserção sem sobrescrever e upsert; repository cria o script default de forma race-safe, preserva createdAt e atualiza updatedAt. Banco `androide_py.db` fica no armazenamento privado padrão do app e não usa migração destrutiva automática. Arquivos recuperados e revisados no GitHub. Commits: `7bce5b7`, `e56b51d`, `f40a1c1`, `e369f7b`. Compilação KSP/Room pendente.
 
-**Evidência P0-6.4:** `AndroidePyApplication` disponibiliza `ScriptRepository` lazy no escopo do processo. `getOrCreateDefault()` trata registro ausente com `insertIfAbsent` e relê o resultado; `save()` preserva criação e atualiza modificação. Erros Room/SQLite são convertidos em `ScriptStorageException`, enquanto cancelamento é propagado; não há fallback destrutivo. Documentação `P0_PERSISTENCE.md` publicada e indexada. Commits: `647fd24`, `9d0c124`, `af4919f`, `0d7894f`, `55bc867`, `585ed70`. Leitura/gravação já estão conectadas ao editor; garantir que o botão Executar sempre persista o mesmo código antes de executá-lo será fechado em P0-7.3.
+**Evidência P0-6.4:** `AndroidePyApplication` disponibiliza `ScriptRepository` lazy no escopo do processo. `getOrCreateDefault()` trata registro ausente com `insertIfAbsent` e relê o resultado; `save()` preserva criação e atualiza modificação. Erros Room/SQLite são convertidos em `ScriptStorageException`, enquanto cancelamento é propagado; não há fallback destrutivo. Documentação `P0_PERSISTENCE.md` publicada e indexada. Commits: `647fd24`, `9d0c124`, `af4919f`, `0d7894f`, `55bc867`, `585ed70`. Leitura/gravação e execução agora estão integradas: o botão Executar salva primeiro e envia ao executor exatamente o sourceCode retornado pelo repositório.
 
 **Evidência P0-6.5:** `ScriptRepositoryTest.kt` cobre criação única do script default, atualização preservando createdAt, atualização de updatedAt, nome vazio, erro de banco, propagação de cancelamento, erro do Flow e rejeição de id vazio. Usa DAO falso para rodar em JVM sem ADB. Comando documentado em `P0_PERSISTENCE.md`: `./gradlew :app:testDebugUnitTest`. Fonte conferida no GitHub (blob `6217f38fae6cff332cd3bb07854494d17c933691`); **os testes ainda não foram executados**.
 
 **Evidência P0-6.6:** inspeção dos cinco módulos Python (`main.py`, `runner.py`, `mobile/__init__.py`, `mobile/device.py`, `mobile/apps.py`) não encontrou referências a Room, SQLite, DAO, Entity ou arquivo de banco. `PythonRuntime` recebe somente o adaptador de capacidades; `ScriptExecutor` recebe o código-fonte no request e não expõe repositório/DAO ao runtime. Verificação estática dos arquivos remotos concluída.
 
-**Gate P0-6:** modelos e repositório estão prontos; integração com editor/execução depende de P0-7.2, e testes/build Room aguardam execução local.
+**Evidência P0-6.3:** `MainScreen` carrega o script pelo repositório, salva alterações e, antes de executar, persiste novamente e cria `ScriptExecutionRequest` com o código retornado pelo repositório. Verificação estática confirmou que `repository.save` precede `executor.submit` e que o request usa `saved.sourceCode`. Commit: `82ce719`.\n\n**Gate P0-6:** integração Kotlin concluída; testes JVM e build KSP/Room ainda aguardam execução local.
 
 ## P0-7 — Interface mínima integrada
 
-- [ ] **P0-7.1** Criar tela Compose com editor/campo de código, ação Executar e console.
+- [x] **P0-7.1** Criar tela Compose com editor/campo de código e área de console.
 - [x] **P0-7.2** Carregar e salvar o script de teste pela camada de persistência.
-- [ ] **P0-7.3** Conectar a ação Executar ao executor Python.
+- [x] **P0-7.3** Conectar a ação Executar ao executor Python.
 - [ ] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
 - [ ] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
 - [ ] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
