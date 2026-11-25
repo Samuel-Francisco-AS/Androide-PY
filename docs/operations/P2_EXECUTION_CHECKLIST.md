@@ -204,19 +204,52 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 
 ## 4. P2.1 — Fundação nativa e autorização
 
-**Objetivo:** criar a base Android do serviço sem ainda declarar a automação funcional.
+**Objetivo:** estabelecer a infraestrutura Android do AccessibilityService e seu ciclo de vida, sem declarar as operações de automação como funcionais.
 
-- [ ] **P2.1.1** Implementar classe `AccessibilityService` dedicada e configuração XML de serviço.
-- [ ] **P2.1.2** Declarar o serviço no manifesto com as propriedades mínimas necessárias; justificar cada capability/evento solicitado.
-- [ ] **P2.1.3** Criar tela explicativa de finalidade, riscos e instruções para habilitar/desabilitar o serviço nas configurações Android.
-- [ ] **P2.1.4** Expor estado de disponibilidade/autorização para Kotlin e Python sem solicitar ou ativar autorização automaticamente.
-- [ ] **P2.1.5** Implementar ciclo de vida robusto: conexão, desconexão, serviço indisponível, reinicialização do processo e ausência de Activity retida.
-- [ ] **P2.1.6** Estabelecer política mínima de eventos e janelas de observação; evitar coleta contínua desnecessária.
-- [ ] **P2.1.7** Implementar erros estáveis para serviço não habilitado, serviço desconectado, operação não suportada e timeout.
-- [ ] **P2.1.8** Criar testes JVM/host para estados, protocolo e tratamento de falhas.
-- [ ] **P2.1.9** Validar no Moto G06 habilitação, revogação, reconexão e comportamento após reiniciar o app.
+A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três subetapas no máximo**. Os nove requisitos originalmente enumerados foram preservados e redistribuídos; não são nove entregas independentes.
 
-**Gate P2.1:** serviço declarado corretamente, autorização explícita e estado observável; ciclo de vida testado. Não implica que as operações A estejam prontas.
+### P2.1-A — Fundação nativa
+
+**Escopo:** serviço Android e infraestrutura application-scoped.
+
+- [ ] Implementar uma classe dedicada derivada de `AccessibilityService` e seu XML de configuração.
+- [ ] Declarar o serviço no manifesto com `BIND_ACCESSIBILITY_SERVICE`, intent-filter e metadata corretos; solicitar somente capabilities e eventos mínimos justificados pelo estágio atual.
+- [ ] Criar um gateway/gerenciador application-scoped, integrado à `AndroidePyApplication`, que publique a instância somente a partir dos callbacks reais do Android.
+- [ ] Tratar conexão, interrupção, desconexão e limpeza de referências/solicitações pendentes; não instanciar o serviço manualmente, não reter Activity e não criar um segundo runtime/worker Python.
+- [ ] Manter observação mínima: sem varredura de árvore, leitura de texto, captura contínua ou capacidades de gesto/consulta ainda não necessárias nesta fundação.
+
+**Critérios de aceite:** serviço reconhecido pelo Android; configuração e manifesto coerentes; gateway não mantém referência obsoleta após teardown; nenhuma Activity é retida; capacidades/eventos declarados são mínimos e justificados.
+
+**Mapeia os requisitos originais:** P2.1.1, P2.1.2 e a parte de lifecycle de P2.1.5; estabelece a base técnica para P2.1.6.
+
+### P2.1-B — Autorização e integração
+
+**Escopo:** consentimento explícito, observabilidade e contratos operacionais.
+
+- [ ] Disponibilizar explicação de finalidade, capacidades, riscos e instruções para habilitar/desabilitar o serviço; abrir somente a tela oficial de configurações Android após ação explícita do usuário.
+- [ ] Expor estados distintos `not_enabled`, `disconnected` e `connected` para a camada Kotlin e preparar sua exposição pela Bridge sem ativar autorização automaticamente.
+- [ ] Definir comportamento mínimo de eventos/janelas de observação e garantir que a desconexão/interrupção invalide o estado operacional; não iniciar coleta contínua.
+- [ ] Padronizar falhas para serviço não habilitado, serviço desconectado/interrompido, operação não suportada e timeout, preservando os códigos definidos no protocolo P2.
+- [ ] Não anunciar `mobile.screen` nem capacidades de acessibilidade no catálogo Python antes de suas operações existirem e serem testadas.
+
+**Critérios de aceite:** o usuário controla a autorização nas configurações Android; a UI explica a finalidade e não tenta concedê-la; estados de autorização e conexão não são confundidos; erros são estáveis; a Bridge não expõe objetos Android arbitrários.
+
+**Mapeia os requisitos originais:** P2.1.3, P2.1.4, P2.1.6 e P2.1.7; completa o lifecycle observável de P2.1.5.
+
+### P2.1-C — Testes e validação
+
+**Escopo:** verificação integrada da fundação e do comportamento no dispositivo real.
+
+- [ ] Criar/executar testes JVM/host para estados, gateway, protocolo, falhas, concorrência e callbacks tardios, conforme o ambiente disponível.
+- [ ] Revisar manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
+- [ ] Gerar/conferir build APK no fluxo local do projeto e validar no Moto G06: habilitar, revogar, reconectar e reabrir/reiniciar o aplicativo.
+- [ ] Registrar evidências e limitações separando revisão estática, testes automatizados, build e validação física.
+
+**Critérios de aceite:** testes executados com resultados registrados; build local conferido; habilitação, revogação, reconexão e reinicialização observadas no Moto G06; checklist e relatório revisados. Qualquer item que dependa do usuário/dispositivo permanece pendente até haver confirmação.
+
+**Mapeia os requisitos originais:** P2.1.8 e P2.1.9; verifica os requisitos P2.1.1–P2.1.7 em conjunto.
+
+**Gate P2.1:** fundação nativa declarada corretamente, autorização explícita, estados observáveis, lifecycle robusto e testes/validação registrados. Este gate não significa que toque, digitação, rolagem, consulta, leitura semântica ou Mapa de Coordenadas estejam implementados.
 
 ## 5. P2.2 — Prioridade A: interação e Mapa de Coordenadas
 
