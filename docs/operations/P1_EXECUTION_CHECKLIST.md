@@ -126,12 +126,12 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 
 **Estado:** TESTES AUTOMATIZADOS, BUILD E VALIDAÇÃO FÍSICA DO ESCOPO ACORDADO CONCLUÍDOS. TF01–TF12, TF14–TF15, verificações do editor e as duas capacidades mobile foram exercitados; TF13 inconclusivo/diferido. Os demais cenários não executados foram deliberadamente adiados pelo usuário e não bloqueiam o encerramento desta P1.
 
-- [x] Revisar estaticamente os 36 arquivos do diff completo; build APK e validação física continuam pendentes.
+- [x] Revisar estaticamente o diff da implementação; build APK e validação física do escopo acordado foram concluídos conforme evidências acima.
 - [x] Executar testes Python host: 13/13 PASS, conforme saída relatada pelo usuário.
 - [x] Executar `:app:testDebugUnitTest`: `BUILD SUCCESSFUL`, conforme saída relatada pelo usuário.
 - [x] Executar :app:assembleDebug; APK debug de aproximadamente 32 MB gerado (relato do usuário).
 - [x] Transferir pelo My-CT, instalar e abrir o APK no Moto G06; APK associado ao commit f403049b1a3fda0c5638133298a877aceaa47d30.
-- [x] Registrar resultados físicos P1-TF01 a P1-TF12 e TF14–TF15, além das verificações adicionais do editor, como relatos do usuário (detalhes na seção Evidências físicas).
+- [x] Registrar resultados físicos P1-TF01 a P1-TF12 e TF14–TF15, verificações adicionais do editor e ambas as capacidades da biblioteca mobile, como relatos do usuário (detalhes na seção Evidências físicas).
 - [x] Validar ciclo básico de parâmetros: P1-TF12 forneceu `{"cidade":"Recife"}`, executou `print(params["cidade"])` e recebeu `Recife` em stdout.
 - [ ] Validar tipo inválido — PENDENTE PARA FASE POSTERIOR, conforme decisão de escopo.
 - [ ] P1-TF13: registrado como INCONCLUSIVO; não repetir nesta fase. Implementar na próxima fase feedback visível para parâmetro obrigatório ausente, bloqueio explícito antes do runner e testes automatizados.
@@ -194,6 +194,8 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 
 A validação física da biblioteca mobile foi concluída: `device.get_info()` e `apps.launch()` aprovados no Moto G06.
 ## Critérios de aceite P1
+
+**Decisão de encerramento (25/11/2026):** a P1 será encerrada com o escopo físico acordado e documentado. Os itens não executados e o TF13 inconclusivo permanecem pendentes/diferidos para fases posteriores; não são declarados aprovados nem bloqueiam esta entrega por decisão explícita do usuário.
 
 1. Scripts podem ser criados, importados, renomeados, duplicados, editados, exportados e excluídos.
 2. Scripts e metadados persistem após encerrar/reabrir o aplicativo.
