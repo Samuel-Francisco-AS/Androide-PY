@@ -171,7 +171,7 @@
 
 ## P0-8 — Qualidade, documentação e pacote
 
-- [ ] **P0-8.1** Adicionar testes unitários Kotlin e Python compatíveis com a arquitetura.
+- [x] **P0-8.1** Adicionar testes unitários Kotlin e Python compatíveis com a arquitetura.
 - [ ] **P0-8.2** Adicionar testes de integração para runtime, executor, Bridge e persistência.
 - [ ] **P0-8.3** Executar revisão estática do código, imports, permissões, manifesto e dependências.
 - [ ] **P0-8.4** Atualizar README e documentação técnica com instruções reproduzíveis de build e limites reais.
@@ -179,7 +179,7 @@
 - [ ] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
 - [ ] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
 
-**Gate P0-8:** código e documentação revisados; testes que podem ser executados no ambiente remoto/CI registrados com resultados reais.
+**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Testes escritos e conferidos no GitHub; ainda não executados. Comandos locais estão nos documentos operacionais.\n\n**Gate P0-8:** código e documentação revisados; testes executáveis localmente registrados, com execução ainda pendente.
 
 ## P0-9 — Validação local e física (dependente do usuário)
 
