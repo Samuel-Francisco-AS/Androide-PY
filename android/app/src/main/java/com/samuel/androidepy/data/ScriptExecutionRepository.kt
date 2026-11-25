@@ -1,14 +1,10 @@
 package com.samuel.androidepy.data
 
 import com.samuel.androidepy.execution.ExecutionUpdate
-import com.samuel.androidepy.execution.ScriptExecutionStatus
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 
-class ScriptExecutionRepository(
-    private val dao: ScriptExecutionDao,
-    private val clock: () -> Long = { System.currentTimeMillis() }
-) {
+class ScriptExecutionRepository(private val dao: ScriptExecutionDao) {
     fun observeForScript(scriptId: String): Flow<List<ScriptExecutionEntity>> =
         dao.observeForScript(scriptId)
 
@@ -25,7 +21,7 @@ class ScriptExecutionRepository(
                 scriptId = script.id,
                 scriptNameSnapshot = script.name,
                 scriptVersionNumber = versionNumber,
-                status = ScriptExecutionStatus.QUEUED.name,
+                status = "QUEUED",
                 queuedAtEpochMs = queuedAtEpochMs,
                 startedAtEpochMs = null,
                 finishedAtEpochMs = null,
@@ -44,11 +40,8 @@ class ScriptExecutionRepository(
         val previous = dao.getById(update.executionId) ?: return
         val result = update.result
         val errorJson = result?.error?.let {
-            JSONObject()
-                .put("type", it.type)
-                .put("message", it.message)
-                .put("traceback", it.traceback)
-                .toString()
+            JSONObject().put("type", it.type).put("message", it.message)
+                .put("traceback", it.traceback).toString()
         }
         dao.upsert(
             previous.copy(
