@@ -41,6 +41,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Preparar migração Room 1 → 2 sem fallback destrutivo.
 - [x] Escrever testes de repositório, histórico e persistência de execução.
 - [ ] Executar testes JVM/Kotlin.
+- [ ] Recuperar/gerar e versionar os schemas exportados Room v1 (P0) e v2 (P1); o schema histórico v1 não está presente na branch remota.
 - [ ] Validar migração a partir de um banco real P0 no Moto G06.
 
 ## P1.2 — Biblioteca de scripts
@@ -150,7 +151,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 ## Bloqueios e desvios
 
 - A compatibilidade real de dependências Python é específica por pacote, versão de CPython, ABI e distribuição Chaquopy; a P1 não executa instalação genérica de pacotes.
-- A migração Room foi escrita, mas ainda precisa ser executada contra dados P0 reais.
+- A migração Room foi escrita, mas ainda precisa ser executada contra dados P0 reais. A branch não contém os JSONs de schema exportado v1/v2; o schema v1 precisa ser recuperado/gerado a partir da baseline P0 e ambos devem ser versionados após os builds correspondentes.
 - O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
 - Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
 
