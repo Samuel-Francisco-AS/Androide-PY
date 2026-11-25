@@ -1,0 +1,80 @@
+# ADR-0005: Baseline de ferramentas e dependências da P0
+
+- **Status:** Aceito para implementação inicial; sujeito à validação do build local
+- **Data:** 2026-11-25
+
+## Contexto
+
+A P0 precisa de uma matriz reproduzível para Android, Kotlin, Jetpack Compose, Chaquopy, Room e processamento de anotações. O ambiente de desenvolvimento confirmado pelo usuário é Fedora 44 x86_64, JDK 21.0.10, Gradle Wrapper 8.14.3, Android SDK Platform 36 e Build Tools 36.0.0, com Python host 3.13.18. O aplicativo será validado inicialmente em um Moto G06.
+
+A escolha deve respeitar o SDK já instalado, evitar instalar Gradle globalmente e não exigir NDK adicional apenas para o runtime Chaquopy.
+
+## Decisão
+
+Adotar a seguinte baseline para a implementação P0:
+
+| Componente | Versão/configuração | Justificativa |
+|---|---|---|
+| JDK de build | 21 | Disponível no ambiente; acima do mínimo do AGP |
+| Gradle Wrapper | 8.14.3 | Já disponível e executado com sucesso no ambiente |
+| Android Gradle Plugin | 8.13.2 | Linha AGP 8.13, Gradle mínimo 8.13; suporta API até 36.1 |
+| Kotlin Gradle Plugin | 2.4.21 | Versão estável; compatível com Gradle 7.6.3–9.7.0 e AGP 8.5.2–9.3.1 |
+| Compose Compiler Gradle Plugin | 2.4.21 | Deve acompanhar a versão do Kotlin |
+| Jetpack Compose BOM | 2026.09.00 | BOM estável documentado; o BOM de novembro/2026 requer compileSdk 37.1, indisponível no ambiente atual |
+| Activity Compose | 1.13.0 | Versão estável documentada |
+| Chaquopy | 17.2.0 | Compatível com AGP 7.3–9.5 e Python 3.10–3.15 |
+| Python embarcado | 3.13 | Versão escolhida para o runtime Android |
+| Python host | 3.13.18 | Major/minor coincide com o runtime exigido pelo Chaquopy |
+| Room | 2.8.5 | Versão estável documentada |
+| KSP | 2.3.12 | Compatível com KGP 2.3.20–2.4.x, AGP 8.13+ e Gradle 8.13+ |
+| Kotlin Coroutines | 1.11.0 | Versão estável para execução assíncrona |
+| compileSdk | 36 | Platform 36 já instalada |
+| targetSdk | 36 | Alvo inicial alinhado ao SDK disponível |
+| minSdk | 24 | Mínimo exigido pelo Chaquopy 17.2 |
+| ABI inicial | arm64-v8a | ABI para dispositivos Android atuais; confirmar no Moto G06 durante validação física |
+| JVM target | 17 | Compatibilidade de bytecode Android; o Gradle roda no JDK 21 |
+
+## Repositórios
+
+- Google Maven: plugins Android e dependências AndroidX.
+- Maven Central: Chaquopy e dependências publicadas no Maven Central.
+- Gradle Plugin Portal: resolução de plugins Gradle quando necessário.
+
+## Consequências
+
+### Positivas
+
+- Usa o ambiente já instalado pelo usuário.
+- Evita instalar Gradle globalmente.
+- Usa versões estáveis e uma matriz de compatibilidade documentada.
+- Mantém o runtime Python 3.13 alinhado ao Python host 3.13.
+- Não exige NDK adicional apenas para empacotar as bibliotecas nativas pré-compiladas do Chaquopy.
+- Limita o APK inicial à ABI física pretendida, evitando peso de ABIs que não serão usadas no primeiro teste.
+
+### Custos e riscos
+
+- O build ainda precisa ser executado no Fedora para validar a resolução real dos plugins e dependências.
+- O ABI do Moto G06 deve ser confirmado na primeira validação física; se não for arm64-v8a, a configuração deverá ser revista.
+- O Compose BOM 2026.11.01 não será usado enquanto o ambiente permanecer em compileSdk 36, pois a release de novembro exige compileSdk 37.1.
+- A versão do Chaquopy não garante compatibilidade com qualquer pacote PyPI; dependências adicionais serão avaliadas individualmente.
+
+## Validação pendente
+
+1. Executar `./gradlew :app:assembleDebug` no Fedora.
+2. Corrigir incompatibilidades efetivamente observadas, se houver, e atualizar este ADR.
+3. Instalar o APK por transferência manual ao Moto G06 e confirmar inicialização do runtime.
+4. Confirmar ABI e comportamento real no dispositivo.
+
+## Fontes oficiais consultadas
+
+- Kotlin release process: https://kotlinlang.org/docs/releases.html
+- Kotlin Gradle compatibility: https://kotlinlang.org/docs/gradle-configure-project.html
+- KSP quickstart: https://kotlinlang.org/docs/ksp-quickstart.html
+- Android Gradle Plugin 8.13 release notes: https://developer.android.com/build/releases/agp-8-13-0-release-notes
+- Compose BOM: https://developer.android.com/develop/ui/compose/bom
+- Compose November 2026 release: https://developer.android.com/blog/posts/jetpack-compose-november-2026-release
+- Activity release notes: https://developer.android.com/jetpack/androidx/releases/activity
+- Room release notes: https://developer.android.com/jetpack/androidx/releases/room
+- Chaquopy version summary: https://chaquo.com/chaquopy/doc/current/versions.html
+- Chaquopy Gradle plugin: https://chaquo.com/chaquopy/doc/current/android.html
+- Coroutines releases: https://github.com/Kotlin/kotlinx.coroutines/releases
