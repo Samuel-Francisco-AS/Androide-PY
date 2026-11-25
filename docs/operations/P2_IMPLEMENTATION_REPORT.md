@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.6 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
+**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.7 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -199,6 +199,24 @@ A documentação oficial Chaquopy 17.2 informa que o GIL é liberado durante cha
 P2.0.6 foi concluída como definição documental e revisão estática. O contrato foi conferido contra `PythonRuntime`, `ScriptExecutor`, `AndroidBridgeAdapter`, `runner.py`, fachada `mobile`, contrato P0 da Bridge e contrato P0 de execução. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física foi executado.
 
 A criação/atualização do ADR arquitetural permanece planejada para P2.0.9. A API pública Python, defaults por operação e tipos de retorno específicos permanecem para P2.0.7.
+
+## 3.4 P2.0.7 — Contrato público Python `mobile.screen` — 25/11/2026
+
+O contrato público v1 foi publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
+
+A API será síncrona para os scripts e assíncrona internamente conforme o protocolo P2.0.6. Falhas operacionais serão representadas por `mobile.screen.ScreenError`, derivada de `RuntimeError`, com `code`, `retryable` e `request_id`. Erros locais de argumentos serão `TypeError`/`ValueError`. A API legada `mobile.apps.launch()` permanece inalterada.
+
+A superfície definida inclui:
+- Estado de autorização/conexão por `get_status()`, sem abrir Configurações nem solicitar autorização.
+- Interação geométrica por `tap`, `type_text`, `swipe` e `scroll`, com pixels como padrão, coordenadas normalizadas opcionais e timeouts finitos.
+- Mapa de Coordenadas por `capture_coordinates`, `list_coordinate_maps`, `get_coordinate_map`, `delete_coordinate_map` e `tap_point`; captura de vários pontos nomeados, persistência local e verificação de contexto conhecido.
+- Retornos simples serializáveis e distinção explícita entre conclusão da API Android e efeito real no aplicativo de destino.
+
+`type_text` atua apenas no campo focado por `ACTION_SET_TEXT`, substituindo o conteúdo atual; não há promessa de fallback universal. A primeira operação `scroll` é um gesto geométrico a partir do centro do display. Coordenadas normalizadas não garantem compatibilidade entre layouts.
+
+O catálogo `mobile.capabilities` só deverá listar cada operação depois de sua implementação e testes. `API_VERSION = 1` permanece compatível por adição não disruptiva; a versão da biblioteca será atualizada quando o módulo for efetivamente implementado.
+
+**Evidência:** commit documental `dc7e4673cccb1070b594805a9163d059bfdd6a41`; revisão estática contra os módulos Python atuais, testes host, Bridge Kotlin, executor serial e protocolo P2.0.6. Nenhum código de produção foi alterado; nenhum teste, build ou validação física foi executado.
 
 ## 4. Decomposição aprovada
 
