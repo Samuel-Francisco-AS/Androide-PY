@@ -209,6 +209,11 @@ class ScriptRepositoryTest {
             insertVersionIfAbsent(version)
         }
 
+        override suspend fun deleteScriptAndVersions(scriptId: String) {
+            deleteVersions(scriptId)
+            deleteById(scriptId)
+        }
+
         private fun publish() { state.value = records.values.sortedByDescending { it.updatedAtEpochMs } }
         private fun publishVersions(id: String) {
             versionStates[id]?.value = versions[id].orEmpty().sortedByDescending { it.versionNumber }
