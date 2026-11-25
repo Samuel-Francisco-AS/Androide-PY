@@ -111,7 +111,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 
 **Estado:** PENDENTE.
 
-- [ ] Revisar diff completo da branch.
+- [x] Revisar estaticamente os 34 arquivos do diff completo; build e testes continuam pendentes.
 - [ ] Executar testes Python host.
 - [ ] Executar testes JVM/Kotlin.
 - [ ] Executar build debug localmente pelo usuário.
