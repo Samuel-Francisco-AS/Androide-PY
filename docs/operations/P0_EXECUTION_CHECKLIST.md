@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Os oito critérios funcionais oficiais da P0 foram demonstrados: testes JVM/Kotlin aprovados; APK compilado, instalado e aberto; execução Python, `stdout`/`stderr`, exceção sem crash, consulta de informações do aparelho, abertura de aplicativo, erro estruturado para pacote não inicializável e persistência após encerramento completo/reabertura foram validados conforme relatos do usuário. Testes Python host ainda pendentes; a P0 não deve ser encerrada até sua execução e revisão.
+**Estado geral:** 🟡 Os oito critérios funcionais oficiais da P0 foram demonstrados no Moto G06 conforme relatos do usuário. Os testes JVM/Kotlin passaram (`BUILD SUCCESSFUL`, 31 tarefas) e os 10 testes Python host passaram (`Ran 10 tests ... OK`). A build do APK, instalação e abertura também foram relatadas como concluídas. A validação automatizada e funcional está concluída; resta a revisão final do diff, documentação, checklist e estado da branch antes de propor o encerramento/merge da P0.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -113,7 +113,7 @@
 
 **Evidências P0-4.6/P0-4.7:** testes host Python em `src/test/python/test_runner.py` cobrem sucesso/stdout, stderr, exceção, SystemExit e truncamento. Testes JVM em `ExecutionModelsTest.kt` cobrem parse de sucesso, erro estruturado e rejeição de schema desconhecido; dependências JUnit 4.13.2 e org.json 20260814 adicionadas. Comandos documentados em `P0_EXECUTION_CONTRACT.md`. Testes foram escritos e conferidos no GitHub, mas **ainda não foram executados**. Revisão estática identificou risco de callbacks vinculados ao lifecycle da Activity; executor foi ajustado para escopo do Application e SharedFlow, com fila de 16, buffer de eventos 64, stdout/stderr limitados e sem interrupção forçada. Commits: `132a14c`, `1800a85`, `0b32e09`, `565a9db`, `af51357`, `9985cc6`, `863dbec`, `f7b6bd9`.
 
-**Gate P0-4:** implementação e fontes de teste estão prontas; gate permanece **pendente** até execução real dos testes host/JVM e revisão do resultado no Fedora.
+**Gate P0-4:** implementação e testes host/JVM executados com sucesso em 2026-11-25. O usuário reportou `Ran 10 tests ... OK` para Python host e `BUILD SUCCESSFUL` (31 tarefas) para JVM/Kotlin. Validação física de execução, canais de saída e exceções também foi relatada como concluída.
 
 ## P0-5 — Android Bridge mínima
 
@@ -132,7 +132,7 @@
 
 **Evidências P0-5.4/P0-5.5/P0-5.6:** `mobile.configure(bridge)` guarda o adaptador Kotlin no pacote Python; `mobile.device.get_info()` e `mobile.apps.launch(package_name)` retornam dicts Python e não expõem Context/Activity/PackageManager. O executor injeta o adaptador antes de cada execução. Testes host `test_mobile_api.py` cobrem retorno de device info, abertura simulada, app inexistente, tipo inválido e Bridge não configurada; teste Kotlin cobre validação de nomes de pacote. Contrato atualizado e indexado com comportamento API33+ IntentSender, fallback API24–32, queries restritas e ausência de QUERY_ALL_PACKAGES. Testes ainda não executados. Commits: `c7ebe23` (apps API), `f84b629` (testes Python), `3f7e354` (validador Kotlin), `601e2c9` (documentação).
 
-**Gate P0-5:** ambas as capacidades implementadas e cobertas por fontes de teste; gate de execução permanece pendente até testes locais e validação física.
+**Gate P0-5:** testes host Python/JVM executados com sucesso; `mobile.device.get_info()` e abertura positiva/negativa de aplicativos foram demonstradas no Moto G06 conforme relatos do usuário.
 
 ## P0-6 — Persistência local mínima
 
@@ -155,7 +155,7 @@
 
 **Evidência P0-6.3:** `MainScreen` carrega o script pelo repositório, salva alterações e, antes de executar, persiste novamente e cria `ScriptExecutionRequest` com o código retornado pelo repositório. Verificação estática confirmou que `repository.save` precede `executor.submit` e que o request usa `saved.sourceCode`. Commit: `82ce719`.
 
-**Gate P0-6:** integração Kotlin concluída; testes JVM e build KSP/Room ainda aguardam execução local.
+**Gate P0-6:** integração Kotlin concluída e testes JVM executados com sucesso (31 tarefas, conforme relato do usuário); persistência após encerramento completo/reabertura foi demonstrada no Moto G06 conforme relato.
 
 ## P0-7 — Interface mínima integrada
 
@@ -179,7 +179,7 @@
 - [x] **P0-8.6** Revisar o diff completo e registrar o commit final da implementação remota.
 - [x] **P0-8.7** Fornecer ao usuário os comandos de sincronização e build local; não afirmar que foram executados.
 
-**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Testes escritos e conferidos no GitHub; ainda não executados. Comandos locais estão nos documentos operacionais.
+**Evidência P0-8.1:** fontes de teste criadas para runner Python (stdout, stderr, exceção, SystemExit, truncamento), facade Python (device, apps, erro e bridge ausente), parser Kotlin (sucesso, falha e versão de schema) e repository/validador Kotlin. Em 2026-11-25, o usuário executou os testes Python host com Python 3.13.18: `Ran 10 tests in 0.003s` / `OK` (10/10 aprovados). Também reportou anteriormente `BUILD SUCCESSFUL` para `:app:testDebugUnitTest` (31 tarefas executadas).
 
 **Evidência P0-8.2:** [P0_INTEGRATION_TEST_PLAN.md](P0_INTEGRATION_TEST_PLAN.md) reúne comandos host/JVM e roteiro manual para runtime Chaquopy, executor, Bridge, Room, exceções, truncamento, rotação e persistência. Não foram criados testes instrumentados que exijam ADB, conforme preferência do usuário. A execução automatizada e o roteiro físico continuam pendentes.
 
@@ -198,20 +198,20 @@ Correção publicada na branch:
 - Gradle Wrapper atualizado de 8.14.3 para 8.14.8, patch oficial da mesma linha, com checksum SHA-256 publicado pelo Gradle.
 - AGP 8.13.2, compileSdk 36, targetSdk 36 e minSdk 24 preservados.
 
-**Estado após reteste (2026-11-25):** o usuário sincronizou a branch e confirmou Gradle Wrapper 8.14.8. O comando `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` terminou com `BUILD SUCCESSFUL` em 2m29s (31 actionable tasks: 31 executed). Isso comprova que os testes JVM/Kotlin passaram e que a configuração/dependências necessárias para essa tarefa foram resolvidas. Ainda não comprova `assembleDebug`, empacotamento Chaquopy/APK nem execução no Android. Testes Python host e montagem do APK permanecem pendentes.
+**Estado após reteste (2026-11-25):** o usuário sincronizou a branch e confirmou Gradle Wrapper 8.14.8. O comando `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` terminou com `BUILD SUCCESSFUL` em 2m29s (31 actionable tasks: 31 executed). Isso comprova que os testes JVM/Kotlin passaram e que a configuração/dependências necessárias para essa tarefa foram resolvidas. Ainda não comprova `assembleDebug`, empacotamento Chaquopy/APK nem execução no Android. Testes Python host passaram (10/10); montagem do APK foi informada como concluída pelo usuário.
 
 ## P0-9 — Validação local e física (dependente do usuário)
 
 - [x] **P0-9.1** Usuário sincroniza a branch no Fedora — `git pull --ff-only` avançou de `ea1fea9` para `af03e05`; Wrapper 8.14.8 confirmado.
 - [x] **P0-9.2** Usuário executa `:app:assembleDebug`; build concluída e APK instalado no Moto G06, conforme relato de 2026-11-25. O log detalhado/artefato ainda não foi compartilhado.
-- [ ] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado.
+- [x] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado. **Concluída:** incompatibilidade do Compose BOM 2026.09.00 com API 36/AGP 8.13.2 corrigida para BOM 2026.06.01; Wrapper atualizado para 8.14.8. O usuário confirmou `BUILD SUCCESSFUL` nos testes JVM e informou que a build APK foi concluída e instalada no Moto G06.
 - [x] **P0-9.4** APK transferido e instalado no Moto G06, conforme relato do usuário em 2026-11-25; método de transferência não especificado.
 - [x] **P0-9.5** Validar execução e console no Moto G06. **Concluída por relato do usuário:** (a) duas mensagens `print()` foram exibidas em `stdout`; (b) `print()` normal e `print(..., file=sys.stderr)` apareceram nos canais separados; (c) `raise ValueError("falha de teste")` foi apresentado como exceção Python, com tipo `ValueError`, mensagem e traceback; (d) `stdout` indicou “(sem saída)” e `stderr` “(Vazio)” nesse último teste, coerente com a ausência de prints; (e) usuário confirmou que o app permaneceu aberto após a exceção. Não há screenshot/log anexado; evidência é o relato explícito do usuário.
 - [x] **P0-9.6** Usuário valida `mobile.device.get_info()` e `mobile.apps.launch(package_name)`. **Concluída por relato do usuário:** `mobile.device.get_info()` executado no Moto G06 e retornou `schema_version: 1`, fabricante/marca `motorola`, modelo `moto g06`, device `lagos`, Android 15/API 35, ABI `arm64-V8a`, package name `com.samuel.androidepy` e versão `0.1.0`. Em teste separado, `mobile.apps.launch("com.android.settings")` executou, abriu o aplicativo Configurações do Android e o usuário retornou ao Androide PY. Em seguida, `mobile.apps.launch("com.exemplo.pacote.inexistente")` retornou `ok: false`, `package_name` preservado, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`; o usuário confirmou que o Androide PY permaneceu aberto. Retorno e comportamento relatados explicitamente; sem screenshot/log anexado.
 - [x] **P0-9.7** Usuário fecha/reabre o app e confirma persistência do script. **Concluída por relato do usuário:** substituiu o conteúdo do editor por duas linhas Python com marcadores `PERSISTENCIA-P0-2026`; tocou Executar; confirmou as mensagens no stdout; encerrou o app e o dispensou pelo seletor de recentes; reabriu o Androide PY e confirmou que as duas linhas continuavam no editor. Isso demonstra gravação antes da execução e recuperação do conteúdo após encerramento do processo, no Moto G06.
 - [x] **P0-9.8** Registrar modelo, versão Android, resultados, limitações e evidências relatadas. **Registro consolidado neste checklist:** aparelho Moto G06, fabricante Motorola, Android 15/API 35, ABI arm64-v8a; testes físicos relatados para instalação/abertura, execução Python, stdout/stderr, exceção sem crash, `mobile.device.get_info()`, abertura de Configurações, falha estruturada para pacote não inicializável e persistência. Limitações de evidência: sem screenshots/logcat anexados; build e testes físicos foram relatados pelo usuário. Testes Python host ainda não executados.
 
-**Gate P0-9:** todos os oito critérios do roadmap demonstrados no dispositivo físico.
+**Gate P0-9:** todos os oito critérios do roadmap demonstrados no dispositivo físico; testes automatizados host e JVM também executados com sucesso.
 
 ## Critérios oficiais de aceite da P0
 
@@ -233,13 +233,15 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 | 2026-11-25 | Preparação do ambiente local | Fedora 44, JDK 21.0.10, Python 3.13.18, SDK 36 e Gradle Wrapper 8.14.3 reportados pelo usuário | Confirmado pelo usuário; não equivale a build Android |
 | 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
 | 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados |
+| 2026-11-25 | P0-4.6 / P0-5.5 / P0-8.1 / P0-9 | Usuário executou `PYTHONPATH=android/app/src/main/python python3.13 -m unittest discover -s android/app/src/test/python -v` na raiz do repositório. Os 10 testes passaram: 5 testes de API mobile (dict de device info, sucesso de launch, erro de app ausente, rejeição de pacote não string e Bridge não configurada) e 5 testes do runner (limite de saída, exceção estruturada, captura separada de stderr, stdout e SystemExit). Saída final: `Ran 10 tests in 0.003s` / `OK` | Testes Python host aprovados, 10/10 |
 | 2026-11-25 | P0-9.2 / P0-9.4 / P0-9.5 | Usuário informou que a build APK foi concluída, o APK foi instalado no Moto G06 e o aplicativo abriu exibindo a interface. Confirmou execução Python pela UI; duas mensagens em `stdout`; separação de `stdout`/`stderr`; e tratamento de `ValueError: falha de teste` com traceback, sem fechamento do app. Sem print/log por enquanto | Build, instalação, abertura, execução, stdout, stderr e exceção sem crash confirmados por relato; Bridge e persistência pendentes |
 | 2026-11-25 | P0-9.6 | Usuário executou `mobile.device.get_info()` no Moto G06. Retorno: schema_version 1; manufacturer/brand motorola; model moto g06; device lagos; Android 15/API 35; ABI `arm64-V8a`; app package `com.samuel.androidepy`; app version `0.1.0`. Em seguida, `mobile.apps.launch("com.android.settings")` abriu as Configurações do Android. Teste negativo com `mobile.apps.launch("com.exemplo.pacote.inexistente")` retornou `ok: false`, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`; o app permaneceu aberto | Capacidades positiva e negativa da Android Bridge demonstradas fisicamente conforme relato; sem screenshot/log anexado |
 | 2026-11-25 | P0-9.7 | Usuário substituiu o script por duas linhas com marcador `PERSISTENCIA-P0-2026`, executou, encerrou completamente o app pelo seletor de recentes, reabriu e confirmou que as duas linhas permaneceram no editor | Persistência após encerramento e reabertura demonstrada no Moto G06 conforme relato explícito; sem screenshot/log anexado |
 
 ## Histórico de atualização
 
-- 2026-11-25 — usuário concluiu o teste físico de persistência no Moto G06: executou o script com duas linhas marcadoras, encerrou completamente o Androide PY pelo seletor de recentes, reabriu o app e confirmou que ambas as linhas permaneceram no editor. P0-9.7 concluída por relato. P0-9.8 também registrada com modelo/versão, resultados e limitações de evidência. Os oito critérios funcionais oficiais foram demonstrados; falta executar e revisar os testes Python host antes do encerramento formal da P0.
+- 2026-11-25 — usuário executou os testes Python host com Python 3.13.18: 10/10 aprovados (`Ran 10 tests in 0.003s`, `OK`). P0-4.6, P0-5.5 e P0-8.1 passam a ter evidência de execução host, além dos testes JVM/Kotlin já aprovados. Com os oito critérios físicos demonstrados por relato, a validação está concluída; resta revisão final do diff/documentação/branch antes de decidir sobre encerramento e squash merge.
+- 2026-11-25 — usuário concluiu o teste físico de persistência no Moto G06: executou o script com duas linhas marcadoras, encerrou completamente o Androide PY pelo seletor de recentes, reabriu o app e confirmou que ambas as linhas permaneceram no editor. P0-9.7 concluída por relato. P0-9.8 também registrada com modelo/versão, resultados e limitações de evidência. Os oito critérios funcionais oficiais foram demonstrados; testes Python host ainda pendentes naquele momento.
 - 2026-11-25 — usuário executou `mobile.apps.launch("com.exemplo.pacote.inexistente")`. Retorno: `ok: false`, `package_name` preservado, código `APP_NOT_FOUND_OR_NOT_LAUNCHABLE` e mensagem `O aplicativo não foi encontrado ou não possui uma atividade inicializável`. O Androide PY permaneceu aberto. P0-9.6 agora registra tanto a abertura de aplicativo existente quanto o tratamento do pacote não inicializável. Próximo: validar persistência após fechar e reabrir o app; testes Python host continuam pendentes.
 - 2026-11-25 — usuário confirmou o teste de `mobile.apps.launch("com.android.settings")`: o script foi executado, abriu o aplicativo Configurações do Android e o usuário retornou ao Androide PY. Com isso, P0-9.6 foi concluída por relato explícito, somando-se à validação anterior de `mobile.device.get_info()`. O payload impresso pela chamada `launch()` não foi compartilhado. Próximo teste físico: persistência do script após fechar e reabrir o app; testes Python host também pendentes.
 - 2026-11-25 — teste funcional Python no Moto G06: usuário executou `mobile.device.get_info()` e recebeu os dados do Moto G06 (Motorola, moto g06, Android 15/API 35, ABI arm64-V8a, pacote e versão do app). P0-9.6 parcialmente validada; falta `mobile.apps.launch(package_name)`. Também permanecem pendentes persistência e testes Python host.
