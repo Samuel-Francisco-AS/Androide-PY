@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** planejamento operacional inicial publicado. Nenhuma implementação P2, teste, build ou validação física foi executada nesta abertura.
+**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.5 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -124,6 +124,51 @@ README, visão, arquitetura e roadmap ainda possuem referências de status P1 de
 
 **Estado:** revisão documental/estática inicial concluída para P2.0.3 e P2.0.4. P2.0.5 ainda depende da confirmação do SDK real no Moto G06 e da conclusão da análise de lifecycle. Nenhum teste, build ou validação física P2 foi executado.
 
+## 3.2 P2.0.5 — Baseline Android e lifecycle — 2026-11-25
+
+### Baseline de build
+Conferida estaticamente em `android/app/build.gradle.kts`: compileSdk 36, targetSdk 36, minSdk 24, ABI `arm64-v8a`, JVM target 17, Chaquopy 17.2.0/Python 3.13.
+
+### Dispositivo físico
+Sam executou `mobile.device.get_info()` no Moto G06 e reportou:
+- Motorola `moto G06`, codinome `lagos`.
+- Android 15, API 35.
+- ABI `arm64-v8a`.
+- Pacote `com.samuel.androidepy`, versão `0.1.0`, schema 1.
+
+A versão real do dispositivo está, portanto, dentro da faixa suportada pela baseline configurada (API 35 >= minSdk 24). Este registro é evidência física reportada pelo usuário; não foi capturada diretamente pela integração de repositório.
+
+### Compatibilidade das APIs
+| Recurso | API mínima | Resultado com minSdk 24 / Moto G06 API 35 |
+|---|---:|---|
+| `ACTION_SET_TEXT` | 21 | API disponível; cada campo/app pode não aceitar a ação |
+| `TYPE_ACCESSIBILITY_OVERLAY` | 22 | API disponível para overlay do AccessibilityService conectado |
+| Consulta da árvore (capability) | 18 | API disponível; requer `canRetrieveWindowContent` |
+| `dispatchGesture()` | 24 | API disponível; requer `canPerformGestures` |
+
+Não há necessidade de elevar o minSdk para P2. O nível API não garante que todo aplicativo exponha seus elementos ou aceite operações de texto/gesto.
+
+### Lifecycle aprovado como direção arquitetural
+O Android gerencia exclusivamente o ciclo de vida do AccessibilityService; o usuário precisa habilitá-lo explicitamente nas configurações. Após o bind, o sistema chama `onServiceConnected()`. O serviço pode parar quando o usuário o desabilita ou quando chama `disableSelf()`; os callbacks de interrupção e desconexão devem limpar/atualizar o estado publicado pela aplicação.
+
+A aplicação deverá:
+- separar autorização habilitada de conexão efetivamente disponível;
+- publicar conexão/desconexão em gerenciador application-scoped;
+- registrar a instância apenas a partir dos callbacks do serviço e remover a referência na desconexão/encerramento;
+- nunca instanciar manualmente o serviço ou reter Activity;
+- solicitar somente capabilities necessárias a cada operação;
+- serializar gestos, pois `dispatchGesture()` cancela gestos que já estejam em andamento;
+- não interpretar retorno positivo de despacho como confirmação de que a interface de destino concluiu a ação.
+
+Para o Mapa de Coordenadas, `TYPE_ACCESSIBILITY_OVERLAY` permanece a opção prioritária; a camada interceptará intencionalmente o toque durante a seleção. Não há requisito para adicionar `SYSTEM_ALERT_WINDOW` para esse overlay específico.
+
+### Referências oficiais
+- https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
+- https://developer.android.com/reference/android/accessibilityservice/AccessibilityServiceInfo
+- https://developer.android.com/guide/topics/ui/accessibility/views/service
+
+**Evidência e limites:** revisão estática do Gradle e documentação oficial; versão/API do aparelho confirmada por execução reportada pelo usuário. Nenhum teste automatizado, build APK ou validação física de funcionalidade P2 foi realizado nesta subetapa.
+
 ## 4. Decomposição aprovada
 
 A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md).
@@ -155,8 +200,8 @@ Nenhum teste P2 foi executado na abertura deste relatório.
 
 | Categoria | Estado inicial |
 |---|---|
-| Revisão documental e arquitetural | Parcial; documentos centrais e ADR-0004 consultados para planejar a P2 |
-| Inspeção do código P2 | Pendente |
+| Revisão documental e arquitetural | P2.0.3–P2.0.5 revisadas; baseline física API 35 reportada e lifecycle conferido |
+| Inspeção do código P2 | Revisão estática inicial concluída; implementação ainda não iniciada |
 | Testes Python host | Não executados para P2 |
 | Testes JVM/Kotlin | Não executados para P2 |
 | Build APK | Não executado para P2 |
