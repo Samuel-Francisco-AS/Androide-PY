@@ -42,6 +42,14 @@ object PythonRuntime {
         return python.getModule(name)
     }
 
+    fun configureBridge(bridge: Any) {
+        checkWorkerThread()
+        val python = instance ?: error(
+            "Python runtime must be initialized before configuring the Android Bridge."
+        )
+        python.getModule("mobile").callAttr("configure", bridge)
+    }
+
     fun runSmokeTest(): String =
         getModule("main").callAttr("smoke_test").toString()
 
