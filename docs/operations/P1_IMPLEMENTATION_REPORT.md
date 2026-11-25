@@ -5,7 +5,7 @@
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
 **Data do registro:** 2026-11-25  
-**Estado:** implementação publicada e revisão estática concluída; testes, build e validação física P1 pendentes.
+**Estado:** implementação publicada; testes host Python (13/13) e testes JVM (`:app:testDebugUnitTest` — BUILD SUCCESSFUL) executados conforme relatos do usuário; build APK e validação física pendentes.
 
 ## 1. Objetivo
 
@@ -100,13 +100,13 @@ Essas correções e os 34 arquivos alterados foram revisados estaticamente. As A
 
 ## 6. Testes e validações
 
-Nenhum teste P1 foi executado neste estado do relatório. A existência de testes no repositório não comprova aprovação.
+Testes Python host (13/13 PASS) e testes JVM (`:app:testDebugUnitTest` — BUILD SUCCESSFUL) foram executados pelo usuário e relatados na conversa. Build APK e validação física ainda não foram executados.
 
 | Categoria | Estado |
 |---|---|
-| Revisão estática de código | Concluída para os 34 arquivos do diff; não substitui build/teste |
-| Testes Python host | Escritos; execução pendente |
-| Testes JVM/Kotlin | Escritos; execução pendente |
+| Revisão estática de código | Concluída para os 36 arquivos do diff; não substitui build APK/validação física |
+| Testes Python host | 13/13 PASS (relatado pelo usuário) |
+| Testes JVM/Kotlin | `:app:testDebugUnitTest` — BUILD SUCCESSFUL (relatado pelo usuário) |
 | Comportamento do fallback destrutivo | Pendente de validação no aparelho |
 | Build APK P1 | Pendente |
 | Validação física Moto G06 | Pendente |
