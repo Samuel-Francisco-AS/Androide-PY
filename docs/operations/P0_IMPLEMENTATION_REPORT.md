@@ -95,7 +95,7 @@ Esses resultados físicos foram confirmados explicitamente pelo usuário, mas sc
 
 ## Observação sobre histórico Git
 
-A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 166 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido aos 166 commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
+A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação GitHub conferida em 2026-11-25 registra 166 commits à frente, 0 atrás e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Os testes host e JVM passaram e os oito critérios funcionais foram demonstrados conforme os relatos físicos registrados acima. Antes do merge, faça uma revisão final do diff e do estado da branch; devido ao histórico de commits incrementais, prefira squash merge para manter o histórico principal limpo. A branch ainda não foi mesclada.
 
 ## Estado para integração
 
