@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -29,6 +30,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.samuel.androidepy.AndroidePyApplication
 import com.samuel.androidepy.data.ScriptRepository
+import com.samuel.androidepy.execution.ExecutionStatus
+import com.samuel.androidepy.execution.ScriptExecutionRequest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +40,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MainScreen(application: AndroidePyApplication) {
     val repository = application.scriptRepository
+    val executor = application.scriptExecutor
     val scope = rememberCoroutineScope()
 
     var scriptId by rememberSaveable {
@@ -51,6 +55,12 @@ fun MainScreen(application: AndroidePyApplication) {
     var isLoaded by rememberSaveable { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(!isLoaded) }
     var isSaving by remember { mutableStateOf(false) }
+    var isPreparingExecution by remember { mutableStateOf(false) }
+    var isExecuting by remember { mutableStateOf(false) }
+    var activeExecutionId by remember { mutableStateOf<String?>(null) }
+    var executionStatus by remember { mutableStateOf("Pronto") }
+    var consoleOutput by remember { mutableStateOf("") }
+    var consoleError by remember { mutableStateOf("") }
     var storageError by remember { mutableStateOf("") }
     var saveMessage by remember { mutableStateOf("") }
 
@@ -58,8 +68,8 @@ fun MainScreen(application: AndroidePyApplication) {
         if (!isLoaded) {
             isLoading = true
             storageError = ""
-
             var loadCompleted = false
+
             try {
                 val script = withContext(Dispatchers.IO) {
                     repository.getOrCreateDefault()
@@ -76,6 +86,62 @@ fun MainScreen(application: AndroidePyApplication) {
             } finally {
                 if (loadCompleted) isLoaded = true
                 isLoading = false
+            }
+        }
+    }
+
+    LaunchedEffect(executor) {
+        executor.updates.collect { update ->
+            if (activeExecutionId == null) {
+                activeExecutionId = update.executionId
+            }
+            if (update.executionId != activeExecutionId) return@collect
+
+            when (update.status) {
+                ExecutionStatus.QUEUED -> {
+                    isExecuting = true
+                    executionStatus = "Na fila"
+                }
+
+                ExecutionStatus.RUNNING -> {
+                    isExecuting = true
+                    executionStatus = "Executando Python..."
+                }
+
+                ExecutionStatus.SUCCEEDED -> {
+                    isExecuting = false
+                    executionStatus = "Concluído"
+                    update.result?.let { result ->
+                        consoleOutput = result.stdout
+                        consoleError = result.stderr
+                    }
+                }
+
+                ExecutionStatus.FAILED -> {
+                    isExecuting = false
+                    executionStatus = "Falha na execução"
+                    update.result?.let { result ->
+                        consoleOutput = result.stdout
+                        consoleError = buildString {
+                            if (result.stderr.isNotBlank()) append(result.stderr)
+                            result.error?.let { error ->
+                                if (isNotEmpty()) append("\n")
+                                append(error.type)
+                                append(": ")
+                                append(error.message)
+                                if (error.traceback.isNotBlank()) {
+                                    append("\n")
+                                    append(error.traceback)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ExecutionStatus.CANCELLED -> {
+                    isExecuting = false
+                    executionStatus = "Execução cancelada"
+                }
             }
         }
     }
@@ -101,6 +167,43 @@ fun MainScreen(application: AndroidePyApplication) {
             }
         }
     }
+
+    val executeScript: () -> Unit = {
+        scope.launch {
+            isPreparingExecution = true
+            storageError = ""
+            saveMessage = ""
+            consoleOutput = ""
+            consoleError = ""
+            executionStatus = "Salvando antes da execução..."
+
+            try {
+                val saved = withContext(Dispatchers.IO) {
+                    repository.save(scriptId, scriptName, sourceCode)
+                }
+                scriptName = saved.name
+
+                val request = ScriptExecutionRequest(
+                    sourceCode = saved.sourceCode,
+                    scriptId = saved.id
+                )
+                activeExecutionId = request.executionId
+                isExecuting = true
+                executionStatus = "Na fila"
+                executor.submit(request)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                isExecuting = false
+                executionStatus = "Não foi possível iniciar"
+                storageError = error.message ?: "Falha ao preparar a execução."
+            } finally {
+                isPreparingExecution = false
+            }
+        }
+    }
+
+    val editorEnabled = !isLoading && !isSaving && !isPreparingExecution && !isExecuting
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -133,7 +236,7 @@ fun MainScreen(application: AndroidePyApplication) {
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Nome do script") },
                 singleLine = true,
-                enabled = !isLoading
+                enabled = editorEnabled
             )
 
             OutlinedTextField(
@@ -150,15 +253,22 @@ fun MainScreen(application: AndroidePyApplication) {
                 ),
                 minLines = 8,
                 maxLines = 16,
-                enabled = !isLoading
+                enabled = editorEnabled
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(
                     onClick = saveScript,
-                    enabled = !isLoading && !isSaving
+                    enabled = editorEnabled
                 ) {
                     Text(if (isSaving) "Salvando..." else "Salvar")
+                }
+
+                Button(
+                    onClick = executeScript,
+                    enabled = editorEnabled
+                ) {
+                    Text(if (isPreparingExecution || isExecuting) "Executando..." else "Executar")
                 }
             }
 
@@ -184,16 +294,20 @@ fun MainScreen(application: AndroidePyApplication) {
             }
 
             Text(
-                text = "Console",
+                text = "Console — $executionStatus",
                 style = MaterialTheme.typography.titleMedium
             )
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
-                        text = "A saída da execução aparecerá aqui.",
+                        text = if (consoleOutput.isBlank()) {
+                            "A saída da execução aparecerá aqui."
+                        } else {
+                            consoleOutput
+                        },
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontFamily = FontFamily.Monospace
                     )
                 }
             }
