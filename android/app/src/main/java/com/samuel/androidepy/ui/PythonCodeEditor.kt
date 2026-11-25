@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,7 @@ fun PythonCodeEditor(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .heightIn(max = 360.dp)
             .border(1.dp, colors.outlineVariant, RoundedCornerShape(12.dp))
             .padding(10.dp)
             .verticalScroll(rememberScrollState())
