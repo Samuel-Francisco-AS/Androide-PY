@@ -2,7 +2,7 @@
 
 **Branch:** `feat/p0-runtime-bridge`  
 **Base:** `main`  
-**Snapshot comparado:** 46 arquivos alterados; branch 135 commits à frente e 0 atrás da base na revisão final.  
+**Snapshot comparado:** 46 arquivos alterados; branch 137 commits à frente e 0 atrás da base na comparação final do diff. Os commits de relatório/checklist posteriores são apenas metadados documentais.  
 **Último commit de checklist antes deste relatório:** `8c01d8c7125b8036301035a42d451c7531ec5f35`.
 
 ## Implementado no repositório
@@ -55,7 +55,7 @@ O código foi publicado e submetido a revisão estática; isso não prova que co
 
 ## Observação sobre histórico Git
 
-A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação final registrou 135 commits e 46 arquivos alterados. **Não recomendo merge commit direto para main.** Depois que os testes locais e físicos passarem, use squash merge ou uma revisão/squash da branch para manter o histórico principal limpo. A branch ainda não foi mesclada.
+A branch contém muitos commits incrementais porque cada arquivo e atualização operacional foi publicado separadamente. A comparação final do diff registrou 137 commits e 46 arquivos alterados; atualizações documentais posteriores não alteraram o escopo de código. **Não recomendo merge commit direto para main.** Depois que os testes locais e físicos passarem, use squash merge ou uma revisão/squash da branch para manter o histórico principal limpo. A branch ainda não foi mesclada.
 
 ## Próximo passo
 
