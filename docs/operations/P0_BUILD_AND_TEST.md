@@ -24,7 +24,7 @@ rm -f android/gradle/wrapper/gradle-wrapper.properties
 
 Não use `git clean -fd`. Se `git status` mostrar qualquer outro arquivo local que você queira preservar, pare e revise antes de remover qualquer coisa.
 
-Depois:
+Depois, se ainda não existir uma branch local com esse nome:
 
 ```bash
 git fetch origin
@@ -32,6 +32,15 @@ git switch --track -c feat/p0-runtime-bridge origin/feat/p0-runtime-bridge
 chmod +x android/gradlew
 git status
 ```
+
+Se você já estiver na branch `feat/p0-runtime-bridge`, basta sincronizar as correções:
+
+```bash
+git pull --ff-only
+chmod +x android/gradlew
+git status
+```
+
 
 ## 2. Baseline corrigida após a primeira falha
 
