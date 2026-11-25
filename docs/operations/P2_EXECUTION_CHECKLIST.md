@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** ⬜ Planejamento operacional publicado. Nenhuma funcionalidade P2 foi implementada, compilada ou validada nesta abertura. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A em andamento após conclusão documental da P2.0. Nenhuma funcionalidade P2 foi compilada ou validada fisicamente até o momento. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -209,6 +209,8 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três subetapas no máximo**. Os nove requisitos originalmente enumerados foram preservados e redistribuídos; não são nove entregas independentes.
 
 ### P2.1-A — Fundação nativa
+
+<badge>🟡 Em andamento</badge>
 
 **Escopo:** serviço Android e infraestrutura application-scoped.
 
