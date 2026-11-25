@@ -153,3 +153,44 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - A migração Room foi escrita, mas ainda precisa ser executada contra dados P0 reais.
 - O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
 - Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
+
+
+## Execução local após sincronização
+
+Se ainda não existir uma branch local P1:
+
+```bash
+cd ~/Projetos/Androide-PY
+git status --short
+git fetch origin
+git switch --track -c feat/p1-script-library origin/feat/p1-script-library
+chmod +x android/gradlew
+```
+
+Se a branch local já existir:
+
+```bash
+cd ~/Projetos/Androide-PY
+git status --short
+git switch feat/p1-script-library
+git pull --ff-only
+chmod +x android/gradlew
+```
+
+Execute os testes Python host na raiz:
+
+```bash
+PYTHONPATH=android/app/src/main/python python3.13 -m unittest discover -s android/app/src/test/python -v
+```
+
+Execute testes JVM e build com recursos limitados:
+
+```bash
+cd android
+./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2
+./gradlew :app:assembleDebug --no-daemon --max-workers=2
+```
+
+APK esperado: android/app/build/outputs/apk/debug/app-debug.apk. Transfira ao Moto G06 pelo fluxo já utilizado no My-CT; não é necessário ADB.
+
+Na validação física, testar: abertura da biblioteca, CRUD, importação de .py UTF-8, exportação, editor/linhas/realce, parâmetros via params, versões/restauração, histórico após reabrir e migração dos dados existentes da P0.
