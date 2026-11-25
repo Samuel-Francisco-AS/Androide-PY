@@ -84,6 +84,46 @@ A Prioridade B deve devolver dados em tipos Python simples e serializáveis para
 - Não registrar texto digitado ou conteúdo sensível em logs por padrão.
 - Tratar desconexão, revogação, timeout e operação não suportada com erros claros.
 
+
+## 3.1 Revisão técnica e conferência da arquitetura — 25/11/2026
+
+A revisão documental e estática inicial foi realizada contra a branch `main` e o estado remoto da branch P2. O resultado detalhado, com evidências, arquivos inspecionados, referências oficiais e inconsistências documentais, está registrado em [P2_EXECUTION_CHECKLIST.md — Resultado da revisão técnica inicial](P2_EXECUTION_CHECKLIST.md).
+
+### Baseline Git
+
+- `main`: `205044caffc9df7acb94f43eb85cbeea0787d9f3`.
+- `feat/p2-accessibility-automation`: `281060199fd68122ec0f0b762ccc8d7214a15ad0` antes do registro da revisão.
+- A comparação indicou 5 commits à frente, 0 atrás; os únicos arquivos divergentes eram os documentos de abertura da P2. Nenhum código de produção foi alterado na branch.
+
+### Situação técnica encontrada
+
+- O manifesto atual declara somente a Activity principal e consultas de intents para abertura de apps. Não há AccessibilityService, configuração XML, autorização especial ou overlay implementados.
+- `AndroidBridgeAdapter` implementa somente `device.get_info` e `apps.launch`.
+- O runtime Chaquopy é singleton de processo e exige chamadas fora da thread principal.
+- `ScriptExecutor` usa um único worker Python serial e fila limitada; a Bridge é configurada antes de cada execução.
+- O módulo Python `mobile` usa um adaptador global e um catálogo de capacidades explícito, que hoje lista apenas as duas funções existentes.
+- Não existe API `mobile.screen`, gateway nativo de acessibilidade, persistência de mapas de coordenadas ou API Python genérica para gravar arquivos.
+- A arquitetura mantém Room/SQLite atrás de DAOs/repositórios Kotlin. A importação/exportação SAF da UI P1 não equivale a uma API Python de arquivos.
+- Os testes existentes cobrem Bridge de apps, repositórios, parâmetros e runner; não há testes P2.
+
+### Direção técnica a preservar
+
+O serviço deverá ser gerenciado pelo Android e expor seu estado a um gerenciador application-scoped; o adaptador Python/Kotlin deverá depender de uma interface/gateway testável, não de uma Activity ou instância criada manualmente do Service. O worker Python pode aguardar uma operação nativa assíncrona com timeout, desde que o serviço processe comandos no handler apropriado e nunca bloqueie a thread principal. Usar request IDs, resultados serializáveis, erros estáveis, timeout, cancelamento lógico e serialização de gestos.
+
+Separar toque geométrico por coordenadas de ação semântica por nó. Digitação depende de campo editável/foco e de suporte a `ACTION_SET_TEXT`; rolagem pode usar ações de nó ou gesto coordenado. Consultas devem produzir snapshots limitados de dados serializáveis, nunca expor nós Android ao Python nem reter referências obsoletas.
+
+O Mapa de Coordenadas deve ser uma janela `TYPE_ACCESSIBILITY_OVERLAY` do serviço conectado, com captura intencional do toque durante a seleção, múltiplos pontos nomeados e persistência reutilizável. A persistência dos mapas e a API de arquivo de saída continuam decisões abertas.
+
+### Compatibilidade e referências Android
+
+A baseline observada no Gradle é minSdk 24, compileSdk/targetSdk 36, ABI arm64-v8a, Chaquopy 17.2.0/Python 3.13 e Kotlin 2.4.21. As referências oficiais consultadas indicam `dispatchGesture()` desde API 24 (exige `canPerformGestures`), `TYPE_ACCESSIBILITY_OVERLAY` desde API 22, `ACTION_SET_TEXT` desde API 21 e consulta da árvore condicionada a `canRetrieveWindowContent`. A documentação alerta contra `typeAllMask` indiscriminado e informa que a árvore pode mudar ou ficar obsoleta. O nível Android efetivo do Moto G06 ainda precisa ser confirmado por `mobile.device.get_info()`.
+
+### Pendências documentais identificadas
+
+README, visão, arquitetura e roadmap ainda possuem referências de status P1 desatualizadas; roadmap não inclui as novas prioridades nem o Mapa de Coordenadas; índice de documentação tem árvore ilustrativa incompleta; índice ADR/ADR-0006 mantêm status de validação P1 antigos; relatório P1 contém uma linha histórica que contradiz a confirmação final do merge. Harmonizar na P2.0.10 após contratos definidos.
+
+**Estado:** revisão documental/estática inicial concluída para P2.0.3 e P2.0.4. P2.0.5 ainda depende da confirmação do SDK real no Moto G06 e da conclusão da análise de lifecycle. Nenhum teste, build ou validação física P2 foi executado.
+
 ## 4. Decomposição aprovada
 
 A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md).
