@@ -357,3 +357,32 @@ A documentação principal e os contratos foram conferidos contra o checklist op
 Os contratos continuam futuros: não existe ainda AccessibilityService, gateway, overlay, mobile.screen, persistência de mapas ou controles de consentimento. Screenshots, OCR e notificações continuam fora do escopo inicial; não há observação contínua. Scripts não possuem sandbox. Mapas dependem de validação futura das regras Android de backup/transferência. Em execuções com acesso sensível, saídas não serão persistidas por padrão; consentimento adicional será necessário para salvá-las, política ainda não implementada.
 
 **Evidência e limites:** revisão documental/estática dos arquivos principais, contratos e ADRs; nenhum código de produção alterado, teste automatizado executado, build APK executado ou validação física P2 realizada. A P2.0.10 é documental e não conclui a P2.1.
+
+## 3.8 P2.1 — Decomposição aprovada e início da P2.1-A — 25/11/2026
+
+Por aprovação explícita de Sam, os nove requisitos iniciais de P2.1 foram agrupados em três subetapas: P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). O mapeamento integral e os critérios de aceite estão no checklist operacional.
+
+### CONFERE — P2.1-A
+
+- Branch de trabalho: `feat/p2-accessibility-automation`; comparação com `main` confirmou 54 commits à frente e 0 atrás antes da atualização documental, com base `205044caffc9df7acb94f43eb85cbeea0787d9f3`.
+- A branch continha somente alterações documentais da P2.0; o manifesto não declarava AccessibilityService, XML de configuração, gateway ou permissões de acessibilidade.
+- `AndroidePyApplication` já é o ponto application-scoped para repositórios e `ScriptExecutor`; não há necessidade de criar outro contêiner ou runtime.
+- `ScriptExecutor` mantém um único worker Python serial com fila limitada a 16 e injeta `AndroidBridgeAdapter` antes de cada execução. A P2.1-A não altera esse fluxo.
+- ADR-0008 exige lifecycle gerenciado pelo Android, gateway application-scoped, nenhuma Activity retida, nenhum serviço instanciado manualmente e minimização de eventos/capabilities.
+- A documentação oficial Android confirma que o sistema inicia o AccessibilityService após habilitação explícita pelo usuário, chama `onServiceConnected()` após o bind e exige intent-filter `android.accessibilityservice.AccessibilityService` e permissão `BIND_ACCESSIBILITY_SERVICE`. A configuração XML permite declarar capabilities como acesso ao conteúdo e gestos; essas capabilities não serão solicitadas na fundação inicial.
+- O filtro inicial será limitado a `typeWindowStateChanged`, sem percorrer a árvore, ler texto, executar gestos ou manter coleta contínua. A capability de recuperar conteúdo e a de executar gestos ficam desabilitadas até as fases que implementarem essas operações.
+
+### DEFINE — contrato da P2.1-A
+
+Implementar exclusivamente:
+1. `AndroidePyAccessibilityService` em pacote dedicado, com callbacks mínimos e sem processamento de conteúdo dos eventos.
+2. XML de configuração sob `res/xml`, descrição curta para as configurações Android e filtro mínimo de mudança de janela.
+3. Declaração do serviço no manifesto, protegida por `BIND_ACCESSIBILITY_SERVICE`, com intent-filter e metadata.
+4. `AccessibilityGateway` application-scoped com referência volátil à instância conectada e estado de conexão observável internamente; registro apenas em `onServiceConnected()`, remoção idempotente e protegida por identidade em teardown.
+5. Exposição do gateway por `AndroidePyApplication`.
+
+Fora da P2.1-A: tela explicativa, abertura de Settings, consulta de autorização habilitada, estados públicos Kotlin/Python, erros operacionais da API, bridge `mobile.screen`, testes integrados e validação física. Esses pontos permanecem para P2.1-B/C conforme o checklist.
+
+### Evidência e estado
+
+A revisão documental e estática de entrada foi concluída. A implementação ainda não foi publicada nesta atualização do relatório. Não foram executados testes, build APK ou validação física. O estado permanece **P2.1-A em andamento** até a revisão do diff e a conferência das verificações disponíveis.
