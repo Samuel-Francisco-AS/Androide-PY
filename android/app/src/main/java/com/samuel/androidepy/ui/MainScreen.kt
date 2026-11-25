@@ -354,6 +354,16 @@ private fun ScriptEditorScreen(
     var consoleError by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     val history by executionRepository.observeForScript(script.id).collectAsState(initial = emptyList())
+    val versions by repository.observeVersions(script.id).collectAsState(initial = emptyList())
+
+    LaunchedEffect(script.updatedAtEpochMs) {
+        name = script.name
+        description = script.description
+        tagsText = parseStringArray(script.tagsJson).joinToString(", ")
+        parametersJson = script.parametersJson
+        dependenciesText = parseStringArray(script.dependenciesJson).joinToString("\n")
+        sourceCode = script.sourceCode
+    }
 
     LaunchedEffect(executor, script.id) {
         executor.updates.collect { update ->
@@ -509,6 +519,39 @@ private fun ScriptEditorScreen(
                 modifier = Modifier.weight(1f),
                 enabled = !busy
             ) { Text("Executar") }
+        }
+        Text("Histórico de versões", style = MaterialTheme.typography.titleMedium)
+        if (versions.isEmpty()) {
+            Text("Ainda não há versões salvas.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            versions.take(10).forEach { version ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Versão ${version.versionNumber}", style = MaterialTheme.typography.labelLarge)
+                            Text("Salva em: ${version.createdAtEpochMs}", style = MaterialTheme.typography.bodySmall)
+                            Text(version.sourceCode.lineSequence().take(2).joinToString(" ").take(100),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = {
+                            scope.launch {
+                                try {
+                                    withContext(Dispatchers.IO) {
+                                        repository.restoreVersion(script.id, version.versionNumber)
+                                    }
+                                    onFeedback("Versão ${version.versionNumber} restaurada como uma nova versão.")
+                                } catch (error: Exception) {
+                                    onError(error.message ?: "Não foi possível restaurar a versão.")
+                                }
+                            }
+                        }) { Text("Restaurar") }
+                    }
+                }
+            }
         }
         Text("Console — $executionStatus", style = MaterialTheme.typography.titleMedium)
         Card(modifier = Modifier.fillMaxWidth()) {
