@@ -55,6 +55,21 @@ Quando ocorrer uma exceção Python, `status` será `FAILED` e `error` conterá 
 - Bibliotecas nativas que escrevam diretamente nos file descriptors podem não passar pelo redirecionamento Python.
 - O cancelamento de uma execução em andamento não faz parte do primeiro contrato funcional.
 
+## Testes locais sem ADB
+
+Na raiz do repositório, os testes puros do runner podem ser executados com o Python host 3.13:
+
+```bash
+PYTHONPATH=android/app/src/main/python python3.13 -m unittest discover -s android/app/src/test/python -v
+```
+
+Os testes JVM do contrato Kotlin podem ser executados sem aparelho conectado:
+
+```bash
+cd android
+./gradlew :app:testDebugUnitTest
+```
+
 ## Implementação
 
 - Modelos e parser Kotlin: `android/app/src/main/java/com/samuel/androidepy/execution/ExecutionModels.kt`.
