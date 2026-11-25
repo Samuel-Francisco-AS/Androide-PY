@@ -235,7 +235,7 @@ A revisão foi publicada em [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md). Fora
 
 ### Evidência e limites
 
-Revisão documental/estática concluída e documento publicado. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física P2 foi executado. A autorização sensível, classificação, overlay, política de logs e persistência ainda precisam ser implementados e testados nas subetapas seguintes. As decisões arquiteturais foram registradas na P2.0.9 pelos ADRs-0008 e 0009; P2.0.10 harmonizará os documentos principais.
+Revisão documental/estática concluída e documento publicado. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física P2 foi executado. A autorização sensível, classificação, overlay, política de retenção e persistência ainda precisam ser implementados e testados nas subetapas seguintes. As decisões arquiteturais foram registradas na P2.0.9 pelos ADRs-0008 e 0009; a harmonização dos documentos principais foi concluída na P2.0.10.
 
 
 ## 3.6 P2.0.9 — ADRs de arquitetura e segurança — 25/11/2026
