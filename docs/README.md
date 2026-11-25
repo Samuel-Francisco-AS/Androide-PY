@@ -18,6 +18,8 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Relatório da implementação P0](operations/P0_IMPLEMENTATION_REPORT.md): escopo entregue, evidências e limites.
 - [Checklist operacional P1](operations/P1_EXECUTION_CHECKLIST.md): subetapas, critérios de aceite, estado e evidências.
 - [Relatório da implementação P1](operations/P1_IMPLEMENTATION_REPORT.md): decisões, alterações, testes, riscos e validação.
+- [Checklist operacional P2](operations/P2_EXECUTION_CHECKLIST.md): prioridades A/B/C, decomposição, critérios de aceite, estados e evidências da automação de interfaces Android.
+- [Relatório da implementação P2](operations/P2_IMPLEMENTATION_REPORT.md): decisões acordadas, arquitetura pretendida, riscos, validações e estado da fase.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
