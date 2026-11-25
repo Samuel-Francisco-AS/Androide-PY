@@ -26,7 +26,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Criar o relatório operacional P1.
 - [x] Revisar README, AGENTS, visão, arquitetura, roadmap, persistência, executor, interface, testes e módulos Python existentes.
 - [x] Definir contrato de scripts, parâmetros, versões, execuções e dependências.
-- [x] Definir migração Room 1 → 2 sem perda dos scripts P0.
+- [x] Definir estratégia Room versão 2 com fallback destrutivo durante o desenvolvimento, conforme ADR-0007.
 - [x] Definir limites de importação: UTF-8, arquivo de texto, máximo de 1 MiB; não executar no ato da importação.
 - [x] Definir limite do gerenciamento de dependências: manifesto declarativo e validação local; sem instalação PyPI genérica em runtime.
 
@@ -38,11 +38,11 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [x] Criar entidade de versões imutáveis do script.
 - [x] Criar entidade de execuções com parâmetros, status, horários, saída e erro.
 - [x] Implementar DAOs e operações transacionais para gravação de script/versão e exclusão.
-- [x] Preparar migração Room 1 → 2 sem fallback destrutivo.
+- [x] Remover migração Room 1 → 2 e configurar `fallbackToDestructiveMigration()`; atualizações incompatíveis podem descartar o banco local.
 - [x] Escrever testes de repositório, histórico e persistência de execução.
 - [ ] Executar testes JVM/Kotlin.
-- [ ] Recuperar/gerar e versionar os schemas exportados Room v1 (P0) e v2 (P1); o schema histórico v1 não está presente na branch remota.
-- [ ] Validar migração a partir de um banco real P0 no Moto G06.
+- [x] Desabilitar exportação de schemas históricos Room nesta etapa (`exportSchema = false`), pois não há migração retrocompatível a manter.
+- [ ] Validar instalação/atualização P1 e confirmar inicialização do banco versão 2 no Moto G06; dados locais anteriores podem ser descartados.
 
 ## P1.2 — Biblioteca de scripts
 
@@ -117,7 +117,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [ ] Executar build debug localmente pelo usuário.
 - [ ] Validar ciclo biblioteca → editor → salvar → executar com parâmetros → histórico no Moto G06.
 - [ ] Validar importação/exportação no aparelho.
-- [ ] Validar migração de dados P0 no aparelho.
+- [ ] Validar comportamento do banco após atualização incompatível no aparelho; não exigir preservação de dados P0.
 - [ ] Registrar resultados físicos como relato do usuário, sem atribuir logs não fornecidos.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
@@ -133,7 +133,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 5. Cada execução fica associada ao script/versão e possui histórico consultável com saída e falhas.
 6. Dependências são declaradas e validadas com limites claros de compatibilidade Chaquopy; nenhuma instalação genérica é prometida.
 7. Biblioteca mobile possui contrato versionado e introspecção honesta das capacidades implementadas.
-8. Migração preserva scripts criados na P0.
+8. O banco versão 2 inicializa corretamente; atualizações incompatíveis podem recriar o banco conforme ADR-0007.
 9. Testes automatizados passam e o ciclo principal é validado no Moto G06.
 
 ## Evidências
@@ -146,14 +146,14 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 | Testes host Python | Escritos; execução pendente |
 | Testes JVM/Kotlin | Escritos; execução pendente |
 | Build APK P1 | Pendente |
-| Migração e validação física | Pendente |
+| Fallback destrutivo e validação física | Pendente |
 | PR | #2 aberta em draft; aguarda validação |
 | Merge | Não realizado; autorização específica P1 ainda não concedida |
 
 ## Bloqueios e desvios
 
 - A compatibilidade real de dependências Python é específica por pacote, versão de CPython, ABI e distribuição Chaquopy; a P1 não executa instalação genérica de pacotes.
-- A migração Room foi escrita, mas ainda precisa ser executada contra dados P0 reais. A branch não contém os JSONs de schema exportado v1/v2; o schema v1 precisa ser recuperado/gerado a partir da baseline P0 e ambos devem ser versionados após os builds correspondentes.
+- A migração Room 1 → 2 foi removida conforme ADR-0007. `fallbackToDestructiveMigration()` permite recriar o banco quando a versão instalada não é compatível; scripts, versões e execuções locais podem ser descartados. A exportação de schemas históricos está desabilitada nesta etapa.
 - O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
 - Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
 
