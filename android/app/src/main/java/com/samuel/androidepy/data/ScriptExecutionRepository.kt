@@ -46,8 +46,12 @@ class ScriptExecutionRepository(private val dao: ScriptExecutionDao) {
         dao.upsert(
             previous.copy(
                 status = update.status.name,
-                startedAtEpochMs = result?.startedAtEpochMs ?: previous.startedAtEpochMs,
-                finishedAtEpochMs = result?.finishedAtEpochMs ?: previous.finishedAtEpochMs,
+                startedAtEpochMs = result?.startedAtEpochMs
+                    ?: if (update.status.name == "RUNNING") previous.startedAtEpochMs ?: System.currentTimeMillis()
+                    else previous.startedAtEpochMs,
+                finishedAtEpochMs = result?.finishedAtEpochMs
+                    ?: if (update.status.name in setOf("SUCCEEDED", "FAILED", "CANCELLED")) System.currentTimeMillis()
+                    else previous.finishedAtEpochMs,
                 durationMs = result?.durationMs ?: previous.durationMs,
                 stdout = result?.stdout ?: previous.stdout,
                 stderr = result?.stderr ?: previous.stderr,
