@@ -376,6 +376,7 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 |---|---|---|---|
 | 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`. Checklist: commit inicial `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório: `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice `docs/README.md`: `3017ad8fa0983feb2d0950b366242eae0349786c`. | Ver commits |
 | 2026-11-25 | P2.0.6 | Contrato assíncrono v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; checklist e relatório atualizados. Revisão estática; sem implementação, testes, build ou validação física. | Commit documental desta subetapa |
+| 2026-11-25 | P2.0.8 | Revisão de privacidade e segurança publicada em `docs/operations/P2_SECURITY_REVIEW.md`; política de campos sensíveis, mapas, overlay, logs e limites residuais documentada. Revisão estática; sem implementação, testes, build ou validação física. | `af09745bf87055dcfd3382de7cbc60bf742b1882` |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
