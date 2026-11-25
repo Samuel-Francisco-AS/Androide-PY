@@ -38,6 +38,7 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Checklist operacional P0](docs/operations/P0_EXECUTION_CHECKLIST.md) | Fases, subetapas e evidências |
 | [Build e testes](docs/operations/P0_BUILD_AND_TEST.md) | Sincronização e build sem ADB |
 | [Plano de integração](docs/operations/P0_INTEGRATION_TEST_PLAN.md) | Testes host/JVM e roteiro físico |
+| [Relatório da implementação](docs/operations/P0_IMPLEMENTATION_REPORT.md) | Entregas e validações pendentes |
 
 ## Estado atual
 
