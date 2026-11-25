@@ -221,7 +221,7 @@ O catálogo `mobile.capabilities` só deverá listar cada operação depois de s
 
 ## 3.5 P2.0.8 — Revisão de privacidade e segurança — 25/11/2026
 
-A revisão foi publicada em [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md). Foram examinados o manifesto, a Bridge, o runtime Python, o executor, runner, persistência Room, histórico, testes e ADRs aplicáveis. A branch permanece 20 commits à frente e 0 atrás de main; seu diff em relação à base contém apenas documentação P2.
+A revisão foi publicada em [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md). Foram examinados o manifesto, a Bridge, o runtime Python, o executor, runner, persistência Room, histórico, testes e ADRs aplicáveis. Na comparação feita no início desta revisão, a branch estava 20 commits à frente e 0 atrás de main; o diff então observado continha apenas documentação P2.
 
 ### Decisões
 - Conteúdo comum pode ser lido sob demanda, quando explicitamente solicitado e disponibilizado pelo Android; não haverá coleta contínua nem persistência automática de snapshots.
@@ -318,3 +318,4 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 |---|---|
 | 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. Checklist commit `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório commit `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice docs commit `3017ad8fa0983feb2d0950b366242eae0349786c`. |
 | 2026-11-25 | P2.0.6: contrato assíncrono v1 publicado em `P2_ASYNC_PROTOCOL.md`; decisão de espera no worker Python com gateway Kotlin assíncrono; sem alterações de produção ou execução de testes/build. |
+| 2026-11-25 | P2.0.8: revisão de privacidade e segurança publicada em `P2_SECURITY_REVIEW.md`; autorização sensível separada para leitura/escrita, minimização de dados e riscos residuais P1 documentados; sem alterações de produção ou execução de testes/build. |
