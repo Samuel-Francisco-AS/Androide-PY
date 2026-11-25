@@ -53,7 +53,7 @@ A P0 está integrada em `main`. O usuário reportou build APK, instalação e ab
 
 A P1 foi integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo acordado foi validado no Moto G06; P1-TF13 e cenários adicionais de tipo inválido, fila cheia, falhas de persistência, dependências e fallback destrutivo específico permanecem diferidos, sem serem declarados aprovados. Consulte o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md) e o [relatório P1](docs/operations/P1_IMPLEMENTATION_REPORT.md).
 
-**P2 — estado atual:** P2.0.1–P2.0.9 concluídas documentalmente. A P2.0.10 harmoniza visão, arquitetura, roadmap e índices. Nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A próxima subetapa após o gate P2.0 é P2.1 — Fundação nativa e autorização. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
+**P2 — estado atual:** P2.0.1–P2.0.10 concluídas documentalmente. A próxima subetapa é P2.1 — Fundação nativa e autorização. Nenhuma funcionalidade P2 foi implementada, compilada ou validada fisicamente. A próxima subetapa após o gate P2.0 é P2.1 — Fundação nativa e autorização. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
 
 ## Build e testes
 
