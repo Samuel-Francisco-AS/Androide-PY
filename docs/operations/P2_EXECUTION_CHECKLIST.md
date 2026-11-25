@@ -59,9 +59,9 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 
 - [x] **P2.0.1** Criar branch dedicada a partir de `main`: `feat/p2-accessibility-automation`.
 - [x] **P2.0.2** Criar checklist operacional e relatório da P2.
-- [ ] **P2.0.3** Reler integralmente AGENTS.md, README.md, docs/README.md, PROJECT_VISION.md, ARCHITECTURE.md, ROADMAP.md, ADRs aplicáveis e contratos P0/P1.
-- [ ] **P2.0.4** Inspecionar a estrutura real da branch, AndroidManifest, AndroidBridgeAdapter, PythonRuntime, ScriptExecutor, módulos `mobile`, registro de capacidades, testes e APIs de arquivo existentes.
-- [ ] **P2.0.5** Registrar baseline de SDK mínimo/alvo, versões Android do Moto G06, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas.
+- [x] **P2.0.3** Reler integralmente AGENTS.md, README.md, docs/README.md, PROJECT_VISION.md, ARCHITECTURE.md, ROADMAP.md, ADRs 0001–0007 aplicáveis e contratos operacionais P0/P1. Revisão documental concluída em 2026-11-25; inconsistências e atualizações necessárias registradas abaixo.
+- [x] **P2.0.4** Inspecionar a estrutura real da branch, AndroidManifest, AndroidBridgeAdapter, PythonRuntime, ScriptExecutor, módulos `mobile`, registro de capacidades, testes e APIs de arquivo existentes. Revisão estática concluída em 2026-11-25; nenhum serviço de acessibilidade ou API `mobile.screen` existe ainda.
+- [ ] **P2.0.5** Registrar baseline de SDK mínimo/alvo, confirmar versão/API real do Moto G06 via `mobile.device.get_info()`, ciclo de vida do serviço e compatibilidade das APIs oficiais utilizadas. Baseline de build e níveis mínimos das APIs consultadas foram pré-conferidos; confirmação do dispositivo e análise final do lifecycle permanecem pendentes.
 - [ ] **P2.0.6** Definir o protocolo assíncrono de chamadas Python → Kotlin → AccessibilityService → resultado, incluindo correlação de requisições, timeout, cancelamento lógico, erros e estado de autorização.
 - [ ] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação; nomes apresentados em exemplos/conversas são propostas, não contratos finais.
 - [ ] **P2.0.8** Revisar implicações de privacidade e segurança: dados visíveis, campos sensíveis, senhas, conteúdo de notificações, captura de tela, overlays e registro de dados.
@@ -69,6 +69,67 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [ ] **P2.0.10** Atualizar documentação de arquitetura/roadmap/índices se o contrato aprovado exigir.
 
 **Gate P2.0:** contratos e limites técnicos definidos com base no código real e documentação Android oficial; nenhuma API pública presumida como implementada.
+
+
+### Resultado da revisão técnica inicial — 2026-11-25
+
+**Escopo da revisão:** leitura documental de AGENTS.md, README.md, docs/README.md, PROJECT_VISION.md, ARCHITECTURE.md, ROADMAP.md, ADRs 0001–0007, contratos operacionais P0/P1 e inspeção estática dos arquivos Android/Python listados abaixo.
+
+**Baseline Git conferida:**
+- `main`: `205044caffc9df7acb94f43eb85cbeea0787d9f3`.
+- `feat/p2-accessibility-automation`: `281060199fd68122ec0f0b762ccc8d7214a15ad0`.
+- Comparação main → branch: 5 commits à frente, 0 atrás; somente 3 arquivos documentais alterados (`docs/README.md`, checklist P2 e relatório P2). Nenhuma alteração de código de produção na branch P2.
+- Árvore remota examinada: 96 entradas, sem arquivos de AccessibilityService, configuração XML de acessibilidade ou módulo Python `mobile.screen`.
+
+**Arquivos de código inspecionados:**
+- `android/app/src/main/AndroidManifest.xml`: declara somente a Activity principal e queries limitadas para intents MAIN/INFO e MAIN/LAUNCHER. Não declara serviço de acessibilidade, permissão BIND_ACCESSIBILITY_SERVICE ou metadata XML.
+- `android/app/src/main/java/com/samuel/androidepy/bridge/AndroidBridgeAdapter.kt`: adaptador recebe applicationContext e expõe somente `getDeviceInfoJson()` e `launchAppJson()`; não possui gateway/dispatcher de comandos de tela.
+- `android/app/src/main/java/com/samuel/androidepy/runtime/PythonRuntime.kt`: singleton de processo Chaquopy; operações Python exigem thread de trabalho; `configureBridge(bridge: Any)` injeta o adaptador no módulo Python.
+- `android/app/src/main/java/com/samuel/androidepy/execution/ScriptExecutor.kt`: executor application-scoped com um único worker Python, fila limitada a 16, atualizações via SharedFlow e configuração da Bridge antes de cada execução. A thread de execução é adequada para aguardar resultados nativos com timeout, desde que a thread principal/handler do serviço nunca aguarde o worker Python.
+- `android/app/src/main/java/com/samuel/androidepy/execution/ExecutionModels.kt`: request/result serializáveis em JSON, IDs de execução e estados QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED.
+- `android/app/src/main/python/mobile/__init__.py`: fachada com Bridge global configurável; erro explícito quando executada fora do executor.
+- `mobile/capabilities.py`: catálogo honesto lista somente `device.get_info` e `apps.launch`.
+- `mobile/device.py`, `mobile/apps.py`, `runner.py`: chamadas Kotlin via objeto Bridge, retorno JSON→dict, execução serial com captura stdout/stderr e limite de 65.536 caracteres.
+- `MainScreen.kt`: tela hospeda biblioteca/editor/console e observa updates do executor; não deve ser usada como proprietária do AccessibilityService nem retida pelo serviço.
+- `AndroidManifest.xml`, `app/build.gradle.kts`, `android/build.gradle.kts`, `settings.gradle.kts` e wrapper foram conferidos.
+- Testes existentes: Kotlin/JVM para Bridge de apps, repositórios e parâmetros; Python host para API mobile e runner. Não há testes de acessibilidade ainda.
+
+**Baseline de build observada no repositório:**
+- Gradle Wrapper 8.14.8; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Chaquopy 17.2.0; Python 3.13; compileSdk/targetSdk 36; minSdk 24; ABI arm64-v8a; JVM target 17; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0.
+- O Moto G06 é o dispositivo físico de validação. A versão/API instalada deve ser lida novamente do aparelho por `mobile.device.get_info()`; não inferir o nível exato do dispositivo apenas pelo modelo.
+- Nenhum build ou teste foi executado durante esta revisão.
+
+**Conclusões arquiteturais preliminares para P2:**
+1. O AccessibilityService deve ser instanciado e gerenciado pelo Android; o app não deve tentar construí-lo como objeto comum. O serviço publica seu estado/conexão em um gerenciador application-scoped, limpa a referência em desconexão e nunca retém Activity.
+2. O `AndroidBridgeAdapter` deve receber uma interface/gateway Kotlin testável para comandos de acessibilidade, em vez de chamar diretamente uma instância de Service.
+3. O worker Python serial pode aguardar um resultado nativo assíncrono com timeout/cancelamento lógico. A chamada deve ser despachada para o handler/thread principal do serviço; o callback completa uma promessa/future que acorda somente o worker. Nunca bloquear a thread principal esperando Python ou callback.
+4. Cada comando precisa de requestId/correlationId, timeout, estado do serviço, erro estável e resultado serializável. Serializar gestos e ações concorrentes; a API Android `dispatchGesture()` cancela gestos que já estejam em andamento.
+5. Separar `tap(x, y)` geométrico de ação semântica `click(element)`. A primeira pode ser implementada antes da árvore completa; a segunda depende de nós acessíveis.
+6. Digitação não é garantida por coordenadas sozinhas. Primeiro será necessário foco em um campo editável e tentar `ACTION_SET_TEXT` no nó focado/alvo quando a ação for suportada. Nem todos os apps/campos aceitam essa ação; documentar falha e não prometer fallback universal.
+7. Rolagem pode tentar ação de nó (`ACTION_SCROLL_FORWARD/BACKWARD` ou direcional) e usar gesto/swipe por coordenadas como fallback explícito.
+8. Consulta/coleta deve criar snapshots DTO/dict serializáveis e limitados, não expor `AccessibilityNodeInfo` ao Python nem reter nós para uso tardio. A árvore pode estar ausente ou obsoleta quando a interface muda.
+9. O Mapa de Coordenadas deve ser controlado pelo próprio AccessibilityService conectado. `TYPE_ACCESSIBILITY_OVERLAY` é candidato adequado: sobrepõe a interface e pode interceptar toques; durante seleção captura o toque e, após conclusão/cancelamento, deve ser removido. Não presumir necessidade de `SYSTEM_ALERT_WINDOW` para esse tipo de janela.
+10. Guardar pixels, coordenadas normalizadas, dimensões de referência, orientação e área útil/insets quando necessário. Coordenadas normalizadas ajudam em escalas/resoluções, mas não tornam mapas compatíveis com layouts diferentes.
+11. A persistência dos mapas reutilizáveis continua decisão em aberto: comparar JSON em armazenamento privado versus entidade Room; manter desacoplada de scripts/histórico de execução e não criar banco separado sem justificativa.
+12. A API Python para arquivos de saída ainda não existe. O SAF de MainScreen cobre import/export de scripts, não constitui automaticamente uma API Python genérica de escrita. P2.3 deve projetar destino/permissão/limites explicitamente.
+
+**Documentação desatualizada ou inconsistente a harmonizar em P2.0.10:**
+- `README.md`, `docs/PROJECT_VISION.md`, `docs/ARCHITECTURE.md` e cabeçalho de `docs/ROADMAP.md` ainda dizem que P1 está em implementação ou citam a antiga branch `feat/p1-script-library`, embora P1 esteja merged na main.
+- `docs/ROADMAP.md` descreve a P2 antiga sem prioridades A/B/C nem Mapa de Coordenadas.
+- `docs/README.md` já indexa os documentos P2, mas sua árvore ilustrativa ainda omite os dois arquivos P2.
+- `docs/adr/README.md` e ADR-0006 ainda registram validação/build P1 pendentes em trechos antigos, apesar do relatório/checklist final e merge.
+- `docs/operations/P1_IMPLEMENTATION_REPORT.md` contém uma linha histórica na tabela que ainda diz PR #2 aberta em draft, contradizendo a seção final que confirma merge. Corrigir a linha obsoleta, sem apagar o histórico de testes diferidos.
+- Harmonizar esses documentos após a definição dos contratos P2; não alterar a main durante a fase.
+
+**Referências oficiais Android consultadas nesta revisão:**
+- AccessibilityService: https://developer.android.com/guide/topics/ui/accessibility/service
+- API AccessibilityService / `dispatchGesture()`: https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
+- WindowManager.LayoutParams / `TYPE_ACCESSIBILITY_OVERLAY`: https://developer.android.com/reference/android/view/WindowManager.LayoutParams
+- AccessibilityNodeInfo / `ACTION_SET_TEXT` e ações de rolagem: https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo
+
+Pontos confirmados nas referências: `dispatchGesture()` requer `canPerformGestures` e existe desde API 24; `TYPE_ACCESSIBILITY_OVERLAY` existe desde API 22 e é reservado a AccessibilityService conectado; `ACTION_SET_TEXT` existe desde API 21; consulta da árvore requer `canRetrieveWindowContent`. A documentação alerta que `typeAllMask` pode ser oneroso e que a hierarquia pode mudar/ficar obsoleta. A configuração deve solicitar somente eventos e capacidades necessários. A política de distribuição deverá ser reavaliada se o projeto futuramente buscar publicação na Play Store.
+
+**Status desta revisão:** P2.0.3 e P2.0.4 concluídas por revisão documental/estática; P2.0.5 parcialmente preparada, ainda pendente de confirmação do nível Android real no Moto G06 e fechamento da análise de lifecycle. P2.0.6–P2.0.10 permanecem pendentes. Nenhuma implementação, teste, build ou validação física P2 foi realizada.
 
 ## 4. P2.1 — Fundação nativa e autorização
 
