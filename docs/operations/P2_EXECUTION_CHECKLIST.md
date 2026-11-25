@@ -66,7 +66,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação. Contrato v1 publicado em `docs/operations/P2_PYTHON_API.md`; revisão estática concluída em 2026-11-25. Define `ScreenError`, validação local, `get_status`, toque/digitação/deslize/rolagem, Mapas de Coordenadas persistentes e seus métodos de consulta/reutilização, retornos, timeouts, limites e erros. Nenhum código foi implementado ou testado.
 - [x] **P2.0.8** Revisar implicações de privacidade e segurança. Revisão documental/estática concluída em 2026-11-25 e publicada em docs/operations/P2_SECURITY_REVIEW.md: abordagem B para leitura comum sob demanda; campos sensíveis bloqueados por padrão, com autorização expressa separada para leitura e escrita, limitada à execução/aplicativo; screenshots e notificações fora do escopo P2 inicial; mapas mínimos em Room privado; overlay temporário/cancelável; logs automáticos sem conteúdo; limitações do histórico P1 e ausência de sandbox documentadas. Nenhum controle foi implementado ou testado.
 - [x] **P2.0.9** Registrar as decisões arquiteturais e de segurança em ADRs. Revisão documental concluída em 2026-11-25: ADR-0008 define AccessibilityService, gateway application-scoped, fronteira Python/Kotlin, lifecycle, concorrência, overlay e minimização; ADR-0009 define consentimento separado para leitura/escrita sensível, escopo por execução/aplicativo, retenção efêmera de stdout/stderr/tracebacks em execuções sensíveis por padrão e consentimento adicional para persistência, além da política de mapas e backup. Índice ADR atualizado. Nenhuma implementação/teste foi executado.
-- [ ] **P2.0.10** Atualizar documentação de arquitetura/roadmap/índices se o contrato aprovado exigir.
+- [x] **P2.0.10** Harmonizar README, visão, arquitetura, roadmap, ADRs/índices e contratos com as decisões aprovadas e o estado real de P1/P2. Revisão documental concluída em 2026-11-25: status P1 atualizado; prioridades A/B/C e Mapa de Coordenadas incorporados ao roadmap; fronteira mobile.screen, lifecycle, protocolo assíncrono, overlay, consentimento sensível e retenção harmonizados; referências antigas de decisões abertas corrigidas. Nenhum código de produção foi alterado; nenhum teste, build APK ou validação física P2 foi executado. Evidências detalhadas na seção 3.7 do relatório P2.
 
 **Gate P2.0:** contratos e limites técnicos definidos com base no código real e documentação Android oficial; nenhuma API pública presumida como implementada.
 
@@ -166,7 +166,7 @@ O resultado confirma que o dispositivo de validação está acima do minSdk 24 e
 11. A persistência dos mapas reutilizáveis continua decisão em aberto: comparar JSON em armazenamento privado versus entidade Room; manter desacoplada de scripts/histórico de execução e não criar banco separado sem justificativa.
 12. A API Python para arquivos de saída ainda não existe. O SAF de MainScreen cobre import/export de scripts, não constitui automaticamente uma API Python genérica de escrita. P2.3 deve projetar destino/permissão/limites explicitamente.
 
-**Documentação desatualizada ou inconsistente a harmonizar em P2.0.10:**
+**Documentação desatualizada ou inconsistente identificada na conferência inicial P2.0.10 (corrigida e reconferida):**
 - `README.md`, `docs/PROJECT_VISION.md`, `docs/ARCHITECTURE.md` e cabeçalho de `docs/ROADMAP.md` ainda dizem que P1 está em implementação ou citam a antiga branch `feat/p1-script-library`, embora P1 esteja merged na main.
 - `docs/ROADMAP.md` descreve a P2 antiga sem prioridades A/B/C nem Mapa de Coordenadas.
 - `docs/README.md` já indexa os documentos P2, mas sua árvore ilustrativa ainda omite os dois arquivos P2.
@@ -200,7 +200,7 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 
 **Conferência:** contrato revisado contra a fachada Python existente, módulos `device/apps/capabilities`, runner, testes host, adaptador Kotlin, executor serial e protocolo assíncrono. A implementação atual ainda não contém `mobile.screen`; portanto, nenhuma capacidade nova foi adicionada ao catálogo.
 
-**Evidência e limites:** commit do contrato `dc7e4673cccb1070b594805a9163d059bfdd6a41`. Revisão documental/estática; nenhum teste, build APK ou validação física foi executado. P2.0.9–P2.0.10 permanecem pendentes.
+**Evidência e limites:** commit do contrato `dc7e4673cccb1070b594805a9163d059bfdd6a41`. Revisão documental/estática; nenhum teste, build APK ou validação física foi executado. P2.0.9 e P2.0.10 foram concluídas documentalmente; P2.1 permanece pendente.
 
 ## 4. P2.1 — Fundação nativa e autorização
 
@@ -388,6 +388,7 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 | 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`. Checklist: commit inicial `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório: `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice `docs/README.md`: `3017ad8fa0983feb2d0950b366242eae0349786c`. | Ver commits |
 | 2026-11-25 | P2.0.6 | Contrato assíncrono v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; checklist e relatório atualizados. Revisão estática; sem implementação, testes, build ou validação física. | Commit documental desta subetapa |
 | 2026-11-25 | P2.0.8 | Revisão de privacidade e segurança publicada em `docs/operations/P2_SECURITY_REVIEW.md`; política de campos sensíveis, mapas, overlay, logs e limites residuais documentada. Revisão estática; sem implementação, testes, build ou validação física. | `af09745bf87055dcfd3382de7cbc60bf742b1882` |
+| 2026-11-25 | P2.0.10 | Harmonização documental dos documentos principais, ADRs e contratos; checklist conferido. Sem alterações de produção, testes, build ou validação física. | Commit documental desta subetapa |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
@@ -402,3 +403,16 @@ A P2 só poderá ser proposta para encerramento depois de:
 - revisão final e autorização explícita para integração em `main`.
 
 A aprovação de um bloco não aprova automaticamente os demais.
+
+
+### P2.0.10 — Conferência final documental — 2026-11-25
+
+- [x] README e docs/README.md: estado e links P0/P1/P2 conferidos; árvore inclui P2 e ADR-0008/0009.
+- [x] PROJECT_VISION.md: estado dos marcos atualizado, distinguindo contratos P2 de capacidades implementadas.
+- [x] ARCHITECTURE.md: API pública, fronteira Python/Kotlin, lifecycle, gateway, overlay, persistência de mapas e segurança alinhados aos contratos/ADRs.
+- [x] ROADMAP.md: P1 concluída com pendências diferidas; P2.0–P2.5 e prioridades A/B/C descritas.
+- [x] ADR-0003/0006 e índice ADR alinhados às evidências finais da P1 e às decisões P2.
+- [x] P2_PYTHON_API.md e P2_SECURITY_REVIEW.md não apresentam mais P2.0.8/P2.0.9 como decisões futuras/abertas.
+- [x] P2_IMPLEMENTATION_REPORT.md registra P2.0.10 e mantém P2.1 pendente.
+
+**Resultado:** revisão estática/documental aprovada. Nenhuma implementação, teste automatizado, build ou validação física P2 foi executada. A próxima subetapa é P2.1 — Fundação nativa e autorização.
