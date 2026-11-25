@@ -53,7 +53,7 @@
 
 **Evidências P0-1.1/P0-1.2:** README, docs/README, PROJECT_VISION, ARCHITECTURE (seções 1–10), ROADMAP e ADRs 0001–0004 recuperados da branch e revisados. Escopo confirmado: host Kotlin/Compose, Chaquopy, execução serial fora da UI, stdout/stderr/exceções, `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e persistência Room/SQLite mediada por Kotlin. Fora do P0: editor profissional, background, Accessibility, Shizuku/ADB/root, múltiplos workers, workflow visual e sandbox para código não confiável. Critérios de aceite preservados conforme roadmap.
 
-**Evidências P0-1.3/P0-1.4/P0-1.5:** matriz técnica e decisão registradas em [ADR-0005](../adr/0005-p0-toolchain-baseline.md), indexado em `docs/adr/README.md` e refletido em `docs/ARCHITECTURE.md`. Versões adotadas: Gradle 8.14.3; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Compose BOM 2026.09.00; Activity Compose 1.13.0; Chaquopy 17.2.0; Python host/runtime 3.13.x; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0; compile/target SDK 36; minSdk 24; ABI inicial arm64-v8a; JDK 21 e bytecode JVM 17. Documentação oficial consultada: Kotlin release/compatibility, KSP quickstart, Android AGP 8.13, Compose BOM/release notes, Activity, Room e Chaquopy. O Compose BOM 2026.11.01 foi evitado por exigir compileSdk 37.1. Build e validação física continuam pendentes.
+**Evidências P0-1.3/P0-1.4/P0-1.5:** matriz técnica e decisão registradas em [ADR-0005](../adr/0005-p0-toolchain-baseline.md), indexado em `docs/adr/README.md` e refletido em `docs/ARCHITECTURE.md`. Versões adotadas: Gradle 8.14.8; AGP 8.13.2; Kotlin/Compose Compiler 2.4.21; Compose BOM 2026.06.01 (Compose 1.11.4); Activity Compose 1.13.0; Chaquopy 17.2.0; Python host/runtime 3.13.x; Room 2.8.5; KSP 2.3.12; Coroutines 1.11.0; compile/target SDK 36; minSdk 24; ABI inicial arm64-v8a; JDK 21 e bytecode JVM 17. Documentação oficial consultada: Kotlin release/compatibility, KSP quickstart, Android AGP 8.13, Compose BOM/release notes, Activity, Room e Chaquopy. O Compose BOM 2026.11.01 foi evitado por exigir compileSdk 37.1. Build e validação física continuam pendentes.
 
 **Gate P0-1:** decisões técnicas rastreáveis e sem conflito conhecido com os ADRs aceitos.
 
@@ -189,6 +189,17 @@
 
 **Evidência P0-8.7:** [P0_BUILD_AND_TEST.md](P0_BUILD_AND_TEST.md) documenta sincronização segura da branch, remoção apenas das cópias locais do Wrapper após conferência, `chmod +x android/gradlew`, testes Python/JVM, build APK e transferência manual pelo fluxo My-CT. Nenhum desses comandos foi executado pela assistente no Fedora.
 
+### Registro da primeira falha e correção (2026-11-25)
+
+O usuário executou `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2`. A configuração concluiu, mas `:app:checkDebugAarMetadata` falhou: Compose 1.12.1 exigia compileSdk 37 e AGP 9.1+, enquanto o projeto usa API 36/AGP 8.13.2. A falha foi causada pelo Compose BOM 2026.09.00 selecionado na implementação remota.
+
+Correção publicada na branch:
+- Compose BOM alterado para 2026.06.01, que mapeia Compose 1.11.4; a linha 1.12.0 é a que introduz o requisito compileSdk 37.
+- Gradle Wrapper atualizado de 8.14.3 para 8.14.8, patch oficial da mesma linha, com checksum SHA-256 publicado pelo Gradle.
+- AGP 8.13.2, compileSdk 36, targetSdk 36 e minSdk 24 preservados.
+
+**Estado:** correção de configuração publicada e revisada estaticamente. O mesmo comando precisa ser repetido pelo usuário; não há build aprovado ainda. P0-9.3 permanece pendente até observar o resultado.
+
 ## P0-9 — Validação local e física (dependente do usuário)
 
 - [ ] **P0-9.1** Usuário sincroniza a branch no Fedora.
@@ -221,7 +232,9 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 |---|---|---|---|
 | 2026-11-25 | Preparação do ambiente local | Fedora 44, JDK 21.0.10, Python 3.13.18, SDK 36 e Gradle Wrapper 8.14.3 reportados pelo usuário | Confirmado pelo usuário; não equivale a build Android |
 | 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
+| 2026-11-25 | P0-9.2 / P0-9.3 | `:app:testDebugUnitTest` falhou em `checkDebugAarMetadata` porque Compose 1.12.1 exigia API 37/AGP 9.1+; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8 | Correção publicada; reteste pendente |
 
 ## Histórico de atualização
 
+- 2026-11-25 — primeira falha local de build identificou incompatibilidade Compose 1.12.1/API 37 com AGP 8.13.2/API 36; BOM ajustado para 2026.06.01 (Compose 1.11.4) e Wrapper para 8.14.8. Build ainda pendente.
 - 2026-11-25 — implementação remota da P0 concluída em código na branch `feat/p0-runtime-bridge`: host Android/Compose, Chaquopy/Python 3.13, executor, console, Android Bridge, Room/SQLite, testes e documentação. Revisão estática concluída. Nenhum teste/build foi executado; P0-9 aguarda sincronização e validação pelo usuário.
