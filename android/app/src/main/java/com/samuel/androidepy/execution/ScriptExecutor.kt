@@ -1,26 +1,36 @@
 package com.samuel.androidepy.execution
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import com.samuel.androidepy.runtime.PythonRuntime
-import java.io.Closeable
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
- * Serializes Python executions on one worker thread.
+ * Application-scoped serial executor for Python scripts.
  *
- * Closing this manager stops new submissions but deliberately does not
- * interrupt a running Python thread.
+ * Updates are published as a hot flow rather than Activity callbacks, so
+ * configuration changes do not retain a destroyed Activity or create a
+ * second Python worker.
  */
-class ScriptExecutor(context: Context) : Closeable {
+class ScriptExecutor(context: Context) {
 
     private val appContext = context.applicationContext
-    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val mutableUpdates = MutableSharedFlow<ExecutionUpdate>(
+        replay = 1,
+        extraBufferCapacity = EVENT_BUFFER_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    val updates: SharedFlow<ExecutionUpdate> = mutableUpdates.asSharedFlow()
+
     private val worker = ThreadPoolExecutor(
         1,
         1,
@@ -35,12 +45,8 @@ class ScriptExecutor(context: Context) : Closeable {
         ThreadPoolExecutor.AbortPolicy()
     )
 
-    fun submit(
-        request: ScriptExecutionRequest,
-        onUpdate: (ExecutionUpdate) -> Unit
-    ): String {
-        dispatch(
-            onUpdate,
+    fun submit(request: ScriptExecutionRequest): String {
+        publish(
             ExecutionUpdate(
                 executionId = request.executionId,
                 status = ExecutionStatus.QUEUED
@@ -49,8 +55,7 @@ class ScriptExecutor(context: Context) : Closeable {
 
         try {
             worker.execute {
-                dispatch(
-                    onUpdate,
+                publish(
                     ExecutionUpdate(
                         executionId = request.executionId,
                         status = ExecutionStatus.RUNNING
@@ -94,8 +99,7 @@ class ScriptExecutor(context: Context) : Closeable {
                     )
                 }
 
-                dispatch(
-                    onUpdate,
+                publish(
                     ExecutionUpdate(
                         executionId = request.executionId,
                         status = result.status,
@@ -113,7 +117,7 @@ class ScriptExecutor(context: Context) : Closeable {
                 stderr = "",
                 error = ScriptExecutionError(
                     type = rejected.javaClass.simpleName,
-                    message = rejected.message ?: "The execution queue is unavailable.",
+                    message = rejected.message ?: "The execution queue is full or unavailable.",
                     traceback = Log.getStackTraceString(rejected)
                 ),
                 startedAtEpochMs = now,
@@ -122,8 +126,7 @@ class ScriptExecutor(context: Context) : Closeable {
                 stdoutTruncated = false,
                 stderrTruncated = false
             )
-            dispatch(
-                onUpdate,
+            publish(
                 ExecutionUpdate(
                     executionId = request.executionId,
                     status = ExecutionStatus.FAILED,
@@ -135,21 +138,13 @@ class ScriptExecutor(context: Context) : Closeable {
         return request.executionId
     }
 
-    override fun close() {
-        worker.shutdown()
-    }
-
-    private fun dispatch(
-        callback: (ExecutionUpdate) -> Unit,
-        update: ExecutionUpdate
-    ) {
-        mainHandler.post {
-            callback(update)
-        }
+    private fun publish(update: ExecutionUpdate) {
+        mutableUpdates.tryEmit(update)
     }
 
     private companion object {
         const val TAG = "AndroidePY.Executor"
         const val QUEUE_CAPACITY = 16
+        const val EVENT_BUFFER_CAPACITY = 64
     }
 }
