@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                MainScreen()
+                MainScreen(application as AndroidePyApplication)
             }
         }
     }
