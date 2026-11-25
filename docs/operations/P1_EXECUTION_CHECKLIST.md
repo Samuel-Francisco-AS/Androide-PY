@@ -1,11 +1,11 @@
 # P1 — Checklist operacional de implementação
 
-**Branch:** `feat/p1-script-library`  
-**Base:** `main`  
-**Marco:** Biblioteca e gerenciamento de scripts  
-**Estado inicial:** planejamento operacional publicado; implementação pendente.
+**Branch:** feat/p1-script-library  
+**Base:** main  
+**Marco:** P1 — Biblioteca e gerenciamento de scripts  
+**Estado atual:** implementação publicada; validação automatizada, build e validação física ainda pendentes.
 
-Este documento é a fonte de verdade do progresso da P1. Marcar uma tarefa como concluída exige conferência posterior e evidência concreta. Publicação no GitHub não equivale a build, teste ou validação física.
+Este documento é a fonte de verdade do progresso da P1. Publicação no GitHub não equivale a build, teste ou validação física.
 
 ## Regras de execução
 
@@ -17,87 +17,104 @@ Para cada subetapa, seguir obrigatoriamente:
 4. **MARCA:** atualizar este checklist somente com evidência.
 5. **CONFERE:** reler o estado atualizado antes de avançar.
 
-Estados: `PENDENTE`, `EM ANDAMENTO`, `BLOQUEADO`, `IMPLEMENTADO — TESTE PENDENTE`, `TESTADO`, `VALIDADO FISICAMENTE`.
+Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TESTADO, VALIDADO FISICAMENTE.
 
-## Escopo P1
+## P1.0 — Preparação e contratos
 
-### P1.0 — Preparação e contratos
-
-- [x] Criar branch dedicada a partir de `main`. Evidência: branch `feat/p1-script-library`.
+- [x] Criar branch dedicada a partir de main. Evidência: feat/p1-script-library.
 - [x] Criar este checklist operacional.
 - [x] Criar o relatório operacional P1.
-- [ ] Revisar estado atual do banco, executor, interface, testes e documentação.
-- [ ] Definir contrato de scripts, parâmetros, versões, execuções e dependências.
-- [ ] Definir política de migração Room sem perda dos scripts P0.
-- [ ] Definir limites de importação, exportação e validação de arquivos.
-- [ ] Definir limites explícitos do suporte a dependências Python no Android.
+- [x] Revisar README, AGENTS, visão, arquitetura, roadmap, persistência, executor, interface, testes e módulos Python existentes.
+- [x] Definir contrato de scripts, parâmetros, versões, execuções e dependências.
+- [x] Definir migração Room 1 → 2 sem perda dos scripts P0.
+- [x] Definir limites de importação: UTF-8, arquivo de texto, máximo de 1 MiB; não executar no ato da importação.
+- [x] Definir limite do gerenciamento de dependências: manifesto declarativo e validação local; sem instalação PyPI genérica em runtime.
 
-### P1.1 — Modelo de dados e persistência
+## P1.1 — Modelo de dados e persistência
 
-- [ ] Evoluir entidade de script com descrição, tags, parâmetros, dependências e metadados.
-- [ ] Criar entidade de versões imutáveis do script.
-- [ ] Criar entidade de execuções com parâmetros, status, horários, saída e erro.
-- [ ] Implementar DAOs e repositórios com operações transacionais.
-- [ ] Migrar o banco sem descartar o script default nem scripts existentes.
-- [ ] Adicionar testes de repositório, histórico, exclusão e migração.
+**Estado:** IMPLEMENTADO — TESTE PENDENTE.
 
-### P1.2 — Biblioteca de scripts
+- [x] Expandir ScriptEntity com descrição, tags, parâmetros, dependências e metadados.
+- [x] Criar entidade de versões imutáveis do script.
+- [x] Criar entidade de execuções com parâmetros, status, horários, saída e erro.
+- [x] Implementar DAOs e operações transacionais para gravação de script/versão e exclusão.
+- [x] Preparar migração Room 1 → 2 sem fallback destrutivo.
+- [x] Escrever testes de repositório, histórico e persistência de execução.
+- [ ] Executar testes JVM/Kotlin.
+- [ ] Validar migração a partir de um banco real P0 no Moto G06.
 
-- [ ] Listar scripts persistidos e selecionar script.
-- [ ] Criar script.
-- [ ] Renomear e editar metadados.
-- [ ] Duplicar script com novo identificador.
-- [ ] Excluir script com confirmação e regra para histórico.
-- [ ] Pesquisar/filtrar por nome e tags.
-- [ ] Importar arquivo Python com validação de extensão/tamanho/encoding.
-- [ ] Exportar script para arquivo compartilhável.
-- [ ] Preservar o script default legado na migração.
+## P1.2 — Biblioteca de scripts
 
-### P1.3 — Editor e parâmetros
+**Estado:** IMPLEMENTADO — TESTE PENDENTE.
 
-- [ ] Implementar editor com numeração de linhas.
-- [ ] Implementar realce lexical básico de Python sem dependência pesada ou editor web.
-- [ ] Preservar cursor/seleção e rolagem ao editar.
-- [ ] Editar descrição, tags e parâmetros.
-- [ ] Validar nomes/tipos/defaults de parâmetros.
-- [ ] Resolver parâmetros antes da execução e passar valores estruturados ao runner.
-- [ ] Documentar que realce lexical não é parser/IDE completo.
+- [x] Listar scripts persistidos e selecionar script.
+- [x] Criar script.
+- [x] Renomear e editar metadados.
+- [x] Duplicar script com novo identificador e primeira versão.
+- [x] Excluir script com confirmação; histórico de execuções é preservado.
+- [x] Pesquisar por nome, descrição e tags.
+- [x] Importar arquivo Python UTF-8 pelo Storage Access Framework com limite de 1 MiB.
+- [x] Exportar código Python pelo Storage Access Framework.
+- [ ] Validar operações CRUD e importação/exportação no aparelho.
 
-### P1.4 — Execução e histórico
+## P1.3 — Editor e parâmetros
 
-- [ ] Associar cada execução ao script e à versão de origem.
-- [ ] Persistir QUEUED/RUNNING/terminal com timestamps.
-- [ ] Persistir parâmetros, stdout, stderr, erro e duração.
-- [ ] Exibir console separado por execução.
-- [ ] Consultar histórico de execuções de um script.
-- [ ] Reabrir detalhes de uma execução anterior.
-- [ ] Cobrir falha de persistência sem esconder resultado da execução.
+**Estado:** IMPLEMENTADO — TESTE PENDENTE.
 
-### P1.5 — Biblioteca Python mobile
+- [x] Implementar editor com numeração de linhas.
+- [x] Implementar realce lexical básico de Python sem WebView ou dependência de IDE.
+- [x] Preservar conteúdo e seleção nativa do campo de edição.
+- [x] Editar descrição, tags e parâmetros.
+- [x] Validar nomes, tipos, obrigatoriedade, defaults e valores extras.
+- [x] Resolver parâmetros antes da execução e passá-los ao runner como dicionário params.
+- [x] Documentar que o realce lexical não é parser/IDE completo.
+- [ ] Validar usabilidade, teclado, rolagem e desempenho no Moto G06.
 
-- [ ] Definir versão e contrato público da biblioteca.
-- [ ] Adicionar introspecção de capacidades realmente disponíveis.
-- [ ] Documentar módulos implementados versus planejados.
-- [ ] Testar contrato host Python com adaptador falso.
-- [ ] Não criar APIs fictícias para screen, notifications, files, system, sensors, network ou integrations.
-- [ ] Não introduzir dependência de Room/SQLite no código Python.
+## P1.4 — Execução e histórico
 
-### P1.6 — Dependências Python compatíveis
+**Estado:** IMPLEMENTADO — TESTE PENDENTE.
 
-- [ ] Definir manifesto de dependências por script.
-- [ ] Validar nomes/versões e restrições de compatibilidade.
-- [ ] Exibir dependências declaradas e status conhecido.
-- [ ] Documentar fluxo de inclusão no build/runtime Chaquopy.
-- [ ] Não prometer instalação dinâmica de qualquer pacote PyPI.
-- [ ] Testar parser/validador sem rede e sem instalar pacotes no dispositivo.
+- [x] Associar execução ao script e à versão de origem.
+- [x] Persistir QUEUED/RUNNING/estado terminal com timestamps.
+- [x] Persistir parâmetros, stdout, stderr, erro, duração e flags de truncamento.
+- [x] Exibir console da execução atual.
+- [x] Consultar histórico de execuções do script com saída e falhas.
+- [x] Preservar registros de execução após exclusão do script.
+- [ ] Executar testes JVM e validar histórico após fechar/reabrir o app.
+- [ ] Testar fila cheia e falhas de persistência.
 
-### P1.7 — Revisão, testes e gate
+## P1.5 — Biblioteca Python mobile
+
+**Estado:** IMPLEMENTADO — TESTE PENDENTE.
+
+- [x] Versionar pacote e contrato público (mobile 0.2.0; API_VERSION 1).
+- [x] Adicionar mobile.capabilities.list_available() e is_implemented().
+- [x] Catalogar somente device.get_info e apps.launch como implementados.
+- [x] Documentar módulos futuros como planejados, não disponíveis.
+- [x] Escrever teste host Python do catálogo.
+- [ ] Executar testes host Python e confirmar execução no runtime Android.
+
+## P1.6 — Dependências Python compatíveis
+
+**Estado:** IMPLEMENTADO — TESTE PENDENTE, com limite explícito.
+
+- [x] Persistir manifesto declarativo por script.
+- [x] Validar nome de pacote e restrição simples de versão.
+- [x] Exibir declarações no editor e explicar inclusão no build.
+- [x] Documentar requisitos Chaquopy/Python 3.13/ABI arm64-v8a.
+- [x] Não prometer instalação dinâmica de qualquer pacote PyPI.
+- [ ] Executar testes de validação do manifesto.
+- [ ] Validar pelo menos uma dependência real apenas se for escolhida e incluída explicitamente no build.
+
+## P1.7 — Revisão, testes e gate
+
+**Estado:** PENDENTE.
 
 - [ ] Revisar diff completo da branch.
 - [ ] Executar testes Python host.
 - [ ] Executar testes JVM/Kotlin.
 - [ ] Executar build debug localmente pelo usuário.
-- [ ] Validar ciclo biblioteca → editor → salvar → executar → histórico no Moto G06.
+- [ ] Validar ciclo biblioteca → editor → salvar → executar com parâmetros → histórico no Moto G06.
 - [ ] Validar importação/exportação no aparelho.
 - [ ] Validar migração de dados P0 no aparelho.
 - [ ] Registrar resultados físicos como relato do usuário, sem atribuir logs não fornecidos.
@@ -109,24 +126,30 @@ Estados: `PENDENTE`, `EM ANDAMENTO`, `BLOQUEADO`, `IMPLEMENTADO — TESTE PENDEN
 
 1. Scripts podem ser criados, importados, renomeados, duplicados, editados, exportados e excluídos.
 2. Scripts e metadados persistem após encerrar/reabrir o aplicativo.
-3. Editor apresenta numeração de linhas e realce lexical básico, sem alegar recursos de IDE completa.
-4. Parâmetros declarados podem ser fornecidos e recebidos pelo script como valores Python.
+3. Editor apresenta numeração de linhas e realce lexical básico.
+4. Parâmetros declarados podem ser fornecidos e recebidos pelo script como valores Python em params.
 5. Cada execução fica associada ao script/versão e possui histórico consultável com saída e falhas.
-6. Dependências são declaradas e validadas com limites claros de compatibilidade Chaquopy; nenhuma instalação genérica ou automática é prometida.
-7. Biblioteca `mobile` possui contrato versionado e introspecção honesta de capacidades implementadas.
+6. Dependências são declaradas e validadas com limites claros de compatibilidade Chaquopy; nenhuma instalação genérica é prometida.
+7. Biblioteca mobile possui contrato versionado e introspecção honesta das capacidades implementadas.
 8. Migração preserva scripts criados na P0.
-9. Testes automatizados relevantes passam e o ciclo principal é validado no Moto G06.
+9. Testes automatizados passam e o ciclo principal é validado no Moto G06.
 
 ## Evidências
 
 | Item | Evidência |
 |---|---|
-| Branch | `feat/p1-script-library` criada a partir de `main` |
-| Base inicial | `main` em `a68ea3bca2e5c8c8fa8fed0c7bba768acb21821f` |
-| Testes/build P1 | Pendentes |
-| Validação física P1 | Pendente |
+| Branch | feat/p1-script-library criada a partir de main |
+| Base inicial | a68ea3bca2e5c8c8fa8fed0c7bba768acb21821f |
+| Implementação | Commits incrementais publicados nesta branch |
+| Testes host Python | Escritos; execução pendente |
+| Testes JVM/Kotlin | Escritos; execução pendente |
+| Build APK P1 | Pendente |
+| Migração e validação física | Pendente |
 | PR/merge | Pendente |
 
 ## Bloqueios e desvios
 
-Registrar aqui qualquer impedimento, decisão alterada ou critério que precise ser renegociado. Não apagar evidências históricas; corrigir por nova anotação datada.
+- A compatibilidade real de dependências Python é específica por pacote, versão de CPython, ABI e distribuição Chaquopy; a P1 não executa instalação genérica de pacotes.
+- A migração Room foi escrita, mas ainda precisa ser executada contra dados P0 reais.
+- O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
+- Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
