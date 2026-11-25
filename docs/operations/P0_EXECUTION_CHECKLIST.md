@@ -45,13 +45,13 @@
 
 ## P0-1 — Revisão documental e decisões técnicas
 
-- [ ] **P0-1.1** Ler integralmente README, visão do projeto, arquitetura, roadmap e ADRs 0001–0004.
-- [ ] **P0-1.2** Extrair os requisitos e critérios de aceite da P0, distinguindo escopo obrigatório e itens fora de escopo.
+- [x] **P0-1.1** Ler integralmente README, visão do projeto, arquitetura, roadmap e ADRs 0001–0004.
+- [x] **P0-1.2** Extrair os requisitos e critérios de aceite da P0, distinguindo escopo obrigatório e itens fora de escopo.
 - [ ] **P0-1.3** Verificar compatibilidade oficial da matriz Gradle / AGP / Kotlin / Compose / Chaquopy / Python / SDK.
 - [ ] **P0-1.4** Definir e registrar as versões exatas e repositórios necessários; não presumir que versões mencionadas em conversas anteriores estejam corretas.
 - [ ] **P0-1.5** Registrar ADR adicional ou atualizar ADR existente se a implementação exigir mudança arquitetural relevante.
 
-**Gate P0-1:** decisões técnicas rastreáveis e sem conflito conhecido com os ADRs aceitos.
+**Evidências P0-1.1/P0-1.2:** README, docs/README, PROJECT_VISION, ARCHITECTURE (seções 1–10), ROADMAP e ADRs 0001–0004 recuperados da branch e revisados. Escopo confirmado: host Kotlin/Compose, Chaquopy, execução serial fora da UI, stdout/stderr/exceções, `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e persistência Room/SQLite mediada por Kotlin. Fora do P0: editor profissional, background, Accessibility, Shizuku/ADB/root, múltiplos workers, workflow visual e sandbox para código não confiável. Critérios de aceite preservados conforme roadmap.\n\n**Gate P0-1:** decisões técnicas rastreáveis e sem conflito conhecido com os ADRs aceitos.
 
 ## P0-2 — Fundação Android
 
@@ -168,4 +168,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — checklist e `AGENTS.md` publicados e conferidos na branch `feat/p0-runtime-bridge`; OP-0.1 a OP-0.4 concluídos com evidências. Nenhum código de produção foi iniciado.
+- 2026-11-25 — checklist e `AGENTS.md` publicados e conferidos na branch `feat/p0-runtime-bridge`; OP-0.1 a OP-0.4 concluídos. Documentação do projeto revisada e escopo P0 extraído (P0-1.1/P0-1.2). Nenhum código de produção foi iniciado.
