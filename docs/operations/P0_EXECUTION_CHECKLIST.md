@@ -141,7 +141,7 @@
 - [ ] **P0-6.3** Integrar leitura e gravação ao fluxo de edição/execução.
 - [x] **P0-6.4** Tratar primeira inicialização, ausência de registro e falhas de persistência.
 - [x] **P0-6.5** Criar testes de persistência e recuperação.
-- [ ] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
+- [x] **P0-6.6** Revisar fronteira: Python não acessa diretamente tabelas Room.
 
 **Evidência P0-6.1:** Room 2.8.5 runtime/ktx/compiler adicionados; KSP 2.3.12 declarado no build raiz e aplicado ao app; exportação de schema configurada em `app/schemas`. Arquivos Gradle recuperados e conferidos após publicação. Commits: `107a99c` e `b3ec8d3`. Entidades/DAO/database/repositório ainda serão implementados na subetapa P0-6.2; build não executado.
 
@@ -151,7 +151,9 @@
 
 **Evidência P0-6.5:** `ScriptRepositoryTest.kt` cobre criação única do script default, atualização preservando createdAt, atualização de updatedAt, nome vazio, erro de banco, propagação de cancelamento, erro do Flow e rejeição de id vazio. Usa DAO falso para rodar em JVM sem ADB. Comando documentado em `P0_PERSISTENCE.md`: `./gradlew :app:testDebugUnitTest`. Fonte conferida no GitHub (blob `6217f38fae6cff332cd3bb07854494d17c933691`); **os testes ainda não foram executados**.
 
-**Gate P0-6:** script salvo e recuperável por repositório Kotlin, com testes de persistência.
+**Evidência P0-6.6:** inspeção dos cinco módulos Python (`main.py`, `runner.py`, `mobile/__init__.py`, `mobile/device.py`, `mobile/apps.py`) não encontrou referências a Room, SQLite, DAO, Entity ou arquivo de banco. `PythonRuntime` recebe somente o adaptador de capacidades; `ScriptExecutor` recebe o código-fonte no request e não expõe repositório/DAO ao runtime. Verificação estática dos arquivos remotos concluída.
+
+**Gate P0-6:** modelos e repositório estão prontos; integração com editor/execução depende de P0-7.2, e testes/build Room aguardam execução local.
 
 ## P0-7 — Interface mínima integrada
 
