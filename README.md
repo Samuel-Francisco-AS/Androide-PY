@@ -55,7 +55,7 @@ O primeiro protótipo deverá demonstrar, no mínimo:
 
 ## Build e testes
 
-O projeto usa Gradle Wrapper 8.14.3 e Python host 3.13. Não é necessário instalar Gradle globalmente nem usar ADB.
+O projeto usa Gradle Wrapper 8.14.8, Compose BOM 2026.06.01 e Python host 3.13. Não é necessário instalar Gradle globalmente nem usar ADB.
 
 Consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md) para sincronizar a branch, executar os testes e gerar `app-debug.apk`. O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
 
