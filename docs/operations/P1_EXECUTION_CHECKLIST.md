@@ -118,7 +118,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, IMPLEMENTADO — TESTE PENDENTE, TES
 - [ ] Validar importação/exportação no aparelho.
 - [ ] Validar migração de dados P0 no aparelho.
 - [ ] Registrar resultados físicos como relato do usuário, sem atribuir logs não fornecidos.
-- [ ] Atualizar README, docs/README, roadmap, arquitetura e contrato mobile.
+- [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [ ] Criar PR para revisão.
 - [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
 
