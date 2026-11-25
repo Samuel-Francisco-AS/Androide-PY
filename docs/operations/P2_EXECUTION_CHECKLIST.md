@@ -200,7 +200,7 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 
 **Conferência:** contrato revisado contra a fachada Python existente, módulos `device/apps/capabilities`, runner, testes host, adaptador Kotlin, executor serial e protocolo assíncrono. A implementação atual ainda não contém `mobile.screen`; portanto, nenhuma capacidade nova foi adicionada ao catálogo.
 
-**Evidência e limites:** commit do contrato `dc7e4673cccb1070b594805a9163d059bfdd6a41`. Revisão documental/estática; nenhum teste, build APK ou validação física foi executado. P2.0.8–P2.0.10 permanecem pendentes.
+**Evidência e limites:** commit do contrato `dc7e4673cccb1070b594805a9163d059bfdd6a41`. Revisão documental/estática; nenhum teste, build APK ou validação física foi executado. P2.0.9–P2.0.10 permanecem pendentes.
 
 ## 4. P2.1 — Fundação nativa e autorização
 
