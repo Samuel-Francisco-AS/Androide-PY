@@ -65,7 +65,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 - [x] **P2.0.6** Definir o protocolo assíncrono Python → Kotlin → AccessibilityService → resultado. Contrato v1 publicado em `docs/operations/P2_ASYNC_PROTOCOL.md`; revisão estática concluída em 2026-11-25. Define envelope JSON versionado, request_id UUID, espera síncrona apenas no worker Python, gateway nativo assíncrono, timeout monotônico, cancelamento lógico/callbacks tardios, estados de autorização/conexão, erros estáveis, fila limitada e serialização de gestos. Nenhum código foi implementado ou testado.
 - [x] **P2.0.7** Definir a API pública Python e seus contratos antes da implementação. Contrato v1 publicado em `docs/operations/P2_PYTHON_API.md`; revisão estática concluída em 2026-11-25. Define `ScreenError`, validação local, `get_status`, toque/digitação/deslize/rolagem, Mapas de Coordenadas persistentes e seus métodos de consulta/reutilização, retornos, timeouts, limites e erros. Nenhum código foi implementado ou testado.
 - [x] **P2.0.8** Revisar implicações de privacidade e segurança. Revisão documental/estática concluída em 2026-11-25 e publicada em docs/operations/P2_SECURITY_REVIEW.md: abordagem B para leitura comum sob demanda; campos sensíveis bloqueados por padrão, com autorização expressa separada para leitura e escrita, limitada à execução/aplicativo; screenshots e notificações fora do escopo P2 inicial; mapas mínimos em Room privado; overlay temporário/cancelável; logs automáticos sem conteúdo; limitações do histórico P1 e ausência de sandbox documentadas. Nenhum controle foi implementado ou testado.
-- [ ] **P2.0.9** Criar/atualizar ADR quando a decisão alterar fronteiras arquiteturais, permissões, política de dados ou protocolo da Bridge.
+- [x] **P2.0.9** Registrar as decisões arquiteturais e de segurança em ADRs. Revisão documental concluída em 2026-11-25: ADR-0008 define AccessibilityService, gateway application-scoped, fronteira Python/Kotlin, lifecycle, concorrência, overlay e minimização; ADR-0009 define consentimento separado para leitura/escrita sensível, escopo por execução/aplicativo, retenção efêmera de stdout/stderr/tracebacks em execuções sensíveis por padrão e consentimento adicional para persistência, além da política de mapas e backup. Índice ADR atualizado. Nenhuma implementação/teste foi executado.
 - [ ] **P2.0.10** Atualizar documentação de arquitetura/roadmap/índices se o contrato aprovado exigir.
 
 **Gate P2.0:** contratos e limites técnicos definidos com base no código real e documentação Android oficial; nenhuma API pública presumida como implementada.
@@ -327,6 +327,17 @@ Contrato v1 publicado em [P2_PYTHON_API.md](P2_PYTHON_API.md).
 
 **Evidência:** revisão estática e publicação documental. Nenhum código de produção alterado; nenhum teste automatizado, build APK ou validação física executado nesta subetapa. ADR arquitetural será registrado na P2.0.9, conforme decomposição aprovada.
 
+
+
+### P2.0.9 — ADRs de arquitetura e segurança — 2026-11-25
+
+**ADRs aceitos para orientar a implementação:**
+- [ADR-0008 — AccessibilityService, gateway e fronteira da Android Bridge](../adr/0008-accessibility-service-bridge-and-lifecycle.md): serviço gerenciado pelo Android; gateway application-scoped; API Python como fronteira; protocolo assíncrono; fila/gestos serializados; overlay somente para captura; coleta pontual; persistência via Room/Kotlin.
+- [ADR-0009 — Consentimento para dados sensíveis e retenção de saídas](../adr/0009-sensitive-data-consent-and-retention.md): campos sensíveis bloqueados por padrão; consentimentos independentes para leitura e escrita, limitados à execução e ao app; sem concessão pelo script; stdout/stderr/tracebacks não persistidos por padrão em execuções com acesso sensível; persistência exige consentimento adicional separado e explícito; mapas mínimos em Room privado e verificação de regras de backup/transferência.
+
+**Conferência:** ADRs 0001–0007, arquitetura, visão, roadmap, contratos P2.0.6/P2.0.7 e revisão P2.0.8 consultados. Confirmado que ADR-0008 e ADR-0009 não existiam antes desta subetapa. Índice `docs/adr/README.md` atualizado.
+
+**Evidência:** ADR-0008 commit `c6b9be89327243ed6164e7b529474d918819a3d8`; ADR-0009 commit `f73f2b0729b683786c2ef4891872472413c06870`; índice atualizado nesta subetapa. Revisão documental/estática apenas; nenhum código de produção alterado, teste executado, build APK ou validação física P2.
 
 ### P2.0.8 — Revisão de privacidade e segurança — 2026-11-25
 
