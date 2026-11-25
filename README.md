@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** P0 concluída, validada por testes host/JVM e por validação física relatada no Moto G06, integrada em `main`. P1 está em implementação na branch `feat/p1-script-library`; build e validação física das mudanças P1 ainda estão pendentes.
+> **Status:** P0 e P1 concluídas e integradas em `main`. A P1 foi validada por testes host/JVM, build APK e validação física do escopo acordado no Moto G06. Consulte o checklist e o relatório P1 para pendências explicitamente adiadas e limitações conhecidas.
 
 ## Objetivos
 
