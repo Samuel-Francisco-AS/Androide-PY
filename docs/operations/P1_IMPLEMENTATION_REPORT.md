@@ -96,7 +96,7 @@ Durante a revisão foram identificados e corrigidos:
 - Exclusão de script e versões tornada transacional.
 - Feedback do editor ajustado para não afirmar criação de versão quando nada mudou.
 
-Essas correções foram revisadas estaticamente; ainda precisam de testes executados.
+Essas correções e os 34 arquivos alterados foram revisados estaticamente. As APIs de Compose (BasicTextField/VisualTransformation), Storage Access Framework e migração Room foram conferidas na documentação oficial; isso não substitui a compilação nem a validação física. Os testes continuam pendentes.
 
 ## 6. Testes e validações
 
@@ -104,7 +104,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 
 | Categoria | Estado |
 |---|---|
-| Revisão estática de código | Em andamento |
+| Revisão estática de código | Concluída para os 34 arquivos do diff; não substitui build/teste |
 | Testes Python host | Escritos; execução pendente |
 | Testes JVM/Kotlin | Escritos; execução pendente |
 | Teste de migração Room | Pendente |
