@@ -30,6 +30,17 @@ A tela Compose da P0 chamará a inicialização e o smoke check em um worker, ex
 
 **ADB e conexão USB com o computador não são requisitos desse fluxo.**
 
+## Restrições do runtime consideradas
+
+- Chaquopy deve ser aplicado a exatamente um módulo do app; nesta arquitetura, somente `:app`.
+- O `minSdk` mínimo é 24.
+- O interpretador Python é nativo: o app declara ABI(s) explicitamente. A baseline inicial usa apenas `arm64-v8a`; confirmar no Moto G06.
+- Não é necessário instalar um NDK adicional apenas para usar as bibliotecas nativas pré-compiladas do Chaquopy.
+- O Python host precisa compartilhar major/minor com o Python embarcado; o projeto usa Python 3.13 em ambos.
+- Em Android, a maior parte de `multiprocessing` não funciona por limitações de IPC; não presumir suporte a processos Python.
+- `sys.stdin` retorna EOF; não há entrada interativa padrão neste primeiro runtime.
+- Arquivos gravados pelo Python devem ficar sob `os.environ["HOME"]`, no armazenamento privado do app, e não no diretório do código embarcado.
+
 ## Limites conhecidos
 
 - A publicação do código e a revisão estática não provam que o runtime inicializa.
