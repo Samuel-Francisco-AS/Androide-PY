@@ -109,7 +109,7 @@ Assim:
 - A P2 não deve adicionar conteúdo de interface aos logs automaticamente.
 - Um script que deliberadamente imprima um valor obtido pela API poderá fazer esse valor aparecer no console e no histórico atual.
 - Não há redaction confiável e universal de stdout/stderr sem alterar o contrato de execução; não declarar que o histórico atual é livre de dados sensíveis.
-- A futura UI/implementação deverá deixar claro esse comportamento antes de conceder acesso sensível. Uma política de não persistência de saída para execuções com acesso sensível poderá ser considerada como endurecimento adicional, mas não está implementada nem é presumida neste documento.
+- A futura UI/implementação deverá deixar claro esse comportamento antes de conceder acesso sensível. A decisão sobre persistência de stdout/stderr/traceback em execuções que receberam autorização sensível permanece aberta para P2.0.9: recomendação inicial é não persistir essas saídas por padrão, mantendo-as disponíveis apenas no console da execução, e exigir consentimento separado caso Sam queira salvá-las no histórico.
 
 ## 8. Rede e confiança dos scripts
 
