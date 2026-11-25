@@ -83,6 +83,17 @@ class ScriptRepositoryTest {
     }
 
     @Test
+    fun restoringVersionCreatesANewSnapshotWithoutOverwritingHistory() = runBlocking {
+        val repository = ScriptRepository(FakeScriptDao()) { 750L }
+        val script = repository.create("Versioned", sourceCode = "print('v1')")
+        repository.save(script.id, script.name, "print('v2')")
+        val restored = repository.restoreVersion(script.id, 1)
+        assertEquals("print('v1')", restored.sourceCode)
+        assertEquals(listOf(3, 2, 1), repository.getVersions(script.id).map { it.versionNumber })
+        assertEquals("print('v2')", repository.getVersions(script.id)[1].sourceCode)
+    }
+
+    @Test
     fun deleteRemovesScriptAndVersions() = runBlocking {
         val repository = ScriptRepository(FakeScriptDao()) { 800L }
         val script = repository.create("Temporary", sourceCode = "print(1)")
