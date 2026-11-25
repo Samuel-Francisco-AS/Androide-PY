@@ -55,7 +55,7 @@ Adotar a seguinte baseline para a implementação P0:
 
 - O build ainda precisa ser executado no Fedora para validar a resolução real dos plugins e dependências.
 - O ABI do Moto G06 deve ser confirmado na primeira validação física; se não for arm64-v8a, a configuração deverá ser revista.
-- O Compose BOM 2026.11.01 não será usado enquanto o ambiente permanecer em compileSdk 36, pois a release de novembro exige compileSdk 37.1.
+- O Compose BOM 2026.09.00 não será usado enquanto o ambiente permanecer em compileSdk 36, pois resolve a linha Compose 1.12.1, que exige compileSdk 37 e AGP 9.x. A linha 1.13 alpha pode exigir compileSdk 37.1.
 - A versão do Chaquopy não garante compatibilidade com qualquer pacote PyPI; dependências adicionais serão avaliadas individualmente.
 
 ## Correção após a primeira tentativa de build
