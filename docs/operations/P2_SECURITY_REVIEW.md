@@ -134,7 +134,7 @@ A interface de autorização deve explicar que conceder acesso sensível a uma a
 
 ## 10. Pendências e limites da conclusão
 
-P2.0.8 conclui a revisão e a definição documental de política. Não prova que os controles estejam implementados. P2.0.9 deverá registrar as decisões arquiteturais de segurança e autorização em ADR. P2.0.10 deverá harmonizar arquitetura, roadmap, índices e contratos.
+P2.0.8 concluiu a revisão e a definição documental de política. As decisões arquiteturais foram formalizadas na P2.0.9 pelos ADRs-0008 e 0009; isso não prova que os controles estejam implementados. A P2.0.10 harmonizará arquitetura, roadmap, índices e contratos.
 
 A implementação futura deverá testar, no mínimo: bloqueio sensível sem concessão; leitura e escrita separadas; escopo da concessão por execução/aplicativo; revogação em cancelamento/desconexão; classificação conservadora; ausência de conteúdo em logs do adaptador; descarte de snapshots; overlay removido em todos os caminhos terminais; persistência/exclusão dos mapas; comportamento de backup/exportação.
 
