@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** implementação P0 publicada na branch `feat/p0-runtime-bridge`. A fundação Android, runtime Python, executor, Bridge, persistência e primeira interface estão no repositório. Build, testes locais e validação física ainda estão pendentes; código publicado não é código validado.
+> **Status:** P0 concluída, validada por testes host/JVM e por validação física relatada no Moto G06, integrada em `main`. P1 está em implementação na branch `feat/p1-script-library`; build e validação física das mudanças P1 ainda estão pendentes.
 
 ## Objetivos
 
@@ -38,20 +38,23 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Checklist operacional P0](docs/operations/P0_EXECUTION_CHECKLIST.md) | Fases, subetapas e evidências |
 | [Build e testes](docs/operations/P0_BUILD_AND_TEST.md) | Sincronização e build sem ADB |
 | [Plano de integração](docs/operations/P0_INTEGRATION_TEST_PLAN.md) | Testes host/JVM e roteiro físico |
-| [Relatório da implementação](docs/operations/P0_IMPLEMENTATION_REPORT.md) | Entregas e validações pendentes |
+| [Relatório da implementação P0](docs/operations/P0_IMPLEMENTATION_REPORT.md) | Entregas, evidências e validações da fundação |
+| [Checklist operacional P1](docs/operations/P1_EXECUTION_CHECKLIST.md) | Subetapas, critérios de aceite e evidências da biblioteca de scripts |
+| [Relatório da implementação P1](docs/operations/P1_IMPLEMENTATION_REPORT.md) | Decisões, implementação, testes e limitações da P1 |
 
 ## Estado atual
 
-O repositório já contém a primeira implementação funcional planejada para P0: editor Compose, script default persistido, execução serial Python, captura de stdout/stderr/exceções e duas capacidades Android. Ainda não existe evidência de build ou execução real. A matriz de validação e o estado detalhado estão em [P0_EXECUTION_CHECKLIST.md](docs/operations/P0_EXECUTION_CHECKLIST.md).
+A P0 está integrada em `main`. O usuário reportou build APK, instalação e abertura no Moto G06, execução Python, stdout/stderr, tratamento de exceções, leitura de informações do aparelho, abertura de Configurações e persistência após reabertura. Os testes host Python (10) e JVM/Kotlin (31) foram reportados como aprovados. Consulte o [relatório P0](docs/operations/P0_IMPLEMENTATION_REPORT.md) para distinguir evidências automatizadas e relatos físicos.
 
-O primeiro protótipo deverá demonstrar, no mínimo:
+A P1 está sendo desenvolvida em `feat/p1-script-library`: biblioteca CRUD, editor com numeração/realce lexical, metadados, parâmetros, versões, histórico de execução, importação/exportação e declaração de dependências. A implementação ainda precisa de build, testes executados e validação física; acompanhe o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md).
 
-1. Inicialização do runtime Python dentro do aplicativo.
-2. Execução de um script a partir da interface.
-3. Captura de saída, erros e exceções.
-4. Consulta de informações básicas do dispositivo por uma API Python própria.
-5. Abertura de um aplicativo instalado por meio de uma API Android autorizada.
-6. Persistência do script entre sessões.
+Os critérios históricos do P0 foram demonstrados. O gate P1 exige, além dos testes automatizados:
+
+1. Criar, importar, editar, renomear, duplicar, exportar e excluir scripts.
+2. Preservar scripts existentes na migração Room da P0.
+3. Salvar metadados, parâmetros e snapshots de versão.
+4. Executar com parâmetros e consultar histórico de resultados.
+5. Validar o fluxo completo no Moto G06.
 
 ## Build e testes
 
