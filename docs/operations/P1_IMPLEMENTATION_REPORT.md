@@ -30,7 +30,7 @@ A implementação inicial não continha histórico de versões, entidade de exec
 ## 3. Decisões de implementação P1
 
 1. **Persistência:** Room permanece a fonte de verdade dos metadados. Python não acessa diretamente Room/SQLite.
-2. **Migração:** versão 1 → 2 explícita, sem fallback destrutivo; scripts P0 são preservados e ganham versão inicial sob demanda.
+2. **Persistência:** schema Room versão 2 com `fallbackToDestructiveMigration()` durante o desenvolvimento; versões incompatíveis podem recriar o banco e descartar dados locais, conforme ADR-0007.
 3. **Scripts:** metadados e código-fonte permanecem locais. Snapshots imutáveis são criados quando código ou metadados mudam.
 4. **Execuções:** cada execução referencia script e versão; histórico armazena parâmetros, status, horários, stdout, stderr, erro estruturado e flags de truncamento.
 5. **Exclusão:** excluir script remove metadados e versões em transação; execuções são preservadas como histórico.
@@ -50,7 +50,7 @@ A implementação inicial não continha histórico de versões, entidade de exec
 - ScriptExecutionEntity registra execução e resultado.
 - ScriptDao oferece gravações transacionais de script/versão e exclusão transacional.
 - ScriptExecutionDao e ScriptExecutionRepository persistem ciclo de execução.
-- AppDatabase implementa MIGRATION_1_2 com criação de tabelas/índices e colunas novas.
+- AppDatabase usa Room schema versão 2 e `fallbackToDestructiveMigration()`; a migração 1 → 2 foi removida conforme ADR-0007.
 - AndroidePyApplication expõe repositórios de scripts e execuções.
 
 ### 4.2 Biblioteca e editor
@@ -107,7 +107,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 | Revisão estática de código | Concluída para os 34 arquivos do diff; não substitui build/teste |
 | Testes Python host | Escritos; execução pendente |
 | Testes JVM/Kotlin | Escritos; execução pendente |
-| Teste de migração Room | Pendente |
+| Comportamento do fallback destrutivo | Pendente de validação no aparelho |
 | Build APK P1 | Pendente |
 | Validação física Moto G06 | Pendente |
 | PR | #2 aberta em draft; aguarda validação |
@@ -122,7 +122,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 
 ## 7. Limitações e riscos remanescentes
 
-- A migração Room foi escrita, mas precisa ser executada sobre banco P0 real para comprovar preservação dos dados. A branch remota não contém os JSONs de schema Room exportados: o schema v1 histórico precisa ser recuperado/gerado da baseline P0, e o schema v2 deve ser gerado pelo build P1 e ambos versionados. Sem esses artefatos, ainda não há base completa para um teste automatizado com MigrationTestHelper.
+- `fallbackToDestructiveMigration()` pode apagar scripts, versões e execuções locais quando o app for atualizado de uma versão de banco sem migração compatível. Esse comportamento é intencional durante o desenvolvimento e deve ser informado antes da instalação/validação.
 - A UI não possui ainda validação física de teclado, rolagem, acessibilidade ou desempenho.
 - Realce lexical não substitui parser Python, autocomplete, lint ou depurador.
 - Importação suporta arquivos de texto UTF-8 de até 1 MiB; não há importação de projetos/arquivos auxiliares.
@@ -133,7 +133,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 
 ## 8. Critério para encerramento
 
-P1 só poderá ser considerada concluída após todos os critérios de aceite do checklist, testes automatizados executados, build local, migração de dados P0 e validação física do ciclo principal no Moto G06. PR e merge são etapas de integração, não substituem validação funcional.
+P1 só poderá ser considerada concluída após todos os critérios de aceite do checklist, testes automatizados executados, build local, validação física da inicialização do banco versão 2 e do ciclo principal no Moto G06. Não há requisito de preservar dados P0. PR e merge são etapas de integração, não substituem validação funcional.
 
 ## 9. Integração
 
