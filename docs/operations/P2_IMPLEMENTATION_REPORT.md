@@ -154,7 +154,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 
 - Branch de trabalho: `feat/p2-accessibility-automation`.
 - Base: `main`.
-- Estado: branch criada e documentação operacional inicial em publicação.
+- Estado: branch criada e documentação operacional inicial publicada e conferida no GitHub.
 - PR: ainda não criada.
 - Merge: não realizado nem autorizado nesta etapa.
 - Implementação: não iniciada.
@@ -163,4 +163,4 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 
 | Data | Alteração |
 |---|---|
-| 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. |
+| 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. Checklist commit `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório commit `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice docs commit `3017ad8fa0983feb2d0950b366242eae0349786c`; checklist atualizado com evidências em `4722fce1ccf0d9647c821234e01f6c7668dd8ae0`. |
