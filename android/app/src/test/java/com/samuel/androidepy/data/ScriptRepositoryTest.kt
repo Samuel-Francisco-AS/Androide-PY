@@ -82,6 +82,30 @@ class ScriptRepositoryTest {
     }
 
     @Test
+    fun deleteRemovesScriptAndVersions() = runBlocking {
+        val repository = ScriptRepository(FakeScriptDao()) { 800L }
+        val script = repository.create("Temporary", sourceCode = "print(1)")
+        repository.save(script.id, script.name, "print(2)")
+        assertEquals(2, repository.getVersions(script.id).size)
+        repository.delete(script.id)
+        assertEquals(null, repository.getById(script.id))
+        assertTrue(repository.getVersions(script.id).isEmpty())
+    }
+
+    @Test
+    fun sourceOnlySavePreservesExistingMetadata() = runBlocking {
+        val repository = ScriptRepository(FakeScriptDao()) { 900L }
+        val script = repository.create(
+            "Metadata", description = "Keep me", tagsJson = "[\"tag\"]",
+            parametersJson = "[{\"name\":\"limit\",\"type\":\"integer\"}]"
+        )
+        val saved = repository.save(script.id, script.name, "print(2)")
+        assertEquals(script.description, saved.description)
+        assertEquals(script.tagsJson, saved.tagsJson)
+        assertEquals(script.parametersJson, saved.parametersJson)
+    }
+
+    @Test
     fun invalidParameterAndDependencyManifestsAreRejected() = runBlocking {
         val repository = ScriptRepository(FakeScriptDao())
         assertThrows(IllegalArgumentException::class.java) {
