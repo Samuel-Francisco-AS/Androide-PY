@@ -9,9 +9,11 @@ O aplicativo precisa executar scripts Python localmente dentro de uma aplicaçã
 
 ## Decisão
 
-Adotar Chaquopy como primeira opção de runtime Python embarcado para o P0. A escolha é provisória até que a compilação, execução, integração nativa e compatibilidade das dependências sejam comprovadas no dispositivo de validação.
+Adotar Chaquopy como runtime Python embarcado inicial. A combinação Chaquopy 17.2.0/Python 3.13 foi validada no P0 para inicialização, execução de scripts, captura de saída/erros e chamadas à Android Bridge no Moto G06, conforme testes automatizados e relatos físicos registrados.
 
-A arquitetura deverá encapsular o runtime atrás de uma interface interna para permitir substituição futura sem reescrever o motor de automação.
+A decisão continua sujeita a revisão caso surjam limitações estruturais. A compatibilidade de pacotes adicionais deve ser validada individualmente por versão Python, ABI e disponibilidade para Chaquopy.
+
+A arquitetura encapsula o runtime atrás de uma interface interna para permitir substituição futura sem reescrever o motor de automação.
 
 ## Alternativas consideradas
 
