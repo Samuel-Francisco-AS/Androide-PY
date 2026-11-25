@@ -20,10 +20,10 @@ O projeto adota uma arquitetura *Python-first* com integração Android nativa: 
 ## Arquitetura em poucas palavras
 
 - **Android:** Kotlin e Jetpack Compose.
-- **Runtime Python:** Chaquopy 17.2.0 configurado para CPython 3.13; a inicialização real ainda depende do primeiro build e teste no aparelho.
-- **Persistência:** Room 2.8.5 sobre SQLite, com acesso mediado por `ScriptRepository`; nenhum acesso Python direto ao banco.
-- **Integração:** Android Bridge com `mobile.device.get_info()` e `mobile.apps.launch(package_name)` implementados; Accessibility e Shizuku permanecem fora do escopo P0.
-- **Execução:** gerenciador de execuções, workers e mecanismos Android apropriados para tarefas em segundo plano.
+- **Runtime Python:** Chaquopy 17.2.0 configurado para CPython 3.13; execução validada no Moto G06 durante P0.
+- **Persistência:** Room 2.8.5 sobre SQLite, com repositórios Kotlin para scripts, versões e execuções; migração Room 1 → 2 preparada na P1; nenhum acesso Python direto ao banco.
+- **Integração:** Android Bridge com `mobile.device.get_info()`, `mobile.apps.launch(package_name)` e catálogo `mobile.capabilities`; Accessibility e Shizuku permanecem em fases posteriores.
+- **Execução:** executor Python serial, parâmetros via `params`, console por execução e histórico persistido; execução em segundo plano permanece em fase posterior.
 
 A arquitetura completa, suas fronteiras e suas limitações estão documentadas em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
