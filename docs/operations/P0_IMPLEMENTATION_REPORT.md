@@ -9,7 +9,7 @@
 
 ### Host Android
 - Kotlin, Jetpack Compose, Activity launcher e edge-to-edge compatível com targetSdk 36.
-- Gradle Wrapper 8.14.3, AGP 8.13.2, Kotlin/Compose plugin 2.4.21.
+- Gradle Wrapper 8.14.8, AGP 8.13.2, Kotlin/Compose plugin 2.4.21; Compose BOM 2026.06.01 (Compose 1.11.4), compatível com compileSdk 36.
 - Chaquopy 17.2.0 com CPython 3.13 e ABI inicial arm64-v8a.
 - Application-scoped Python executor serial, fila limitada a 16 e atualizações via SharedFlow.
 
@@ -36,6 +36,12 @@
 - Checklist operacional e rotina AGENTS.md.
 - Contratos de execução, Bridge e persistência.
 - Plano de integração e instruções de build/teste sem ADB.
+
+## Correção publicada após a primeira tentativa de build
+
+O primeiro comando `:app:testDebugUnitTest` executado pelo usuário falhou em `:app:checkDebugAarMetadata` porque o BOM 2026.09.00 resolveu Compose 1.12.1, que exige compileSdk 37 e AGP 9.1+. O BOM foi fixado em 2026.06.01, que mapeia Compose 1.11.4; o requisito compileSdk 37 aparece a partir da linha 1.12.0. O Gradle Wrapper foi atualizado para 8.14.8 com checksum oficial para remover o aviso de depreciação reportado em 8.14.3. AGP 8.13.2 e SDK 36 foram mantidos.
+
+Esta é uma correção estática orientada pelo log real, ainda sem reteste. O build permanece não validado.
 
 ## O que ainda NÃO foi validado
 
