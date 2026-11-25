@@ -3,26 +3,17 @@ package com.samuel.androidepy.execution
 import org.json.JSONObject
 import java.util.UUID
 
-enum class ExecutionStatus {
-    QUEUED,
-    RUNNING,
-    SUCCEEDED,
-    FAILED,
-    CANCELLED
-}
+enum class ExecutionStatus { QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED }
 
 data class ScriptExecutionRequest(
     val sourceCode: String,
     val scriptId: String = "scratch",
+    val parametersJson: String = "{}",
     val executionId: String = UUID.randomUUID().toString(),
     val queuedAtEpochMs: Long = System.currentTimeMillis()
 )
 
-data class ScriptExecutionError(
-    val type: String,
-    val message: String,
-    val traceback: String
-)
+data class ScriptExecutionError(val type: String, val message: String, val traceback: String)
 
 data class ScriptExecutionResult(
     val executionId: String,
@@ -41,19 +32,11 @@ data class ScriptExecutionResult(
         fun fromJson(json: String): ScriptExecutionResult {
             val root = JSONObject(json)
             val schemaVersion = root.optInt("schema_version", 1)
-            require(schemaVersion == 1) {
-                "Unsupported Python execution result schema: $schemaVersion"
-            }
-
+            require(schemaVersion == 1) { "Unsupported Python execution result schema: $schemaVersion" }
             val errorObject = root.optJSONObject("error")
             val error = errorObject?.let {
-                ScriptExecutionError(
-                    type = it.optString("type"),
-                    message = it.optString("message"),
-                    traceback = it.optString("traceback")
-                )
+                ScriptExecutionError(it.optString("type"), it.optString("message"), it.optString("traceback"))
             }
-
             return ScriptExecutionResult(
                 executionId = root.getString("execution_id"),
                 scriptId = root.optString("script_id", "scratch"),
