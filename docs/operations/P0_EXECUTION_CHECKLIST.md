@@ -72,16 +72,20 @@
 
 **Evidências P0-2.3/P0-2.4/P0-2.5:** identificador `com.samuel.androidepy`, manifesto com Activity launcher explícita/exportada, recurso `app_name` e Activity Compose inicial publicados. ABI inicial restrita a `arm64-v8a` para o Moto G06, reduzindo o tamanho do APK; a ABI real será confirmada na validação física. Revisão estática de settings, plugins, SDK, dependências Compose, manifesto, recursos, Activity, wrapper e propriedades Gradle concluída; verificações automatizadas de conteúdo dos arquivos retornaram todos os itens esperados. Não foi executado build Android. Commits relevantes: `ae097a4` (Compose dependencies), `3b43abd` (manifesto), `80e18ed` (strings), `621aaa0` (Activity), `2e70249` (ABI).
 
-**Evidência P0-2.6:** fundação publicada na branch remota `feat/p0-runtime-bridge`, arquivos confirmados por leitura posterior no GitHub. O checklist preserva explicitamente que o build ainda não foi executado.\n\n**Gate P0-2:** estrutura Android coerente, revisada e pronta para integração do runtime.
+**Evidência P0-2.6:** fundação publicada na branch remota `feat/p0-runtime-bridge`, arquivos confirmados por leitura posterior no GitHub. O checklist preserva explicitamente que o build ainda não foi executado.
+
+**Gate P0-2:** estrutura Android coerente, revisada e pronta para integração do runtime.
 
 ## P0-3 — Runtime Python (Chaquopy)
 
-- [ ] **P0-3.1** Integrar a versão de Chaquopy verificada na matriz técnica.
+- [x] **P0-3.1** Integrar a versão de Chaquopy verificada na matriz técnica.
 - [ ] **P0-3.2** Configurar Python embarcado 3.13 e o interpretador host exigido pelo processo de build.
 - [ ] **P0-3.3** Criar módulo Python inicial e uma interface Kotlin que encapsule inicialização/acesso ao runtime.
 - [ ] **P0-3.4** Garantir inicialização fora da thread principal e comportamento seguro em chamadas repetidas.
 - [ ] **P0-3.5** Criar teste mínimo de integração Kotlin/Python e documentação de execução.
 - [ ] **P0-3.6** Revisar dependências, inicialização, tratamento de falhas e limites conhecidos do Chaquopy.
+
+**Evidência P0-3.1:** plugin Chaquopy 17.2.0 declarado no build raiz e aplicado somente ao módulo `:app`, conforme a documentação do fornecedor. Arquivos conferidos novamente no GitHub. Commits: `ec17207` (versão) e `f6d2762` (aplicação). A configuração da versão Python e a execução real ainda estão pendentes.
 
 **Gate P0-3:** integração implementada e teste automatizado pertinente criado; execução real no dispositivo permanece pendente até validação física.
 
