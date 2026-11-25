@@ -51,6 +51,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 
 private const val MAX_SCRIPT_BYTES = 1_048_576
@@ -141,14 +142,15 @@ fun MainScreen(application: AndroidePyApplication) {
         }
     }
 
-    LaunchedEffect(scripts, initialized) {
+    LaunchedEffect(repository) {
         if (!initialized) {
             try {
-                if (scripts.isEmpty()) {
+                val initialScripts = withContext(Dispatchers.IO) { repository.observeAll().first() }
+                if (initialScripts.isEmpty()) {
                     val defaultScript = withContext(Dispatchers.IO) { repository.getOrCreateDefault() }
                     selectedScriptId = defaultScript.id
                 } else {
-                    selectedScriptId = scripts.first().id
+                    selectedScriptId = initialScripts.first().id
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -157,7 +159,13 @@ fun MainScreen(application: AndroidePyApplication) {
             } finally {
                 initialized = true
             }
-        } else if (selectedScriptId != null && scripts.none { it.id == selectedScriptId }) {
+        }
+    }
+
+    LaunchedEffect(scripts, initialized) {
+        if (initialized && selectedScriptId != null && scripts.isNotEmpty() &&
+            scripts.none { it.id == selectedScriptId }
+        ) {
             selectedScriptId = scripts.firstOrNull()?.id
         }
     }
