@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A em andamento após conclusão documental da P2.0. Nenhuma funcionalidade P2 foi compilada ou validada fisicamente até o momento. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A com implementação inicial publicada e revisada estaticamente; build/testes e validação física pendentes. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -214,13 +214,15 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 **Escopo:** serviço Android e infraestrutura application-scoped.
 
-- [ ] Implementar uma classe dedicada derivada de `AccessibilityService` e seu XML de configuração.
-- [ ] Declarar o serviço no manifesto com `BIND_ACCESSIBILITY_SERVICE`, intent-filter e metadata corretos; solicitar somente capabilities e eventos mínimos justificados pelo estágio atual.
-- [ ] Criar um gateway/gerenciador application-scoped, integrado à `AndroidePyApplication`, que publique a instância somente a partir dos callbacks reais do Android.
-- [ ] Tratar conexão, interrupção, desconexão e limpeza de referências/solicitações pendentes; não instanciar o serviço manualmente, não reter Activity e não criar um segundo runtime/worker Python.
-- [ ] Manter observação mínima: sem varredura de árvore, leitura de texto, captura contínua ou capacidades de gesto/consulta ainda não necessárias nesta fundação.
+- [x] Implementar uma classe dedicada derivada de `AccessibilityService` e seu XML de configuração.
+- [x] Declarar o serviço no manifesto com `BIND_ACCESSIBILITY_SERVICE`, intent-filter e metadata corretos; solicitar somente capabilities e eventos mínimos justificados pelo estágio atual.
+- [x] Criar um gateway/gerenciador application-scoped, integrado à `AndroidePyApplication`, que publique a instância somente a partir dos callbacks reais do Android.
+- [x] Implementar limpeza idempotente e protegida por identidade em `onUnbind()`/`onDestroy()`; não instanciar o serviço manualmente, não reter Activity e não criar um segundo runtime/worker Python.
+- [x] Manter observação mínima: somente `typeWindowStateChanged`; sem leitura do payload, varredura de árvore, leitura de texto, captura contínua ou capacidades de gesto/consulta.
 
-**Critérios de aceite:** serviço reconhecido pelo Android; configuração e manifesto coerentes; gateway não mantém referência obsoleta após teardown; nenhuma Activity é retida; capacidades/eventos declarados são mínimos e justificados.
+**Critérios de aceite estática:** classe, manifesto e XML coerentes; gateway application-scoped registra apenas a instância conectada pelo Android e não permite que callback tardio de instância antiga limpe uma conexão nova; referências removidas no teardown. O reconhecimento pelo Android e o lifecycle real serão verificados na P2.1-C.
+
+**Evidência publicada:** implementação inicial em `AndroidePyAccessibilityService.kt`, `AccessibilityGateway.kt`, `AndroidePyApplication.kt`, `AndroidManifest.xml`, `res/xml/accessibility_service_config.xml` e `res/values/strings.xml`. Commits: `9612bc0`, `cbdb98f`, `fc98ea2`, `aa61911`, `add80e6`, `7bdd832` e `9d5b8af`. Revisão estática dos arquivos concluída; nenhum build ou teste foi executado. Estado: implementação publicada e revisada; build local pendente.
 
 **Mapeia os requisitos originais:** P2.1.1, P2.1.2 e a parte de lifecycle de P2.1.5; estabelece a base técnica para P2.1.6.
 
