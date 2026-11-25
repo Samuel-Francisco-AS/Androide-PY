@@ -1,6 +1,6 @@
 # ADR-0006: Versionamento, parâmetros e histórico da biblioteca de scripts
 
-- **Status:** Aceito para a P1; build e validação funcional pendentes
+- **Status:** Aceito e implementado na P1; escopo acordado validado; itens diferidos registrados no checklist P1
 - **Data:** 2026-11-25
 
 ## Contexto
@@ -47,7 +47,7 @@ A preservação de dados P0 não é requisito padrão durante o desenvolvimento,
 
 ## Validação
 
-- Testes JVM do repositório e do histórico de execução foram escritos, mas ainda precisam ser executados.
-- Testes de resolução de parâmetros foram escritos, mas ainda precisam ser executados.
-- A migração Room 1 → 2 foi removida conforme ADR-0007; o fallback destrutivo será exercitado no ciclo de build/instalação P1, sem exigir preservação dos dados P0.
-- Build APK e validação física no Moto G06 permanecem pendentes.
+- Testes Python host 13/13, testes JVM (`:app:testDebugUnitTest`) e build APK (`:app:assembleDebug`) foram reportados pelo usuário como aprovados; APK instalado no Moto G06.
+- O escopo físico acordado da P1 foi validado no Moto G06. P1-TF13 permaneceu inconclusivo/diferido; tipo inválido, fila cheia, falhas de persistência, manifesto/dependências, desempenho do editor e fallback destrutivo específico foram explicitamente adiados e não são declarados aprovados.
+- A PR #2 foi integrada em `main` por Squash Merge em 25/11/2026, commit `3196115a7fae0318f258cdd9611a373e32564679`.
+- O contrato geral de histórico descrito neste ADR possui exceção futura para execuções que receberam acesso a campos sensíveis: stdout/stderr/tracebacks não serão persistidos por padrão; salvar exige consentimento separado por execução. Essa política, formalizada no ADR-0009, ainda requer evolução explícita do executor/histórico e não está implementada.
