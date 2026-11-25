@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.8 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
+**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.9 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -237,6 +237,18 @@ A revisão foi publicada em [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md). Fora
 
 Revisão documental/estática concluída e documento publicado. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física P2 foi executado. A autorização sensível, classificação, overlay, política de logs e persistência ainda precisam ser implementados e testados nas subetapas seguintes. P2.0.9 registrará decisões arquiteturais em ADRs; P2.0.10 harmonizará os documentos principais.
 
+
+## 3.6 P2.0.9 — ADRs de arquitetura e segurança — 25/11/2026
+
+Foram criados dois ADRs aceitos para orientar a implementação futura:
+
+- [ADR-0008 — AccessibilityService, gateway e fronteira da Android Bridge](../adr/0008-accessibility-service-bridge-and-lifecycle.md): define lifecycle gerenciado pelo Android, gateway application-scoped, fronteira Python/Kotlin, uso do protocolo assíncrono, concorrência/gestos, overlay restrito, minimização e persistência Room por repositórios Kotlin.
+- [ADR-0009 — Consentimento para dados sensíveis e retenção de saídas](../adr/0009-sensitive-data-consent-and-retention.md): define bloqueio sensível por padrão, autorizações separadas para leitura e escrita, escopo por execução/aplicativo, revogação, classificação conservadora, retenção efêmera por padrão de stdout/stderr/tracebacks em execuções que receberam acesso sensível e consentimento adicional para persistir essas saídas. Também consolida mapas mínimos e verificação explícita das regras de backup/transferência.
+
+O índice `docs/adr/README.md` foi atualizado. As decisões foram conferidas contra ADRs 0001–0007, visão, arquitetura, roadmap, contratos P2.0.6/P2.0.7 e revisão de segurança P2.0.8.
+
+**Evidência e limites:** ADR-0008 commit `c6b9be89327243ed6164e7b529474d918819a3d8`; ADR-0009 commit `f73f2b0729b683786c2ef4891872472413c06870`. Revisão documental/estática; nenhum código de produção foi alterado e nenhum teste, build APK ou validação física foi executado. Os ADRs estão aceitos como decisões de projeto, não validados por implementação. A harmonização dos documentos principais permanece para P2.0.10.
+
 ## 4. Decomposição aprovada
 
 A decomposição de execução está detalhada no [Checklist Operacional P2](P2_EXECUTION_CHECKLIST.md).
@@ -319,3 +331,4 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | Abertura da P2; prioridades A/B/C, Mapa de Coordenadas na Prioridade A, decomposição e limites registrados conforme decisões de Sam. Checklist commit `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório commit `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice docs commit `3017ad8fa0983feb2d0950b366242eae0349786c`. |
 | 2026-11-25 | P2.0.6: contrato assíncrono v1 publicado em `P2_ASYNC_PROTOCOL.md`; decisão de espera no worker Python com gateway Kotlin assíncrono; sem alterações de produção ou execução de testes/build. |
 | 2026-11-25 | P2.0.8: revisão de privacidade e segurança publicada em `P2_SECURITY_REVIEW.md`; autorização sensível separada para leitura/escrita, minimização de dados e riscos residuais P1 documentados; sem alterações de produção ou execução de testes/build. |
+| 2026-11-25 | P2.0.9: ADR-0008 e ADR-0009 publicados; fronteira AccessibilityService/Bridge, consentimento sensível e retenção independente de saídas formalizados; sem alterações de produção ou execução de testes/build. |
