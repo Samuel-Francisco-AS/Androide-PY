@@ -127,11 +127,10 @@ fun MainScreen(application: AndroidePyApplication) {
                     isExecuting = false
                     executionStatus = "Falha na execução"
                     update.result?.let { result ->
-                        consoleOutput = result.stdout
-                        consoleError = buildString {
-                            if (result.stderr.isNotBlank()) append(result.stderr)
-                            result.error?.let { error ->
-                                if (isNotEmpty()) append("\n")
+                        consoleStdout = result.stdout
+                        consoleStderr = result.stderr
+                        consoleException = result.error?.let { error ->
+                            buildString {
                                 append(error.type)
                                 append(": ")
                                 append(error.message)
@@ -140,7 +139,9 @@ fun MainScreen(application: AndroidePyApplication) {
                                     append(error.traceback)
                                 }
                             }
-                        }
+                        }.orEmpty()
+                        executionDurationMs = result.durationMs
+                        outputTruncated = result.stdoutTruncated || result.stderrTruncated
                     }
                 }
 
