@@ -48,7 +48,8 @@ class ScriptRepositoryTest {
         val dao = FakeScriptDao()
         val repository = ScriptRepository(dao) { 500L }
         val initial = repository.getOrCreateDefault()
-        repository.save(initial.id, initial.name, initial.sourceCode)
+        val unchanged = repository.save(initial.id, initial.name, initial.sourceCode)
+        assertEquals(initial, unchanged)
         assertEquals(1, repository.getVersions(initial.id).size)
     }
 
