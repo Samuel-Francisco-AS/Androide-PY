@@ -59,8 +59,11 @@ fun MainScreen(application: AndroidePyApplication) {
     var isExecuting by remember { mutableStateOf(false) }
     var activeExecutionId by remember { mutableStateOf<String?>(null) }
     var executionStatus by remember { mutableStateOf("Pronto") }
-    var consoleOutput by remember { mutableStateOf("") }
-    var consoleError by remember { mutableStateOf("") }
+    var consoleStdout by remember { mutableStateOf("") }
+    var consoleStderr by remember { mutableStateOf("") }
+    var consoleException by remember { mutableStateOf("") }
+    var executionDurationMs by remember { mutableStateOf<Long?>(null) }
+    var outputTruncated by remember { mutableStateOf(false) }
     var storageError by remember { mutableStateOf("") }
     var saveMessage by remember { mutableStateOf("") }
 
@@ -112,8 +115,11 @@ fun MainScreen(application: AndroidePyApplication) {
                     isExecuting = false
                     executionStatus = "Concluído"
                     update.result?.let { result ->
-                        consoleOutput = result.stdout
-                        consoleError = result.stderr
+                        consoleStdout = result.stdout
+                        consoleStderr = result.stderr
+                        consoleException = ""
+                        executionDurationMs = result.durationMs
+                        outputTruncated = result.stdoutTruncated || result.stderrTruncated
                     }
                 }
 
@@ -173,8 +179,11 @@ fun MainScreen(application: AndroidePyApplication) {
             isPreparingExecution = true
             storageError = ""
             saveMessage = ""
-            consoleOutput = ""
-            consoleError = ""
+            consoleStdout = ""
+            consoleStderr = ""
+            consoleException = ""
+            executionDurationMs = null
+            outputTruncated = false
             executionStatus = "Salvando antes da execução..."
 
             try {
@@ -299,16 +308,64 @@ fun MainScreen(application: AndroidePyApplication) {
             )
 
             Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(14.dp)) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
-                        text = if (consoleOutput.isBlank()) {
-                            "A saída da execução aparecerá aqui."
-                        } else {
-                            consoleOutput
-                        },
+                        text = "stdout",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Text(
+                        text = consoleStdout.ifBlank { "(sem saída)" },
                         style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace
                     )
+
+                    Text(
+                        text = "stderr",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Text(
+                        text = consoleStderr.ifBlank { "(vazio)" },
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        color = if (consoleStderr.isBlank()) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.error
+                        }
+                    )
+
+                    if (consoleException.isNotBlank()) {
+                        Text(
+                            text = "Exceção Python",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text = consoleException,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+
+                    executionDurationMs?.let { duration ->
+                        Text(
+                            text = "Duração: $duration ms",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    if (outputTruncated) {
+                        Text(
+                            text = "A saída atingiu o limite de captura.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 
