@@ -196,4 +196,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — governança, baseline técnica e fundação Android concluídas (OP-0; P0-1; P0-2). Runtime Chaquopy/Python 3.13 implementado e documentado (P0-3). Contrato, executor serial, captura de streams/exceções e fontes de teste criados e revisados (P0-4); testes e build ainda não executados.
+- 2026-11-25 — governança, baseline técnica e fundação Android concluídas (OP-0; P0-1; P0-2). Runtime Chaquopy/Python 3.13 implementado e documentado (P0-3). Contrato, executor serial, captura de streams/exceções, testes host/JVM e revisão de lifecycle concluídos em código (P0-4); testes e build aguardam execução local.
