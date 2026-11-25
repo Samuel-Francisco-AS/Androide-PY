@@ -142,7 +142,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [ ] Isolar e confirmar o comportamento do fallback destrutivo em atualização incompatível — PENDENTE PARA FASE POSTERIOR; dados P0 não precisam ser preservados conforme ADR-0007.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
-- [ ] Marcar PR pronta para revisão após revisão final do escopo acordado; fallback destrutivo e demais cenários não executados estão formalmente adiados, não aprovados.
+- [x] Marcar PR #2 pronta para revisão após revisão final do escopo acordado; fallback destrutivo e demais cenários não executados estão formalmente adiados, não aprovados.
 - [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
 
 ## Evidências da validação física — Moto G06
