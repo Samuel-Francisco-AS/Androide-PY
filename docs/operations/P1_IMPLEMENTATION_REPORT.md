@@ -5,7 +5,7 @@
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
 **Data do registro:** 2026-11-25  
-**Estado:** implementação publicada e revisão estática em andamento; testes, build e validação física P1 pendentes.
+**Estado:** implementação publicada e revisão estática concluída; testes, build e validação física P1 pendentes.
 
 ## 1. Objetivo
 
@@ -110,7 +110,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 | Teste de migração Room | Pendente |
 | Build APK P1 | Pendente |
 | Validação física Moto G06 | Pendente |
-| PR/integração em main | Pendente |
+| PR | #2 aberta em draft; aguarda validação |
 
 ### Testes adicionados/atualizados
 
@@ -138,6 +138,8 @@ P1 só poderá ser considerada concluída após todos os critérios de aceite do
 ## 9. Integração
 
 - Branch: feat/p1-script-library.
+- Head: dd20ee40bf1c92796bb3f5051ac159d113fafd07 (atualizar após novos commits).
+- Diff: 34 arquivos; 2.091 adições e 568 remoções no último comparativo.
 - Base: main.
 - PR #2: https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2 — aberta em draft, aguardando testes/build/validação.
 - Squash Merge: não realizado; requer revisão final e autorização explícita para a P1.
