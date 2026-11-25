@@ -20,10 +20,7 @@ object PythonRuntime {
     private var instance: Python? = null
 
     fun initialize(context: Context): Python {
-        check(Looper.myLooper() != Looper.getMainLooper()) {
-            "Python must be initialized away from the Android main thread."
-        }
-
+        checkWorkerThread()
         instance?.let { return it }
 
         return synchronized(lock) {
@@ -38,6 +35,7 @@ object PythonRuntime {
     }
 
     fun getModule(name: String): PyObject {
+        checkWorkerThread()
         val python = instance ?: error(
             "Python runtime is not initialized. Call initialize() from a worker thread first."
         )
@@ -48,4 +46,10 @@ object PythonRuntime {
         getModule("main").callAttr("smoke_test").toString()
 
     fun isInitialized(): Boolean = instance != null || Python.isStarted()
+
+    private fun checkWorkerThread() {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "Python operations must run away from the Android main thread."
+        }
+    }
 }
