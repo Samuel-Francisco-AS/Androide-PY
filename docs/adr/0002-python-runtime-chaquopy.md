@@ -35,12 +35,9 @@ A arquitetura encapsula o runtime atrás de uma interface interna para permitir 
 
 ## Validação
 
-No P0, verificar:
-1. Compatibilidade entre versões de Gradle, Android Gradle Plugin, SDK e Chaquopy.
-2. Inicialização no dispositivo físico.
-3. Execução e captura de stdout/stderr/exceções.
-4. Chamada Python → Kotlin → API Android.
-5. Comportamento de memória e responsividade.
-6. Compatibilidade das dependências Python efetivamente necessárias.
-
-Se o P0 revelar bloqueios estruturais, revisar este ADR antes de expandir o runtime.
+No P0 foram registrados:
+1. Build e testes JVM aprovados pelo usuário.
+2. Inicialização e execução no Moto G06 reportadas.
+3. Captura separada de stdout/stderr e apresentação de exceções.
+4. Chamadas Python → Kotlin → API Android para informações do dispositivo e abertura de aplicativo.
+5. Compatibilidade de pacotes adicionais permanece por validar individualmente.
