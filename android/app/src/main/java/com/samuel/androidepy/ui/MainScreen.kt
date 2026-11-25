@@ -59,6 +59,7 @@ fun MainScreen(application: AndroidePyApplication) {
             isLoading = true
             storageError = ""
 
+            var loadCompleted = false
             try {
                 val script = withContext(Dispatchers.IO) {
                     repository.getOrCreateDefault()
@@ -66,12 +67,14 @@ fun MainScreen(application: AndroidePyApplication) {
                 scriptId = script.id
                 scriptName = script.name
                 sourceCode = script.sourceCode
+                loadCompleted = true
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
                 storageError = error.message ?: "Não foi possível carregar o script."
+                loadCompleted = true
             } finally {
-                isLoaded = true
+                if (loadCompleted) isLoaded = true
                 isLoading = false
             }
         }
