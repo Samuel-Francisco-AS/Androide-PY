@@ -2,7 +2,7 @@
 
 **Branch:** `feat/p0-runtime-bridge`  
 **Base:** `main`  
-**Snapshot comparado:** 46 arquivos alterados; branch 162 commits à frente e 0 atrás de `main` na comparação GitHub conferida em 2026-11-25. O histórico é incremental e predominantemente composto por commits pequenos de implementação e documentação.  
+**Snapshot comparado:** 46 arquivos alterados; `feat/p0-runtime-bridge` está à frente de `main`, sem commits atrás, conforme comparação GitHub conferida em 2026-11-25. O número de commits à frente não é fixado neste relatório porque as atualizações documentais incrementais também avançam a branch. O histórico é predominantemente composto por commits pequenos de implementação e documentação.  
 **Última atualização do checklist:** `a219069e14adba02027de2200ebb96bddf9cbda8`.
 
 ## Implementado no repositório
