@@ -2,13 +2,13 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** P0 concluída; P1 em implementação (biblioteca e gerenciamento de scripts).
+**Status:** P0 e P1 concluídas e integradas em `main`; P2 em preparação documental, sem implementação de produção.
 
 ## 1. Resumo
 
 Androide PY é uma plataforma Android local para criação, edição, organização, execução, agendamento e orquestração de automações escritas predominantemente em Python.
 
-O aplicativo deve oferecer um ambiente integrado no qual o usuário desenvolva scripts e os conecte a capacidades do dispositivo. Essas capacidades podem incluir abertura de aplicativos, operações com arquivos acessíveis, consulta de informações do sistema, rede, sensores, notificações e interação com interfaces de outros aplicativos, sempre dentro das permissões e restrições impostas pelo Android.
+O aplicativo oferece um ambiente integrado no qual o usuário desenvolve scripts e os conecta às capacidades implementadas do dispositivo. A evolução planejada inclui abertura de aplicativos, operações com arquivos acessíveis, consulta de informações do sistema, rede, sensores, notificações e interação com interfaces de outros aplicativos, sempre dentro das permissões e restrições impostas pelo Android. Capacidades planejadas não devem ser confundidas com APIs já disponíveis.
 
 A plataforma não pretende ser apenas um editor de código ou um lançador de scripts. Seu objetivo é fornecer um runtime gerenciado, uma biblioteca Python de integração Android e mecanismos para coordenar execuções.
 
@@ -107,7 +107,15 @@ Cada execução deve ter estado, logs, duração, entradas, saídas, erros e ref
 
 Código de terceiros será considerado não confiável. A primeira versão será voltada a scripts controlados pelo usuário, sem alegar isolamento forte que ainda não exista.
 
-## 8. Indicadores de sucesso
+## 8. Estado dos marcos
+
+- **P0:** concluída e integrada em `main`.
+- **P1:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo físico acordado foi validado; P1-TF13 e verificações adicionais permanecem explicitamente diferidas nos documentos operacionais.
+- **P2:** preparação documental em andamento na branch `feat/p2-accessibility-automation`. Os contratos `mobile.screen`, protocolo assíncrono e decisões de segurança foram definidos, mas não há AccessibilityService, gateway, overlay, Mapas de Coordenadas ou API `mobile.screen` implementados.
+
+A P2 adota três prioridades funcionais: A — interação geométrica e Mapa de Coordenadas; B — consulta/coleta sob demanda; C — leitura e identificação semântica de elementos. A fundação nativa e autorização precedem essas entregas. Screenshots, OCR e notificações não integram a P2 inicial.
+
+## 9. Indicadores de sucesso
 
 O primeiro sucesso verificável é o P0: um APK executando Python, exibindo saída e erros, consultando informações do dispositivo e abrindo outro aplicativo por uma API própria.
 
