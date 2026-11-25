@@ -122,6 +122,12 @@ fun MainScreen(application: AndroidePyApplication) {
         }
     }
 
+    LaunchedEffect(executor, executionRepository) {
+        executor.updates.collect { update ->
+            withContext(Dispatchers.IO) { executionRepository.recordUpdate(update) }
+        }
+    }
+
     LaunchedEffect(scripts, initialized) {
         if (!initialized) {
             if (scripts.isEmpty()) {
@@ -337,7 +343,7 @@ private fun ScriptEditorScreen(
     }
     var parametersJson by remember(script.id) { mutableStateOf(script.parametersJson) }
     var dependenciesText by remember(script.id) {
-        mutableStateOf(parseStringArray(script.dependenciesJson).joinToString("\\n"))
+        mutableStateOf(parseStringArray(script.dependenciesJson).joinToString("\n"))
     }
     var parameterValuesJson by remember(script.id) { mutableStateOf("{}") }
     var sourceCode by remember(script.id) { mutableStateOf(script.sourceCode) }
@@ -351,13 +357,12 @@ private fun ScriptEditorScreen(
 
     LaunchedEffect(executor, script.id) {
         executor.updates.collect { update ->
-            withContext(Dispatchers.IO) { executionRepository.recordUpdate(update) }
             if (update.executionId != activeExecutionId) return@collect
             executionStatus = update.status.name
             update.result?.let { result ->
                 consoleStdout = result.stdout
                 consoleStderr = result.stderr
-                consoleError = result.error?.let { "${it.type}: ${it.message}\\n${it.traceback}" }.orEmpty()
+                consoleError = result.error?.let { "${it.type}: ${it.message}\n${it.traceback}" }.orEmpty()
             }
         }
     }
@@ -387,7 +392,16 @@ private fun ScriptEditorScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onBack) { Text("‹ Biblioteca") }
+            TextButton(onClick = {
+                scope.launch {
+                    try {
+                        saveCurrent()
+                        onBack()
+                    } catch (error: Exception) {
+                        onError(error.message ?: "Não foi possível salvar antes de sair.")
+                    }
+                }
+            }) { Text("‹ Biblioteca") }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = { onExport(script.copy(name = name, sourceCode = sourceCode)) }) {
                 Text("Exportar .py")
