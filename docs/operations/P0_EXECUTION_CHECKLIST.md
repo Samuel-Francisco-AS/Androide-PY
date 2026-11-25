@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Implementação remota P0 publicada; testes JVM passaram no Fedora em 2026-11-25. Testes Python host, montagem do APK e validação física ainda pendentes.
+**Estado geral:** 🟡 Testes JVM aprovados; APK compilado, instalado e aberto no Moto G06 conforme relato do usuário. Testes Python host e validação funcional do runtime/Bridge/persistência ainda pendentes.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -203,10 +203,10 @@ Correção publicada na branch:
 ## P0-9 — Validação local e física (dependente do usuário)
 
 - [x] **P0-9.1** Usuário sincroniza a branch no Fedora — `git pull --ff-only` avançou de `ea1fea9` para `af03e05`; Wrapper 8.14.8 confirmado.
-- [ ] **P0-9.2** Usuário executa `:app:assembleDebug` e compartilha o resultado (a tarefa `testDebugUnitTest` passou, mas não gera APK).
+- [x] **P0-9.2** Usuário executa `:app:assembleDebug`; build concluída e APK instalado no Moto G06, conforme relato de 2026-11-25. O log detalhado/artefato ainda não foi compartilhado.
 - [ ] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado.
-- [ ] **P0-9.4** Usuário transfere o APK ao Moto G06 pelo fluxo já utilizado no My-CT; ADB/USB não é requisito do projeto.
-- [ ] **P0-9.5** Usuário instala e valida abertura, inicialização Python, edição, execução, stdout, stderr e exceções.
+- [x] **P0-9.4** APK transferido e instalado no Moto G06, conforme relato do usuário em 2026-11-25; método de transferência não especificado.
+- [ ] **P0-9.5** Usuário confirmou que o app abriu e exibiu a interface no Moto G06. Inicialização Python, edição, execução, stdout, stderr e exceções ainda não foram validados.
 - [ ] **P0-9.6** Usuário valida `mobile.device.get_info()` e `mobile.apps.launch(package_name)`.
 - [ ] **P0-9.7** Usuário fecha/reabre o app e confirma persistência do script.
 - [ ] **P0-9.8** Registrar modelo, versão Android, resultados, limitações e evidências relatadas.
@@ -232,10 +232,12 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 |---|---|---|---|
 | 2026-11-25 | Preparação do ambiente local | Fedora 44, JDK 21.0.10, Python 3.13.18, SDK 36 e Gradle Wrapper 8.14.3 reportados pelo usuário | Confirmado pelo usuário; não equivale a build Android |
 | 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
-| 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2` executado pelo usuário: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados; `assembleDebug` e testes Python host pendentes |
+| 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados |
+| 2026-11-25 | P0-9.2 / P0-9.4 / P0-9.5 | Usuário informou que a build APK foi concluída, o APK foi instalado no Moto G06 e o aplicativo abriu exibindo a interface. Sem print/log por enquanto | Build, instalação e abertura confirmadas por relato; funcionalidades internas ainda pendentes |
 
 ## Histórico de atualização
 
+- 2026-11-25 — usuário confirmou build APK concluída, instalação no Moto G06 e abertura com interface visível. P0-9.2 e P0-9.4 registradas como concluídas por relato; P0-9.5 permanece parcial, pois execução Python e funcionalidades ainda não foram exercitadas.
 - 2026-11-25 — usuário sincronizou `feat/p0-runtime-bridge`, confirmou Gradle 8.14.8 e executou `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` (31 tarefas executadas, 2m29s). P0-9.1 concluída; testes Python host e `assembleDebug` são os próximos passos. APK e validação física ainda não aprovados.
 - 2026-11-25 — primeira falha local de build identificou incompatibilidade Compose 1.12.1/API 37 com AGP 8.13.2/API 36; BOM ajustado para 2026.06.01 (Compose 1.11.4) e Wrapper para 8.14.8. Build ainda pendente.
 - 2026-11-25 — implementação remota da P0 concluída em código na branch `feat/p0-runtime-bridge`: host Android/Compose, Chaquopy/Python 3.13, executor, console, Android Bridge, Room/SQLite, testes e documentação. Revisão estática concluída. Nenhum teste/build foi executado; P0-9 aguarda sincronização e validação pelo usuário.
