@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Validação automatizada e funcional da P0 concluída; revisão final estática do diff, documentação e estado da branch também concluída. Os oito critérios funcionais foram demonstrados no Moto G06 conforme relatos do usuário; os testes JVM/Kotlin passaram (`BUILD SUCCESSFUL`, 31 tarefas), os 10 testes Python host passaram (`Ran 10 tests ... OK`) e a build APK/instalação/abertura foram relatadas como concluídas. A P0 foi integrada em `main` por Squash Merge na PR #1 em 2026-11-25; commit resultante `69a81e50c74cc9bd38d6c8c62aca319e732aa35c`.
+**Estado geral:** 🟢 P0 concluída e integrada em `main` por Squash Merge via PR #1 em 2026-11-25. Os oito critérios funcionais foram demonstrados no Moto G06 conforme relatos do usuário; os testes JVM/Kotlin passaram (`BUILD SUCCESSFUL`, 31 tarefas), os 10 testes Python host passaram (`Ran 10 tests ... OK`) e a build APK/instalação/abertura foram relatadas como concluídas. Commit de integração: `69a81e50c74cc9bd38d6c8c62aca319e732aa35c`.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
