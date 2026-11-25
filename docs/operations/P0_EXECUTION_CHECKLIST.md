@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Implementação remota P0 publicada e revisada estaticamente; testes, build e validação física aguardam execução no Fedora/Moto G06.
+**Estado geral:** 🟡 Implementação remota P0 publicada; testes JVM passaram no Fedora em 2026-11-25. Testes Python host, montagem do APK e validação física ainda pendentes.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -198,12 +198,12 @@ Correção publicada na branch:
 - Gradle Wrapper atualizado de 8.14.3 para 8.14.8, patch oficial da mesma linha, com checksum SHA-256 publicado pelo Gradle.
 - AGP 8.13.2, compileSdk 36, targetSdk 36 e minSdk 24 preservados.
 
-**Estado:** correção de configuração publicada e revisada estaticamente. O mesmo comando precisa ser repetido pelo usuário; não há build aprovado ainda. P0-9.3 permanece pendente até observar o resultado.
+**Estado após reteste (2026-11-25):** o usuário sincronizou a branch e confirmou Gradle Wrapper 8.14.8. O comando `./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2` terminou com `BUILD SUCCESSFUL` em 2m29s (31 actionable tasks: 31 executed). Isso comprova que os testes JVM/Kotlin passaram e que a configuração/dependências necessárias para essa tarefa foram resolvidas. Ainda não comprova `assembleDebug`, empacotamento Chaquopy/APK nem execução no Android. Testes Python host e montagem do APK permanecem pendentes.
 
 ## P0-9 — Validação local e física (dependente do usuário)
 
-- [ ] **P0-9.1** Usuário sincroniza a branch no Fedora.
-- [ ] **P0-9.2** Usuário executa build debug e compartilha o resultado.
+- [x] **P0-9.1** Usuário sincroniza a branch no Fedora — `git pull --ff-only` avançou de `ea1fea9` para `af03e05`; Wrapper 8.14.8 confirmado.
+- [ ] **P0-9.2** Usuário executa `:app:assembleDebug` e compartilha o resultado (a tarefa `testDebugUnitTest` passou, mas não gera APK).
 - [ ] **P0-9.3** Corrigir falhas de build com base nos logs reais; repetir até obter build aprovado.
 - [ ] **P0-9.4** Usuário transfere o APK ao Moto G06 pelo fluxo já utilizado no My-CT; ADB/USB não é requisito do projeto.
 - [ ] **P0-9.5** Usuário instala e valida abertura, inicialização Python, edição, execução, stdout, stderr e exceções.
@@ -232,9 +232,10 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 |---|---|---|---|
 | 2026-11-25 | Preparação do ambiente local | Fedora 44, JDK 21.0.10, Python 3.13.18, SDK 36 e Gradle Wrapper 8.14.3 reportados pelo usuário | Confirmado pelo usuário; não equivale a build Android |
 | 2026-11-25 | Clone remoto/local | Clone SSH do repositório concluído e sincronizado, informado pelo usuário | Confirmado pelo usuário |
-| 2026-11-25 | P0-9.2 / P0-9.3 | `:app:testDebugUnitTest` falhou em `checkDebugAarMetadata` porque Compose 1.12.1 exigia API 37/AGP 9.1+; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8 | Correção publicada; reteste pendente |
+| 2026-11-25 | P0-9.2 / P0-9.3 | Primeira tentativa falhou em `checkDebugAarMetadata` por Compose 1.12.1/API 37; BOM corrigido para 2026.06.01 e Wrapper para 8.14.8. Reteste `:app:testDebugUnitTest --no-daemon --max-workers=2` executado pelo usuário: `BUILD SUCCESSFUL`, 31 tarefas executadas, 2m29s | Testes JVM aprovados; `assembleDebug` e testes Python host pendentes |
 
 ## Histórico de atualização
 
+- 2026-11-25 — usuário sincronizou `feat/p0-runtime-bridge`, confirmou Gradle 8.14.8 e executou `:app:testDebugUnitTest --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` (31 tarefas executadas, 2m29s). P0-9.1 concluída; testes Python host e `assembleDebug` são os próximos passos. APK e validação física ainda não aprovados.
 - 2026-11-25 — primeira falha local de build identificou incompatibilidade Compose 1.12.1/API 37 com AGP 8.13.2/API 36; BOM ajustado para 2026.06.01 (Compose 1.11.4) e Wrapper para 8.14.8. Build ainda pendente.
 - 2026-11-25 — implementação remota da P0 concluída em código na branch `feat/p0-runtime-bridge`: host Android/Compose, Chaquopy/Python 3.13, executor, console, Android Bridge, Room/SQLite, testes e documentação. Revisão estática concluída. Nenhum teste/build foi executado; P0-9 aguarda sincronização e validação pelo usuário.
