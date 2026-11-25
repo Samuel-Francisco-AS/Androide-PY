@@ -86,7 +86,7 @@ A autorização é uma política de consentimento do produto, não uma sandbox: 
 - Persistir apenas nome do mapa, pontos/coordenadas e metadados técnicos necessários para recalibração e compatibilidade (dimensões, densidade, rotação e pacote em primeiro plano quando disponível).
 - Não incluir texto de tela, valores de campos, screenshots ou credenciais nos mapas.
 - Usar a infraestrutura Room existente, por repositórios Kotlin; não criar banco separado nem permitir escrita Python direta.
-- Manter os dados no armazenamento privado do aplicativo. O manifesto atual usa `allowBackup=false`; os mapas não devem ser exportados junto com scripts nem transmitidos automaticamente.
+- Manter os dados no armazenamento privado do aplicativo. O manifesto atual usa `allowBackup=false`, mas isso, isoladamente, não deve ser tratado como prova de exclusão de toda modalidade de transferência entre dispositivos em versões Android recentes. A implementação deverá revisar e configurar explicitamente as regras de extração/transferência de dados (data extraction rules), validar o comportamento na API 35 e manter mapas fora de exportações de scripts. Não transmitir mapas automaticamente.
 - Permitir exclusão individual do mapa e de seus pontos associados.
 - A política de desenvolvimento ADR-0007 permite migração destrutiva; qualquer alteração de schema deve avisar que dados locais podem ser descartados.
 - O mapa não é compartilhado automaticamente entre aplicativos. O pacote/contexto registrado serve para detectar incompatibilidade, não como prova de identidade ou autorização.
