@@ -20,6 +20,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Relatório da implementação P1](operations/P1_IMPLEMENTATION_REPORT.md): decisões, alterações, testes, riscos e validação.
 - [Checklist operacional P2](operations/P2_EXECUTION_CHECKLIST.md): prioridades A/B/C, decomposição, critérios de aceite, estados e evidências da automação de interfaces Android.
 - [Relatório da implementação P2](operations/P2_IMPLEMENTATION_REPORT.md): decisões acordadas, arquitetura pretendida, riscos, validações e estado da fase.
+- [Protocolo assíncrono P2](operations/P2_ASYNC_PROTOCOL.md): envelopes JSON, correlação, timeout, cancelamento lógico, lifecycle, filas e fronteiras de thread.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
@@ -37,7 +38,10 @@ docs/
 │   ├── P0_ANDROID_BRIDGE_CONTRACT.md
 │   ├── P0_PERSISTENCE.md
 │   ├── P1_EXECUTION_CHECKLIST.md
-│   └── P1_IMPLEMENTATION_REPORT.md
+│   ├── P1_IMPLEMENTATION_REPORT.md
+│   ├── P2_EXECUTION_CHECKLIST.md
+│   ├── P2_IMPLEMENTATION_REPORT.md
+│   └── P2_ASYNC_PROTOCOL.md
 └── adr/
     ├── README.md
     ├── 0001-android-native-host.md
