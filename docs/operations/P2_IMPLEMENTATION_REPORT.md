@@ -385,4 +385,8 @@ Fora da P2.1-A: tela explicativa, abertura de Settings, consulta de autorizaçã
 
 ### Evidência e estado
 
-A revisão documental e estática de entrada foi concluída. A implementação ainda não foi publicada nesta atualização do relatório. Não foram executados testes, build APK ou validação física. O estado permanece **P2.1-A em andamento** até a revisão do diff e a conferência das verificações disponíveis.
+A revisão documental e estática de entrada foi concluída. A implementação inicial foi publicada nos seguintes arquivos: `AndroidePyAccessibilityService.kt`, `AccessibilityGateway.kt`, `AndroidePyApplication.kt`, `AndroidManifest.xml`, `res/xml/accessibility_service_config.xml` e `res/values/strings.xml`. Commits de implementação: `9612bc04d8b03da5e2138948a9d428ae3c5c6d41`, `cbdb98fcb7fc5274cae1773d5f010e12d697b7e1`, `fc98ea2a41cf242409fab3adbc92f5cb13ff5588`, `aa61911ebbb793b87e0a8408281818971faac7cd`, `add80e659710fcff40a53b209d49b7cb7d38681e`, `7bdd832cbefd6c87b369905c21aef70f91b6ff37` e `9d5b8af5624142719a8712f39e7087b65929ef8b`.
+
+**Conferência estática:** manifesto contém serviço exportado protegido por `BIND_ACCESSIBILITY_SERVICE`, intent-filter e metadata; XML solicita somente `typeWindowStateChanged`, declara `canRetrieveWindowContent=false` e `canPerformGestures=false`; serviço não lê eventos e registra/desregistra sua instância nos callbacks; gateway é application-scoped, usa referência volátil, estado interno `StateFlow` e limpeza protegida por identidade; nenhum `Activity`, novo worker ou runtime foi introduzido. Os arquivos remotos foram relidos após publicação.
+
+**Limites:** nenhum build, teste automatizado ou validação física foi executado. O reconhecimento pelo Android, comportamento real de habilitação/revogação e lifecycle em API 35 permanecem para P2.1-C. P2.1-A permanece em andamento até essa validação integrada.
