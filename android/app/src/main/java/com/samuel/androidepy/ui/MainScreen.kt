@@ -274,7 +274,7 @@ fun MainScreen(application: AndroidePyApplication) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {
-                        sourceCode = "import mobile.device\\n\\nprint(mobile.device.get_info())"
+                        sourceCode = "import mobile.device\n\nprint(mobile.device.get_info())"
                         saveMessage = ""
                         storageError = ""
                     },
@@ -286,7 +286,7 @@ fun MainScreen(application: AndroidePyApplication) {
 
                 OutlinedButton(
                     onClick = {
-                        sourceCode = "import mobile.apps\\n\\n# Substitua pelo pacote de um app instalado.\\nresult = mobile.apps.launch(\\"com.example.app\\")\\nprint(result)"
+                        sourceCode = "import mobile.apps\n\n# Substitua pelo pacote de um app instalado.\nresult = mobile.apps.launch(\"com.example.app\")\nprint(result)"
                         saveMessage = ""
                         storageError = ""
                     },
