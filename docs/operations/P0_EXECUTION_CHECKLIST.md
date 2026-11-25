@@ -164,7 +164,7 @@
 - [x] **P0-7.3** Conectar a ação Executar ao executor Python.
 - [x] **P0-7.4** Apresentar stdout, stderr, exceções e estado da execução com distinção visual clara.
 - [x] **P0-7.5** Disponibilizar acionamento demonstrável das duas capacidades da Bridge, sem sobrecarregar a tela.
-- [ ] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
+- [x] **P0-7.6** Tratar loading, execução concorrente, erros e mudanças de configuração/lifecycle.
 - [ ] **P0-7.7** Revisar acessibilidade básica, layout em tela móvel e responsividade.
 
 **Gate P0-7:** fluxo completo de editar, salvar, executar e observar resultado conectado às camadas reais.
