@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Em andamento — governança operacional sendo estabelecida; implementação ainda não iniciada.
+**Estado geral:** 🟢 Governança operacional concluída; revisão técnica P0 ainda não iniciada.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -33,12 +33,15 @@
 
 ## OP-0 — Governança operacional
 
-- [ ] **OP-0.1** Criar este checklist operacional.
-- [ ] **OP-0.2** Criar `AGENTS.md` com a rotina obrigatória de leitura, implementação, conferência e atualização.
-- [ ] **OP-0.3** Conferir no GitHub o conteúdo integral dos dois arquivos e confirmar que estão na branch de trabalho.
-- [ ] **OP-0.4** Relê-los e confirmar que os caminhos e instruções são coerentes com o repositório.
+- [x] **OP-0.1** Criar este checklist operacional — publicado e conferido no GitHub.
+- [x] **OP-0.2** Criar `AGENTS.md` com a rotina obrigatória de leitura, implementação, conferência e atualização — publicado e conferido no GitHub.
+- [x] **OP-0.3** Conferir no GitHub o conteúdo dos dois arquivos e confirmar que estão na branch de trabalho.
+- [x] **OP-0.4** Relê-los e confirmar que os caminhos e instruções são coerentes com o repositório.
 
-**Evidências:** preencher após a execução real de cada item.
+**Evidências:**
+- OP-0.1: commit `f901ef3f1fc30ffd28e16797dd32572978e2307f`; arquivo conferido no GitHub (blob `48ce49b2eb327c80031e1647f41777821a2358c5`).
+- OP-0.2: commit `2fd00ed1991f194a1593b0b64f7e366987b3df9c`; arquivo conferido no GitHub (blob `370ce8503642878ddaba3fa1d1d0ab3e148ea988`).
+- OP-0.3/OP-0.4: ambos os arquivos recuperados da branch `feat/p0-runtime-bridge`; verificadas as instruções do ciclo obrigatório, referências ao checklist e decomposição das fases P0.
 
 ## P0-1 — Revisão documental e decisões técnicas
 
@@ -165,4 +168,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — checklist criado para governar a implementação P0; itens operacionais serão marcados somente após conferência no GitHub.
+- 2026-11-25 — checklist e `AGENTS.md` publicados e conferidos na branch `feat/p0-runtime-bridge`; OP-0.1 a OP-0.4 concluídos com evidências. Nenhum código de produção foi iniciado.
