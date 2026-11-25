@@ -1,6 +1,7 @@
 package com.samuel.androidepy.ui
 
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,11 +79,18 @@ fun MainScreen(application: AndroidePyApplication) {
         if (uri != null) {
             scope.launch {
                 try {
+                    val fileName = withContext(Dispatchers.IO) {
+                        queryDisplayName(context, uri)
+                            ?: uri.lastPathSegment?.substringAfterLast('/')
+                            ?: "script.py"
+                    }
+                    require(fileName.endsWith(".py", ignoreCase = true)) {
+                        "Selecione um arquivo com extensão .py."
+                    }
                     val source = withContext(Dispatchers.IO) { readUtf8Script(context, uri) }
                     val imported = withContext(Dispatchers.IO) {
                         repository.create(
-                            name = uri.lastPathSegment?.substringAfterLast('/')?.substringBeforeLast('.')
-                                ?.takeIf { it.isNotBlank() } ?: "Script importado",
+                            name = fileName.substringBeforeLast('.').takeIf { it.isNotBlank() } ?: "Script importado",
                             sourceCode = source,
                             description = "Importado de arquivo Python"
                         )
@@ -172,7 +180,7 @@ fun MainScreen(application: AndroidePyApplication) {
                         }
                     }
                 },
-                onImport = { importLauncher.launch(arrayOf("text/x-python", "text/plain", "application/octet-stream")) },
+                onImport = { importLauncher.launch(arrayOf("text/x-python", "text/plain")) },
                 onOpen = { selectedScriptId = it },
                 onDuplicate = { script ->
                     scope.launch {
@@ -623,7 +631,16 @@ private fun parseStringArray(json: String): List<String> = try {
 
 private fun safePythonFilename(name: String): String {
     val safe = name.trim().replace(Regex("[^A-Za-z0-9._-]+"), "_").trim('_', '.')
-    return (safe.ifBlank { "script" } + ".py").take(100)
+    val base = safe.removeSuffix(".py").ifBlank { "script" }
+    return "$base.py".take(100)
+}
+
+private fun queryDisplayName(context: android.content.Context, uri: Uri): String? {
+    return context.contentResolver.query(
+        uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
+    )?.use { cursor ->
+        if (cursor.moveToFirst()) cursor.getString(0) else null
+    }
 }
 
 private fun readUtf8Script(context: android.content.Context, uri: Uri): String {
