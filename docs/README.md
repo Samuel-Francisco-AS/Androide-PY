@@ -44,7 +44,8 @@ docs/
 │   ├── P2_EXECUTION_CHECKLIST.md
 │   ├── P2_IMPLEMENTATION_REPORT.md
 │   ├── P2_ASYNC_PROTOCOL.md
-│   └── P2_PYTHON_API.md
+│   ├── P2_PYTHON_API.md
+│   └── P2_SECURITY_REVIEW.md
 └── adr/
     ├── README.md
     ├── 0001-android-native-host.md
