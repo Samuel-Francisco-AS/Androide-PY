@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.7 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
+**Estado:** preparação P2.0 em andamento. P2.0.3–P2.0.8 concluídas documentalmente; nenhuma implementação de produção P2 foi iniciada. Testes automatizados e build P2 ainda não foram executados.
 
 ## 1. Objetivo
 
@@ -217,6 +217,25 @@ A superfície definida inclui:
 O catálogo `mobile.capabilities` só deverá listar cada operação depois de sua implementação e testes. `API_VERSION = 1` permanece compatível por adição não disruptiva; a versão da biblioteca será atualizada quando o módulo for efetivamente implementado.
 
 **Evidência:** commit documental `dc7e4673cccb1070b594805a9163d059bfdd6a41`; revisão estática contra os módulos Python atuais, testes host, Bridge Kotlin, executor serial e protocolo P2.0.6. Nenhum código de produção foi alterado; nenhum teste, build ou validação física foi executado.
+
+
+## 3.5 P2.0.8 — Revisão de privacidade e segurança — 25/11/2026
+
+A revisão foi publicada em [P2_SECURITY_REVIEW.md](P2_SECURITY_REVIEW.md). Foram examinados o manifesto, a Bridge, o runtime Python, o executor, runner, persistência Room, histórico, testes e ADRs aplicáveis. A branch permanece 20 commits à frente e 0 atrás de main; seu diff em relação à base contém apenas documentação P2.
+
+### Decisões
+- Conteúdo comum pode ser lido sob demanda, quando explicitamente solicitado e disponibilizado pelo Android; não haverá coleta contínua nem persistência automática de snapshots.
+- Campos sensíveis são bloqueados por padrão. A futura UI hospedeira deverá permitir consentimento expresso e separado para leitura e escrita, limitado à execução e ao aplicativo de destino. O script não pode conceder a própria autorização.
+- A classificação usa sinais disponíveis e comportamento conservador; não existe garantia de detecção perfeita nem autorização para contornar proteções do sistema/app.
+- Screenshots e notificações permanecem fora do escopo inicial da P2.
+- Mapas guardam coordenadas e metadados mínimos em Room, no armazenamento privado, sem exportação ou transmissão automática.
+- Overlay é temporário e removido em todos os caminhos terminais previstos.
+- O adaptador não deve registrar conteúdo de interface. Foi identificada, porém, uma limitação P1: stdout/stderr, parâmetros e exceções/tracebacks são persistidos no histórico; scripts podem imprimir dados que obtiveram. Essa limitação não foi resolvida nesta subetapa.
+- O produto não envia dados de acessibilidade automaticamente, mas scripts não possuem sandbox e podem utilizar rede/bibliotecas disponíveis ao processo.
+
+### Evidência e limites
+
+Revisão documental/estática concluída e documento publicado. Nenhum código de produção foi alterado; nenhum teste automatizado, build APK ou validação física P2 foi executado. A autorização sensível, classificação, overlay, política de logs e persistência ainda precisam ser implementados e testados nas subetapas seguintes. P2.0.9 registrará decisões arquiteturais em ADRs; P2.0.10 harmonizará os documentos principais.
 
 ## 4. Decomposição aprovada
 
