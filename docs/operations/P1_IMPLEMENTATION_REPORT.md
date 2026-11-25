@@ -138,7 +138,6 @@ P1 só poderá ser considerada concluída após todos os critérios de aceite do
 ## 9. Integração
 
 - Branch: feat/p1-script-library.
-- Head: dd20ee40bf1c92796bb3f5051ac159d113fafd07 (atualizar após novos commits).
 - Diff: 34 arquivos; 2.091 adições e 568 remoções no último comparativo.
 - Base: main.
 - PR #2: https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2 — aberta em draft, aguardando testes/build/validação.
