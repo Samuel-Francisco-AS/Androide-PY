@@ -2,6 +2,10 @@
 
 Este documento descreve a primeira verificação de integração Kotlin/Chaquopy/Python. Ele não substitui os critérios completos de aceite da P0.
 
+## Baseline Android de build
+
+O módulo usa Compose BOM 2026.06.01 (Compose 1.11.4), AGP 8.13.2 e compileSdk 36. A linha Compose 1.12.0+ exige compileSdk 37 e AGP 9.2+, por isso não deve ser selecionada enquanto a baseline API 36 for mantida.
+
 ## Componentes
 
 - Configuração Gradle: `android/app/build.gradle.kts`
