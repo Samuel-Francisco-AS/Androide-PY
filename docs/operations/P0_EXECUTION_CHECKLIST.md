@@ -120,9 +120,9 @@
 - [x] **P0-5.1** Definir contratos Kotlin/Python e erros previsíveis para a Bridge.
 - [x] **P0-5.2** Implementar `mobile.device.get_info()` com informações não sensíveis e justificadas.
 - [x] **P0-5.3** Implementar o adaptador nativo para abertura de aplicativos por API Android pública, respeitando visibilidade de pacotes e restrições de intents.
-- [ ] **P0-5.4** Expor resultados/erros da Bridge ao script Python sem acoplá-lo a classes Android.
-- [ ] **P0-5.5** Criar testes para dispositivo, aplicativo inexistente e falhas de inicialização quando viável.
-- [ ] **P0-5.6** Documentar permissões, package visibility, limites e comportamento esperado.
+- [x] **P0-5.4** Expor resultados/erros da Bridge ao script Python sem acoplá-lo a classes Android.
+- [x] **P0-5.5** Criar testes para dispositivo, aplicativo inexistente e falhas de inicialização quando viável.
+- [x] **P0-5.6** Documentar permissões, package visibility, limites e comportamento esperado.
 
 **Evidência P0-5.1:** contrato [P0_ANDROID_BRIDGE_CONTRACT.md](P0_ANDROID_BRIDGE_CONTRACT.md) publicado, indexado e conferido. Define os métodos Python, payloads de retorno, códigos de erro, limites de package visibility, ausência de permissões em tempo de execução e exclusão de identificadores sensíveis. Commit: `c71c256`.
 
@@ -130,7 +130,9 @@
 
 **Evidência P0-5.3:** `AndroidBridgeAdapter.launchAppJson()` valida o nome do pacote e retorna erros estruturados. Em Android 13+ usa `PackageManager.getLaunchIntentSenderForPackage`/IntentSender, que a documentação Android indica como alternativa quando o chamador não pode consultar o pacote; em API 24–32 usa `getLaunchIntentForPackage` e `FLAG_ACTIVITY_NEW_TASK`. O manifesto declara somente consultas MAIN/INFO e MAIN/LAUNCHER para o fallback legado; não usa `QUERY_ALL_PACKAGES`. Arquivos conferidos no GitHub. Commits: `554c62a` (adaptador) e `7196f0d` (queries). Referências oficiais: PackageManager API e package visibility docs.
 
-**Gate P0-5:** ambas as capacidades implementadas e cobertas por testes apropriados.
+**Evidências P0-5.4/P0-5.5/P0-5.6:** `mobile.configure(bridge)` guarda o adaptador Kotlin no pacote Python; `mobile.device.get_info()` e `mobile.apps.launch(package_name)` retornam dicts Python e não expõem Context/Activity/PackageManager. O executor injeta o adaptador antes de cada execução. Testes host `test_mobile_api.py` cobrem retorno de device info, abertura simulada, app inexistente, tipo inválido e Bridge não configurada; teste Kotlin cobre validação de nomes de pacote. Contrato atualizado e indexado com comportamento API33+ IntentSender, fallback API24–32, queries restritas e ausência de QUERY_ALL_PACKAGES. Testes ainda não executados. Commits: `c7ebe23` (apps API), `f84b629` (testes Python), `3f7e354` (validador Kotlin), `601e2c9` (documentação).
+
+**Gate P0-5:** ambas as capacidades implementadas e cobertas por fontes de teste; gate de execução permanece pendente até testes locais e validação física.
 
 ## P0-6 — Persistência local mínima
 
