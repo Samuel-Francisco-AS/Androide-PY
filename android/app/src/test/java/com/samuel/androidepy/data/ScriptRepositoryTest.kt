@@ -130,6 +130,7 @@ class ScriptRepositoryTest {
                 repository.create("Invalid", dependenciesJson = "[\"--index-url=https://example.com\"]")
             }
         }
+            Unit
     }
 
     @Test
