@@ -385,16 +385,24 @@ private fun ScriptEditorScreen(
         dependenciesText.lineSequence().map { it.trim() }.filter { it.isNotEmpty() }.toList()
     ).toString()
 
-    suspend fun saveCurrent(): ScriptEntity = withContext(Dispatchers.IO) {
-        repository.save(
-            scriptId = script.id,
-            name = name,
-            sourceCode = sourceCode,
-            description = description,
-            tagsJson = tagsAsJson(),
-            parametersJson = parametersJson,
-            dependenciesJson = dependenciesAsJson()
-        )
+    suspend fun saveCurrent(): ScriptEntity {
+        val currentName = name
+        val currentSource = sourceCode
+        val currentDescription = description
+        val currentTags = tagsAsJson()
+        val currentParameters = parametersJson
+        val currentDependencies = dependenciesAsJson()
+        return withContext(Dispatchers.IO) {
+            repository.save(
+                scriptId = script.id,
+                name = currentName,
+                sourceCode = currentSource,
+                description = currentDescription,
+                tagsJson = currentTags,
+                parametersJson = currentParameters,
+                dependenciesJson = currentDependencies
+            )
+        }
     }
 
     Column(
