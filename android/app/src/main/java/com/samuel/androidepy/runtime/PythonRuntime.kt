@@ -44,5 +44,8 @@ object PythonRuntime {
         return python.getModule(name)
     }
 
+    fun runSmokeTest(): String =
+        getModule("main").callAttr("smoke_test").toString()
+
     fun isInitialized(): Boolean = instance != null || Python.isStarted()
 }
