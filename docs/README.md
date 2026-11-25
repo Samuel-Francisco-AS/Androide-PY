@@ -52,7 +52,11 @@ docs/
     ├── 0002-python-runtime-chaquopy.md
     ├── 0003-local-persistence-room-sqlite.md
     ├── 0004-capability-based-android-bridge.md
-    └── 0005-p0-toolchain-baseline.md
+    ├── 0005-p0-toolchain-baseline.md
+    ├── 0006-script-library-versioning-and-execution-history.md
+    ├── 0007-local-data-preservation-policy.md
+    ├── 0008-accessibility-service-bridge-and-lifecycle.md
+    └── 0009-sensitive-data-consent-and-retention.md
 ```
 
 ## Convenções documentais
