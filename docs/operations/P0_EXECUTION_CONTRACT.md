@@ -13,6 +13,12 @@ Este contrato separa a solicitação de execução, as atualizações de estado 
 - `sourceCode`: código Python a executar.
 - `queuedAtEpochMs`: timestamp Unix em milissegundos no momento do enfileiramento.
 
+## Executor e ciclo de vida
+
+O executor é criado de forma lazy no objeto `AndroidePyApplication`, portanto existe uma única fila por processo e ela sobrevive à recriação da Activity. Ele usa uma thread de trabalho e uma fila limitada a 16 solicitações. A fila cheia produz falha estruturada; não cresce sem limite.
+
+As atualizações são publicadas por `SharedFlow` com buffer limitado, sem callbacks que mantenham uma Activity destruída em memória. A tela observa o fluxo enquanto está ativa. O executor não é fechado no `onDestroy` da Activity e não interrompe uma thread Python em execução.
+
 ## Estados
 
 - `QUEUED`: aceito na fila serial.
@@ -53,7 +59,7 @@ Quando ocorrer uma exceção Python, `status` será `FAILED` e `error` conterá 
 - Código do usuário é tratado como confiável nesta etapa.
 - Não haverá interrupção forçada de threads Python.
 - Bibliotecas nativas que escrevam diretamente nos file descriptors podem não passar pelo redirecionamento Python.
-- O cancelamento de uma execução em andamento não faz parte do primeiro contrato funcional.
+- O cancelamento de uma execução em andamento não faz parte do primeiro contrato funcional. O estado `CANCELLED` fica reservado para uma futura estratégia cooperativa.
 
 ## Testes locais sem ADB
 
