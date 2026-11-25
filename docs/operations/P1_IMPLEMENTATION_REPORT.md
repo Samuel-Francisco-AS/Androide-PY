@@ -122,7 +122,7 @@ Nenhum teste P1 foi executado neste estado do relatório. A existência de teste
 
 ## 7. Limitações e riscos remanescentes
 
-- A migração Room foi escrita, mas precisa ser executada sobre banco P0 real para comprovar preservação dos dados.
+- A migração Room foi escrita, mas precisa ser executada sobre banco P0 real para comprovar preservação dos dados. A branch remota não contém os JSONs de schema Room exportados: o schema v1 histórico precisa ser recuperado/gerado da baseline P0, e o schema v2 deve ser gerado pelo build P1 e ambos versionados. Sem esses artefatos, ainda não há base completa para um teste automatizado com MigrationTestHelper.
 - A UI não possui ainda validação física de teclado, rolagem, acessibilidade ou desempenho.
 - Realce lexical não substitui parser Python, autocomplete, lint ou depurador.
 - Importação suporta arquivos de texto UTF-8 de até 1 MiB; não há importação de projetos/arquivos auxiliares.
