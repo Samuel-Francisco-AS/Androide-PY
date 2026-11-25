@@ -60,7 +60,7 @@ Os critérios históricos do P0 foram demonstrados. O gate P1 exige, além dos t
 
 O projeto usa Gradle Wrapper 8.14.8, Compose BOM 2026.06.01 e Python host 3.13. Não é necessário instalar Gradle globalmente nem usar ADB.
 
-Consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md) para sincronizar a branch, executar os testes e gerar `app-debug.apk`. O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
+Para P0, consulte [Build e testes no Fedora](docs/operations/P0_BUILD_AND_TEST.md). Para sincronizar e validar esta entrega P1, siga a seção de comandos do [checklist operacional P1](docs/operations/P1_EXECUTION_CHECKLIST.md). O APK será transferido ao Moto G06 pelo fluxo manual já utilizado no My-CT.
 
 ## Segurança e limitações
 
