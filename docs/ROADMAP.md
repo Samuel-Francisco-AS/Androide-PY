@@ -63,13 +63,13 @@ Entregas:
 - Console atual e histórico consultável por script.
 - Manifesto de dependências por script, com validação sintática local e política explícita de compatibilidade Chaquopy.
 - Biblioteca `mobile` versionada e catálogo de capacidades implementadas, sem anunciar módulos futuros como disponíveis.
-- Migração Room 1 → 2 preservando os scripts existentes.
+- Schema Room versão 2; durante o desenvolvimento, fallback destrutivo em versões incompatíveis conforme ADR-0007 (dados locais podem ser descartados).
 
 **Limites:** não há instalação dinâmica genérica de pacotes PyPI no aparelho. Dependências adicionais precisam de distribuição compatível com Chaquopy/Python 3.13/ABI arm64-v8a e inclusão controlada no build. O editor oferece realce lexical, não análise semântica, autocomplete ou depuração.
 
 **Estado:** implementação em andamento; veja `docs/operations/P1_EXECUTION_CHECKLIST.md` e `docs/operations/P1_IMPLEMENTATION_REPORT.md`.
 
-**Gate:** ciclo completo de criar/importar, editar, salvar, executar com parâmetros, consultar versões e histórico validado no Moto G06; migração P0 preservada; testes automatizados e build aprovados.
+**Gate:** ciclo completo de criar/importar, editar, salvar, executar com parâmetros, consultar versões e histórico validado no Moto G06; comportamento do banco após atualização incompatível documentado; testes automatizados e build aprovados.
 
 ## P2 — Integração de acessibilidade
 
