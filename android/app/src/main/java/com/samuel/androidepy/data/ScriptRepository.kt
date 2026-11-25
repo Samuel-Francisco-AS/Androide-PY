@@ -53,9 +53,9 @@ class ScriptRepository(
         name: String,
         sourceCode: String
     ): ScriptEntity {
-        return try {
-            require(scriptId.isNotBlank()) { "scriptId cannot be blank." }
+        require(scriptId.isNotBlank()) { "scriptId cannot be blank." }
 
+        return try {
             val previous = dao.getById(scriptId)
             val now = clock()
             val normalizedName = name.trim().ifBlank {
