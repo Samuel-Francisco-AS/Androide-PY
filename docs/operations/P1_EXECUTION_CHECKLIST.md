@@ -3,7 +3,7 @@
 **Branch:** feat/p1-script-library  
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
-**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM :app:testDebugUnitTest BUILD SUCCESSFUL; build debug :app:assembleDebug concluído e APK (~32 MB) transferido/instalado no Moto G06. Validação física em andamento: P1-TF01 a P1-TF12 aprovados/concluídos e P1-TF13 inconclusivo, conforme relatos do usuário; melhoria de feedback para parâmetros obrigatórios ausentes diferida para a próxima fase.
+**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM :app:testDebugUnitTest BUILD SUCCESSFUL; build debug :app:assembleDebug concluído e APK (~32 MB) transferido/instalado no Moto G06. Validação física em andamento: biblioteca, CRUD básico, pesquisa, renomeação, exclusão, importação/exportação e parte do editor exercitados no Moto G06. P1-TF13 permanece inconclusivo/diferido quanto à validação prévia de parâmetros obrigatórios; execução sem metadados foi observada falhando com `KeyError` e status `FAILED`, com traceback registrado.
 
 Este documento é a fonte de verdade do progresso da P1. Publicação no GitHub não equivale a build, teste ou validação física.
 
@@ -47,7 +47,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 
 ## P1.2 — Biblioteca de scripts
 
-**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (biblioteca, criação, persistência e duplicação aprovadas; importação/exportação, busca, renomeação e exclusão pendentes).
+**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (biblioteca, criação, persistência, duplicação, renomeação, pesquisa, exclusão e importação/exportação exercitadas e aprovadas no escopo observado).
 
 - [x] Listar scripts persistidos e selecionar script.
 - [x] Criar script.
@@ -58,11 +58,13 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Importar arquivo Python UTF-8 pelo Storage Access Framework com limite de 1 MiB.
 - [x] Exportar código Python pelo Storage Access Framework.
 - [x] Validar abertura da biblioteca, criação de script, persistência após encerramento/reabertura e duplicação no Moto G06.
-- [ ] Validar renomeação, exclusão, pesquisa e importação/exportação no aparelho.
+- [x] Validar renomeação, exclusão e pesquisa no Moto G06; usuário confirmou uso correto das três funcionalidades.
+- [x] Validar exportação: arquivo `.py` exportado para a pasta Download selecionada e presença do arquivo confirmada pelo usuário.
+- [x] Validar importação: arquivo `.py` importado como novo registro (`Teste_P1`); código preservado e histórico próprio reiniciado. O original permaneceu intacto. Metadados (descrição, tags e parâmetros) e históricos não foram transportados pelo arquivo `.py`; o contrato atual de importação/exportação não promete transportar esses dados.
 
 ## P1.3 — Editor e parâmetros
 
-**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (edição de código, descrição, tags e configuração JSON de parâmetros persistem e geram versões; usabilidade/realce e fluxo de parâmetros validado para um valor string).
+**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (entrada de texto, numeração de linhas e rolagem aprovadas no Moto G06; realce lexical parcial; ergonomia do formulário/editor e refinamento visual diferidos para fase dedicada de UI/UX).
 
 - [x] Implementar editor com numeração de linhas.
 - [x] Implementar realce lexical básico de Python sem WebView ou dependência de IDE.
@@ -72,12 +74,17 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Resolver parâmetros antes da execução e passá-los ao runner como dicionário params.
 - [x] Documentar que o realce lexical não é parser/IDE completo.
 - [x] Validar edição de código e geração de versão; edição de descrição (v6), tags (v7) e definição JSON de parâmetros; configuração de parâmetros persiste ao sair e reabrir a tela.
-- [ ] Validar usabilidade, teclado, rolagem, numeração de linhas e realce no Moto G06.
+- [x] Validar entrada pelo teclado e criação de novas linhas no Moto G06.
+- [x] Validar numeração de linhas no Moto G06; numeração observada corretamente.
+- [x] Validar rolagem vertical do editor; usuário confirmou funcionamento.
+- [ ] Validar desempenho do editor no Moto G06.
+- [ ] Avaliar posicionamento/ergonomia do editor e conforto para edição; usuário considerou desconfortável digitar com o editor no meio do formulário e reservou a melhoria para fase dedicada de UI/UX.
+- [ ] Melhorar cobertura, intensidade e legibilidade do realce lexical na fase de UI/UX. Observado realce fraco: `def` em roxo e string `"Olá, "` em vermelho; demais elementos sem diferenciação suficiente.
 - [x] Validar valores de execução e recebimento no Python por params: P1-TF12 forneceu `{"cidade":"Recife"}` e `print(params["cidade"])`; `stdout` retornou `Recife`.
 
 ## P1.4 — Execução e histórico
 
-**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (execução básica e histórico persistente observados; falhas e cenários de fila pendentes; passagem básica de parâmetros aprovada em P1-TF12).
+**Estado:** IMPLEMENTADO — VALIDAÇÃO FÍSICA PARCIAL (execução básica, histórico persistente, passagem de parâmetro string e registro de exceção Python com status FAILED observados; cenários de fila e falhas de persistência pendentes).
 
 - [x] Associar execução ao script e à versão de origem.
 - [x] Persistir QUEUED/RUNNING/estado terminal com timestamps.
@@ -89,7 +96,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Validar execução básica, saída no console e registro no histórico; fechar/reabrir o app e confirmar persistência do script e conseguir executar novamente.
 - [x] Validar execução com parâmetro string: P1-TF12 recebeu `{"cidade":"Recife"}` e produziu `Recife` em stdout.
 - [ ] Validar tipo inválido, fila cheia e falhas de persistência.
-- [ ] **P1-TF13 — INCONCLUSIVO / DIFERIDO:** parâmetro obrigatório `cidade` ausente (`{}`) impediu a execução, mas não houve mensagem visual, saída no console nem registro no histórico. A evidência não permite distinguir bloqueio de validação sem feedback de falha silenciosa; não marcar como aprovado. Adiar a correção para a próxima fase: informar claramente o parâmetro ausente, bloquear o runner antes da execução e cobrir ausência/tipo inválido com testes automatizados.
+- [ ] **P1-TF13 — INCONCLUSIVO / DIFERIDO:** parâmetro obrigatório `cidade` ausente (`{}`) não produziu mensagem visual, saída no console nem registro no histórico no teste original. Não foi possível distinguir bloqueio de validação sem feedback de falha silenciosa; não marcar como aprovado. Em teste posterior, um script importado sem metadados de parâmetros executou até o Python e gerou `KeyError: 'cidade'`, com status `FAILED`, traceback em stderr e registro no Histórico de Execuções. Isso comprova registro de exceção em runtime, mas não validação prévia nem feedback amigável. Adiar para a próxima fase: identificar o parâmetro ausente, bloquear o runner antes da execução e cobrir ausência/tipos inválidos com testes automatizados.
 
 ## P1.5 — Biblioteca Python mobile
 
@@ -117,18 +124,21 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 
 ## P1.7 — Revisão, testes e gate
 
-**Estado:** TESTES AUTOMATIZADOS E BUILD EXECUTADOS; validação física em andamento (P1-TF01–TF12).
+**Estado:** TESTES AUTOMATIZADOS E BUILD EXECUTADOS; validação física em andamento. TF01–TF12, TF14–TF15 e verificações físicas adicionais do editor foram exercitados; TF13 inconclusivo/diferido.
 
 - [x] Revisar estaticamente os 36 arquivos do diff completo; build APK e validação física continuam pendentes.
 - [x] Executar testes Python host: 13/13 PASS, conforme saída relatada pelo usuário.
 - [x] Executar `:app:testDebugUnitTest`: `BUILD SUCCESSFUL`, conforme saída relatada pelo usuário.
 - [x] Executar :app:assembleDebug; APK debug de aproximadamente 32 MB gerado (relato do usuário).
 - [x] Transferir pelo My-CT, instalar e abrir o APK no Moto G06; APK associado ao commit f403049b1a3fda0c5638133298a877aceaa47d30.
-- [x] Registrar resultados físicos P1-TF01 a P1-TF12 como relatos do usuário (detalhes na seção Evidências físicas).
+- [x] Registrar resultados físicos P1-TF01 a P1-TF12 e TF14–TF15, além das verificações adicionais do editor, como relatos do usuário (detalhes na seção Evidências físicas).
 - [x] Validar ciclo básico de parâmetros: P1-TF12 forneceu `{"cidade":"Recife"}`, executou `print(params["cidade"])` e recebeu `Recife` em stdout.
 - [ ] Validar tipo inválido.
 - [ ] P1-TF13: registrado como INCONCLUSIVO; não repetir nesta fase. Implementar na próxima fase feedback visível para parâmetro obrigatório ausente, bloqueio explícito antes do runner e testes automatizados.
-- [ ] Validar importação/exportação, renomeação, exclusão, pesquisa, editor (teclado/linhas/realce) e manifesto de dependências no aparelho.
+- [x] Validar importação/exportação, renomeação, exclusão e pesquisa no aparelho; resultados e limites registrados na seção Evidências físicas.
+- [x] Validar no editor entrada pelo teclado, numeração de linhas e rolagem no Moto G06.
+- [ ] Validar desempenho do editor e manifesto de dependências no aparelho.
+- [ ] Melhorias de ergonomia e realce lexical encaminhadas à fase dedicada de UI/UX.
 - [ ] Isolar e confirmar o comportamento do fallback destrutivo em atualização incompatível; dados P0 não precisam ser preservados conforme ADR-0007.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
@@ -153,7 +163,14 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | P1-TF10 | Edição das tags | Aprovado: tag validacao-p1 salva; nova versão 7 criada. |
 | P1-TF11 | Definição JSON de parâmetros | Aprovado: JSON com parâmetro obrigatório cidade do tipo string aceito; salvar criou nova versão; após sair e voltar à tela do script, a definição persistiu. Número dessa versão não foi informado. |
 | P1-TF12 | Entrega de parâmetros ao Python | Aprovado: valor `{"cidade":"Recife"}` informado em Valores para esta execução — JSON; código `print(params["cidade"])`; `stdout` retornou `Recife`. Confirma a entrega e leitura de um parâmetro string no runtime. |
-| P1-TF13 | Parâmetro obrigatório ausente | **INCONCLUSIVO / DIFERIDO:** com `cidade` obrigatório e JSON `{}`, a execução não ocorreu; não houve mensagem visual, saída no console (stdout/stderr) nem entrada no histórico. Não é possível confirmar se a validação bloqueou corretamente ou se houve falha silenciosa. Não aprovado; correção e testes automatizados adiados para a próxima fase. |
+| P1-TF13 | Parâmetro obrigatório ausente | **INCONCLUSIVO / DIFERIDO:** com `cidade` obrigatório e JSON `{}`, a execução não ocorreu; não houve mensagem visual, saída no console (stdout/stderr) nem entrada no histórico. Não é possível confirmar se a validação bloqueou corretamente ou se houve falha silenciosa. Em teste posterior, script importado sem definição de parâmetros gerou `KeyError: 'cidade'`, status `FAILED`, traceback em stderr e registro no histórico. Isso comprova registro da exceção em runtime, não validação prévia nem feedback amigável. Correção e testes automatizados adiados para a próxima fase. |
+| P1-TF14 | Exportação de script | **Aprovado:** arquivo `.py` exportado para a pasta Download escolhida; usuário confirmou que o arquivo estava presente. |
+| P1-TF15 | Importação de script | **Aprovado no escopo do formato `.py`:** importado como novo registro `Teste_P1`; código preservado, histórico próprio reiniciado e original intacto. Descrição, tags, parâmetros e históricos não foram transportados; o formato `.py` atual não promete esses metadados. Ao executar o importado sem `cidade` declarado, o runtime registrou `KeyError: 'cidade'` e status `FAILED` no histórico. |
+| Editor — entrada pelo teclado | **Aprovado:** digitação, inclusão de linhas e inserção de caracteres pelo teclado funcionaram. |
+| Editor — ergonomia/posicionamento | **Diferido para UI/UX:** editor fica no meio do formulário e torna a digitação desconfortável; o teste de posicionamento fino do cursor não foi concluído. |
+| Editor — numeração de linhas | **Aprovado:** linhas numeradas corretamente. |
+| Editor — realce de sintaxe | **Parcial:** `def` aparece em roxo e a string `"Olá, "` em vermelho, mas com coloração fraca e cobertura insuficiente. Refinar na fase de UI/UX. |
+| Editor — rolagem | **Aprovado:** rolagem no editor confirmada como funcional. |
 
 ### Sequência de versões observada
 
@@ -168,10 +185,10 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 ### Próximos testes físicos
 
 1. P1-TF12 aprovado: `{"cidade":"Recife"}` foi entregue ao Python e `params["cidade"]` produziu `Recife` em stdout.
-2. Tipo inválido permanece pendente. P1-TF13 (parâmetro obrigatório ausente) foi registrado como inconclusivo e diferido para a próxima fase; não repetir nesta P1.
-3. Validar importação/exportação, pesquisa, renomeação e exclusão.
-4. Validar editor no aparelho (teclado, numeração de linhas, realce, rolagem e desempenho).
-5. Validar manifesto de dependências e catálogo mobile no runtime Android.
+2. P1-TF13 permanece inconclusivo/diferido: não repetir nesta P1; o `KeyError` posterior comprova apenas registro de exceção em runtime.
+3. P1-TF14 exportação e P1-TF15 importação aprovados no escopo documentado; renomeação, pesquisa e exclusão também confirmadas pelo usuário.
+4. Editor: entrada pelo teclado, numeração de linhas e rolagem aprovadas; realce parcial e ergonomia diferidos para UI/UX; desempenho pendente.
+5. Validar tipo inválido, manifesto de dependências e catálogo mobile no runtime Android.
 6. Verificar especificamente o fallback destrutivo em atualização incompatível, se necessário para o gate final.
 ## Critérios de aceite P1
 
@@ -196,7 +213,7 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | Testes JVM/Kotlin | :app:testDebugUnitTest — BUILD SUCCESSFUL (relato do usuário) |
 | Build APK P1 | :app:assembleDebug — BUILD SUCCESSFUL; APK ~32 MB (relato do usuário) |
 | Instalação | APK do commit f403049b1a3fda0c5638133298a877aceaa47d30, transferido via My-CT e instalado no Moto G06 |
-| Validação física | P1-TF01–TF12 concluídos conforme relatos do usuário; P1-TF13 inconclusivo/diferido; demais testes pendentes |
+| Validação física | TF01–TF12 e TF14–TF15 registrados; renomeação/pesquisa/exclusão, entrada/linhas/rolagem do editor também confirmadas. TF13 inconclusivo/diferido; realce parcial, ergonomia e desempenho do editor ainda pendentes/diferidos |
 | Fallback destrutivo | Inicialização do app/biblioteca confirmada; cenário específico de migração incompatível ainda precisa de evidência isolada |
 | PR | #2 aberta em draft; aguarda validação |
 | Merge | Não realizado; autorização específica P1 ainda não concedida |
