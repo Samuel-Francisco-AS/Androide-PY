@@ -22,6 +22,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Relatório da implementação P2](operations/P2_IMPLEMENTATION_REPORT.md): decisões acordadas, arquitetura pretendida, riscos, validações e estado da fase.
 - [Protocolo assíncrono P2](operations/P2_ASYNC_PROTOCOL.md): envelopes JSON, correlação, timeout, cancelamento lógico, lifecycle, filas e fronteiras de thread.
 - [Contrato público Python P2](operations/P2_PYTHON_API.md): API `mobile.screen`, estados, operações, Mapas de Coordenadas, retornos, timeouts e erros.
+- [Revisão de privacidade e segurança P2](operations/P2_SECURITY_REVIEW.md): modelo de ameaças, consentimento para campos sensíveis, minimização, mapas, overlay, logs e limites.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
