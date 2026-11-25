@@ -3,7 +3,7 @@
 **Branch:** feat/p1-script-library  
 **Base:** main  
 **Marco:** P1 — Biblioteca e gerenciamento de scripts  
-**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM :app:testDebugUnitTest BUILD SUCCESSFUL; build debug :app:assembleDebug concluído e APK (~32 MB) transferido/instalado no Moto G06. Validação física em andamento: biblioteca, CRUD básico, pesquisa, renomeação, exclusão, importação/exportação e parte do editor exercitados no Moto G06. P1-TF13 permanece inconclusivo/diferido quanto à validação prévia de parâmetros obrigatórios; execução sem metadados foi observada falhando com `KeyError` e status `FAILED`, com traceback registrado.
+**Estado atual (25/11/2026):** testes host Python 13/13 PASS; testes JVM `:app:testDebugUnitTest` BUILD SUCCESSFUL; build debug `:app:assembleDebug` concluído e APK (~32 MB) instalado no Moto G06. Validação física principal concluída no escopo acordado: biblioteca/scripts, operações CRUD, pesquisa, importação/exportação, parâmetros válidos, versões/histórico, editor (com limitações registradas) e as duas capacidades da biblioteca mobile (`device.get_info` e `apps.launch`) exercitadas no Moto G06. Os testes adicionais não executados nesta rodada permanecem explicitamente PENDENTES para fase posterior; P1-TF13 permanece INCONCLUSIVO / DIFERIDO.
 
 Este documento é a fonte de verdade do progresso da P1. Publicação no GitHub não equivale a build, teste ou validação física.
 
@@ -100,7 +100,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 
 ## P1.5 — Biblioteca Python mobile
 
-**Estado:** IMPLEMENTADO — TESTE HOST PASS; runtime Android ainda pendente.
+**Estado:** IMPLEMENTADO — TESTE HOST PASS E VALIDAÇÃO FÍSICA DAS DUAS CAPACIDADES NO MOTO G06.
 
 - [x] Versionar pacote e contrato público (mobile 0.2.0; API_VERSION 1).
 - [x] Adicionar mobile.capabilities.list_available() e is_implemented().
@@ -108,7 +108,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Documentar módulos futuros como planejados, não disponíveis.
 - [x] Escrever teste host Python do catálogo.
 - [x] Executar testes host Python: 13/13 aprovados, conforme saída relatada pelo usuário.
-- [ ] Confirmar execução no runtime Android P1.
+- [x] Confirmar execução no runtime Android P1: `mobile.device.get_info()` retornou informações reais do Moto G06; `mobile.apps.launch("com.android.settings")` abriu Configurações e retornou `ok: True` no `stdout` (relato do usuário).
 
 ## P1.6 — Dependências Python compatíveis
 
@@ -124,7 +124,7 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 
 ## P1.7 — Revisão, testes e gate
 
-**Estado:** TESTES AUTOMATIZADOS E BUILD EXECUTADOS; validação física em andamento. TF01–TF12, TF14–TF15 e verificações físicas adicionais do editor foram exercitados; TF13 inconclusivo/diferido.
+**Estado:** TESTES AUTOMATIZADOS, BUILD E VALIDAÇÃO FÍSICA DO ESCOPO ACORDADO CONCLUÍDOS. TF01–TF12, TF14–TF15, verificações do editor e as duas capacidades mobile foram exercitados; TF13 inconclusivo/diferido. Os demais cenários não executados foram deliberadamente adiados pelo usuário e não bloqueiam o encerramento desta P1.
 
 - [x] Revisar estaticamente os 36 arquivos do diff completo; build APK e validação física continuam pendentes.
 - [x] Executar testes Python host: 13/13 PASS, conforme saída relatada pelo usuário.
@@ -133,16 +133,16 @@ Estados: PENDENTE, EM ANDAMENTO, BLOQUEADO, INCONCLUSIVO, IMPLEMENTADO — TESTE
 - [x] Transferir pelo My-CT, instalar e abrir o APK no Moto G06; APK associado ao commit f403049b1a3fda0c5638133298a877aceaa47d30.
 - [x] Registrar resultados físicos P1-TF01 a P1-TF12 e TF14–TF15, além das verificações adicionais do editor, como relatos do usuário (detalhes na seção Evidências físicas).
 - [x] Validar ciclo básico de parâmetros: P1-TF12 forneceu `{"cidade":"Recife"}`, executou `print(params["cidade"])` e recebeu `Recife` em stdout.
-- [ ] Validar tipo inválido.
+- [ ] Validar tipo inválido — PENDENTE PARA FASE POSTERIOR, conforme decisão de escopo.
 - [ ] P1-TF13: registrado como INCONCLUSIVO; não repetir nesta fase. Implementar na próxima fase feedback visível para parâmetro obrigatório ausente, bloqueio explícito antes do runner e testes automatizados.
 - [x] Validar importação/exportação, renomeação, exclusão e pesquisa no aparelho; resultados e limites registrados na seção Evidências físicas.
 - [x] Validar no editor entrada pelo teclado, numeração de linhas e rolagem no Moto G06.
-- [ ] Validar desempenho do editor e manifesto de dependências no aparelho.
+- [ ] Validar desempenho do editor e manifesto de dependências no aparelho — PENDENTE PARA FASE POSTERIOR.
 - [ ] Melhorias de ergonomia e realce lexical encaminhadas à fase dedicada de UI/UX.
-- [ ] Isolar e confirmar o comportamento do fallback destrutivo em atualização incompatível; dados P0 não precisam ser preservados conforme ADR-0007.
+- [ ] Isolar e confirmar o comportamento do fallback destrutivo em atualização incompatível — PENDENTE PARA FASE POSTERIOR; dados P0 não precisam ser preservados conforme ADR-0007.
 - [x] Atualizar README, docs/README, visão, roadmap, arquitetura, ADRs e contrato mobile.
 - [x] Criar PR em draft para revisão/validação: PR #2 (https://github.com/Samuel-Francisco-AS/Androide-PY/pull/2).
-- [ ] Marcar PR pronta para revisão após build e validação física do fallback.
+- [ ] Marcar PR pronta para revisão após revisão final do escopo acordado; fallback destrutivo e demais cenários não executados estão formalmente adiados, não aprovados.
 - [ ] Fazer Squash Merge somente após revisão final e autorização explícita.
 
 ## Evidências da validação física — Moto G06
@@ -171,6 +171,8 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | Editor — numeração de linhas | **Aprovado:** linhas numeradas corretamente. |
 | Editor — realce de sintaxe | **Parcial:** `def` aparece em roxo e a string `"Olá, "` em vermelho, mas com coloração fraca e cobertura insuficiente. Refinar na fase de UI/UX. |
 | Editor — rolagem | **Aprovado:** rolagem no editor confirmada como funcional. |
+| Biblioteca mobile — `mobile.device.get_info()` | **Aprovado:** execução no runtime Android retornou informações do dispositivo Moto G06; teste realizado e resultado relatado pelo usuário. |
+| Biblioteca mobile — `mobile.apps.launch("com.android.settings")` | **Aprovado:** aplicativo Configurações do Android foi aberto corretamente; `stdout` apresentou o retorno esperado, conforme relato do usuário. |
 
 ### Sequência de versões observada
 
@@ -182,14 +184,15 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 - v7: alteração das tags.
 - Versão seguinte: configuração JSON de parâmetros; número não informado.
 
-### Próximos testes físicos
+### Testes adiados para fase posterior
 
-1. P1-TF12 aprovado: `{"cidade":"Recife"}` foi entregue ao Python e `params["cidade"]` produziu `Recife` em stdout.
-2. P1-TF13 permanece inconclusivo/diferido: não repetir nesta P1; o `KeyError` posterior comprova apenas registro de exceção em runtime.
-3. P1-TF14 exportação e P1-TF15 importação aprovados no escopo documentado; renomeação, pesquisa e exclusão também confirmadas pelo usuário.
-4. Editor: entrada pelo teclado, numeração de linhas e rolagem aprovadas; realce parcial e ergonomia diferidos para UI/UX; desempenho pendente.
-5. Validar tipo inválido, manifesto de dependências e catálogo mobile no runtime Android.
-6. Verificar especificamente o fallback destrutivo em atualização incompatível, se necessário para o gate final.
+- Tipo inválido de parâmetro; fila cheia; falhas de persistência.
+- Validação do manifesto de dependências e eventual dependência Python real (se selecionada e incluída no build).
+- Desempenho do editor; refinamento de ergonomia e realce lexical permanece encaminhado à fase de UI/UX.
+- Confirmação isolada do fallback destrutivo em atualização incompatível.
+- P1-TF13 permanece INCONCLUSIVO / DIFERIDO: não foi aprovado nem será repetido nesta rodada; requer correção de feedback/bloqueio e testes automatizados em fase posterior.
+
+A validação física da biblioteca mobile foi concluída: `device.get_info()` e `apps.launch()` aprovados no Moto G06.
 ## Critérios de aceite P1
 
 1. Scripts podem ser criados, importados, renomeados, duplicados, editados, exportados e excluídos.
@@ -213,10 +216,10 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 | Testes JVM/Kotlin | :app:testDebugUnitTest — BUILD SUCCESSFUL (relato do usuário) |
 | Build APK P1 | :app:assembleDebug — BUILD SUCCESSFUL; APK ~32 MB (relato do usuário) |
 | Instalação | APK do commit f403049b1a3fda0c5638133298a877aceaa47d30, transferido via My-CT e instalado no Moto G06 |
-| Validação física | TF01–TF12 e TF14–TF15 registrados; renomeação/pesquisa/exclusão, entrada/linhas/rolagem do editor também confirmadas. TF13 inconclusivo/diferido; realce parcial, ergonomia e desempenho do editor ainda pendentes/diferidos |
+| Validação física | TF01–TF12 e TF14–TF15 registrados; renomeação/pesquisa/exclusão, entrada/linhas/rolagem do editor e `mobile.device.get_info()`/`mobile.apps.launch()` aprovados. TF13 inconclusivo/diferido; realce parcial, ergonomia e desempenho do editor pendentes/diferidos. |
 | Fallback destrutivo | Inicialização do app/biblioteca confirmada; cenário específico de migração incompatível ainda precisa de evidência isolada |
-| PR | #2 aberta em draft; aguarda validação |
-| Merge | Não realizado; autorização específica P1 ainda não concedida |
+| PR | #2 aberta em draft; validação física do escopo acordado concluída; revisão final e transição para ready ainda pendentes. |
+| Merge | Não realizado. Usuário autorizou o merge após conclusão da validação mobile e revisão final; executar somente após esses passos. |
 
 ## Bloqueios e desvios
 
@@ -224,6 +227,7 @@ Os resultados abaixo foram relatados pelo usuário durante a conversa “Validar
 - A migração Room 1 → 2 foi removida conforme ADR-0007. `fallbackToDestructiveMigration()` permite recriar o banco quando a versão instalada não é compatível; scripts, versões e execuções locais podem ser descartados. A exportação de schemas históricos está desabilitada nesta etapa.
 - O editor oferece realce lexical simples, sem autocomplete, lint, depuração ou análise semântica.
 - Nenhum teste/build P1 deve ser marcado como aprovado antes de execução observável.
+- Escopo de encerramento acordado em 25/11/2026: executar apenas a validação física da biblioteca mobile nesta etapa; os demais testes não executados ficam PENDENTES para fase posterior e não bloqueiam o fechamento da P1, desde que limitações e resultados inconclusivos permaneçam explícitos. A autorização do usuário para o Squash Merge aplica-se após a revisão final.
 
 
 ## Execução local após sincronização
