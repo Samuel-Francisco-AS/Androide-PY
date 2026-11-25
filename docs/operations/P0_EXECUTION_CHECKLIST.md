@@ -6,7 +6,7 @@
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
 **Última atualização:** 2026-11-25  
-**Estado geral:** 🟡 Fundação Android concluída; runtime Python implementado e aguardando build/validação local.
+**Estado geral:** 🟡 Fundação Android, runtime Python e executor implementados; testes e build aguardam execução no Fedora.
 
 > Este arquivo é a fonte operacional de verdade para o progresso da P0. Um item só pode ser marcado como concluído depois de sua execução real e da conferência da evidência correspondente. Criar um arquivo ou escrever código não equivale, por si só, a validar seu funcionamento.
 
@@ -102,16 +102,18 @@
 - [x] **P0-4.3** Capturar stdout e stderr separadamente, preservando ordem/limites razoáveis e evitando bloquear a UI.
 - [x] **P0-4.4** Capturar exceções Python e convertê-las em erro estruturado sem encerrar o aplicativo.
 - [x] **P0-4.5** Implementar estados QUEUED, RUNNING, SUCCEEDED e FAILED; manter CANCELLED reservado sem interrupção forçada de threads.
-- [ ] **P0-4.6** Criar testes unitários/integrados para sucesso, stderr e exceção.
-- [ ] **P0-4.7** Revisar concorrência, lifecycle, memória e apresentação do console.
+- [x] **P0-4.6** Criar testes unitários/integrados para sucesso, stderr e exceção.
+- [x] **P0-4.7** Revisar concorrência, lifecycle e memória do executor; revisar a apresentação do console junto à UI em P0-7.4.
 
-**Evidência P0-4.1:** modelos Kotlin `ExecutionModels.kt` e documento [P0_EXECUTION_CONTRACT.md](P0_EXECUTION_CONTRACT.md) publicados e conferidos. Contrato versão 1 define UUID, scriptId, código-fonte, estados, timestamps, stdout/stderr, erro estruturado, limite de 64 KiB por stream e política serial sem interrupção forçada. Commit do modelo: `5b9cb92`; documento: `ee46144`. Revisão estática concluída; compilação Kotlin pendente.
+**Evidência P0-4.1:** modelos Kotlin `ExecutionModels.kt` e documento [P0_EXECUTION_CONTRACT.md](P0_EXECUTION_CONTRACT.md) publicados e conferidos. Contrato versão 1 define UUID, scriptId, código-fonte, estados, timestamps, stdout/stderr, erro estruturado, limite de 65.536 caracteres por stream e política serial sem interrupção forçada. Commit do modelo: `5b9cb92`; documento: `ee46144`. Revisão estática concluída; compilação Kotlin pendente.
 
-**Evidência P0-4.2:** `ScriptExecutor.kt` publicado e revisado. Usa um `ThreadPoolExecutor` com uma thread, fila limitada a 16 solicitações, rejeição estruturada quando a fila está cheia, callbacks postados no main looper e shutdown cooperativo sem `shutdownNow`. Inicializa Chaquopy e chama o módulo Python em worker. Falhas do host são convertidas em `ExecutionStatus.FAILED`. Verificação estática confirmou serialização, limite da fila, callbacks e ausência de interrupção forçada. Commit: `8dde449` (executor inicial), `8b5007a` (fila limitada). Build ainda não executado.
+**Evidência P0-4.2:** `ScriptExecutor.kt` publicado e revisado. Usa um `ThreadPoolExecutor` com uma thread, fila limitada a 16 solicitações e rejeição estruturada quando a fila está cheia. O executor é criado lazy no `Application` e publica estados via `SharedFlow`, evitando callbacks que retenham Activities destruídas. Inicializa Chaquopy e chama o módulo Python em worker. Falhas do host são convertidas em `ExecutionStatus.FAILED`. Verificação estática confirmou serialização, limite da fila, callbacks e ausência de interrupção forçada. Commit: `8dde449` (executor inicial), `8b5007a` (fila limitada). Build ainda não executado.
 
 **Evidências P0-4.3/P0-4.4/P0-4.5:** `runner.py` redireciona stdout e stderr separadamente, limita cada captura a 65.536 caracteres e registra flags de truncamento. Exceções Python (incluindo `SystemExit`) são capturadas como dados com tipo, mensagem e traceback; o resultado JSON contém schema_version, identificadores, estado e timestamps. Kotlin converte o JSON para `ScriptExecutionResult`; o executor encaminha sucesso/falha sem deixar exceção de script escapar para a UI. Estados efetivos: QUEUED, RUNNING, SUCCEEDED e FAILED. CANCELLED permanece reservado porque o P0 não interrompe thread Python em execução. Runner conferido no GitHub (blob `62bce92`); contrato atualizado no commit `8f7b553`. Testes automatizados ainda pendentes.
 
-**Gate P0-4:** execução básica e caminhos de erro cobertos por testes automatizados.
+**Evidências P0-4.6/P0-4.7:** testes host Python em `src/test/python/test_runner.py` cobrem sucesso/stdout, stderr, exceção, SystemExit e truncamento. Testes JVM em `ExecutionModelsTest.kt` cobrem parse de sucesso, erro estruturado e rejeição de schema desconhecido; dependências JUnit 4.13.2 e org.json 20260814 adicionadas. Comandos documentados em `P0_EXECUTION_CONTRACT.md`. Testes foram escritos e conferidos no GitHub, mas **ainda não foram executados**. Revisão estática identificou risco de callbacks vinculados ao lifecycle da Activity; executor foi ajustado para escopo do Application e SharedFlow, com fila de 16, buffer de eventos 64, stdout/stderr limitados e sem interrupção forçada. Commits: `132a14c`, `1800a85`, `0b32e09`, `565a9db`, `af51357`, `9985cc6`, `863dbec`, `f7b6bd9`.
+
+**Gate P0-4:** implementação e fontes de teste estão prontas; gate permanece **pendente** até execução real dos testes host/JVM e revisão do resultado no Fedora.
 
 ## P0-5 — Android Bridge mínima
 
@@ -194,4 +196,4 @@ A P0 só poderá ser declarada concluída quando todos forem demonstrados:
 
 ## Histórico de atualização
 
-- 2026-11-25 — governança operacional, baseline técnica e fundação Android concluídas (OP-0.1 a OP-0.4; P0-1.1 a P0-1.5; P0-2.1 a P0-2.6). Runtime Chaquopy/Python 3.13 configurado, encapsulado e revisado; smoke check documentado (P0-3.1 a P0-3.6). Nenhum build Android foi executado.
+- 2026-11-25 — governança, baseline técnica e fundação Android concluídas (OP-0; P0-1; P0-2). Runtime Chaquopy/Python 3.13 implementado e documentado (P0-3). Contrato, executor serial, captura de streams/exceções e fontes de teste criados e revisados (P0-4); testes e build ainda não executados.
