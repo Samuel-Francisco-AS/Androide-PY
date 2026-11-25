@@ -48,7 +48,7 @@ Quando ocorrer uma exceção Python, `status` será `FAILED` e `error` conterá 
 
 ## Limites de segurança e recursos
 
-- Saída stdout e stderr será limitada a 64 KiB por stream para evitar crescimento ilimitado de memória.
+- Saída stdout e stderr será limitada a 65.536 caracteres por stream para evitar crescimento ilimitado de memória.
 - O executor serial reduz concorrência, mas não é uma sandbox.
 - Código do usuário é tratado como confiável nesta etapa.
 - Não haverá interrupção forçada de threads Python.
