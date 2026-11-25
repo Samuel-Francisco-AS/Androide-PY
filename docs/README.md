@@ -13,6 +13,7 @@ Esta pasta concentra a documentação de produto, arquitetura, planejamento e de
 - [Contrato de execução P0](operations/P0_EXECUTION_CONTRACT.md): estados, payload JSON e limites do executor.
 - [Contrato da Android Bridge P0](operations/P0_ANDROID_BRIDGE_CONTRACT.md): APIs Python, dados, erros e package visibility.
 - [Persistência P0](operations/P0_PERSISTENCE.md): Room, script inicial, gravação e tratamento de falhas.
+- [Plano de testes de integração P0](operations/P0_INTEGRATION_TEST_PLAN.md): comandos sem ADB e roteiro físico no Moto G06.
 - [Instruções para agentes](../AGENTS.md): rotina obrigatória de trabalho e conferência.
 
 ## Organização
