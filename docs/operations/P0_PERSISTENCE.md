@@ -36,6 +36,17 @@ O script inicial é `Meu primeiro script`, com código `print("Olá, Androide PY
 
 A camada UI deve executar chamadas suspend fora da thread principal e apresentar `ScriptStorageException` ao usuário sem encerrar a Activity.
 
+## Testes locais
+
+Os testes JVM do repositório usam um DAO falso para verificar criação inicial, atualização, preservação de timestamps, nome vazio, erros de leitura/observação e propagação de cancelamento. Execute sem ADB:
+
+```bash
+cd android
+./gradlew :app:testDebugUnitTest
+```
+
+Esses testes validam a lógica do repositório, não substituem o build KSP/Room nem a confirmação de persistência real após fechar e reabrir o aplicativo no Moto G06.
+
 ## Fronteira Kotlin/Python
 
 Python nunca recebe RoomDatabase, DAO, Entity, SQLiteConnection ou acesso direto ao arquivo do banco. O host Kotlin lê o conteúdo do script pelo repositório e entrega apenas o texto ao executor Python.
