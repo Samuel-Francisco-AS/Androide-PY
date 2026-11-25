@@ -204,7 +204,7 @@ Não marcar uma capacidade como validada fisicamente com base apenas em código,
 
 | Data | Subetapa | Evidência/resultado | Commit |
 |---|---|---|---|
-| 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`; documentos operacionais iniciais publicados. | A preencher após commits |
+| 2026-11-25 | P2.0.1–P2.0.2 | Branch criada a partir de `main`. Checklist: commit inicial `8c23d5b79a9e6d0de86a4ce4287ed6c7996af302`; relatório: `d8c2e409cf11077a8dd7da596a3380d339603eb8`; índice `docs/README.md`: `3017ad8fa0983feb2d0950b366242eae0349786c`. Arquivos recuperados do GitHub para conferência posterior. | Ver commits |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
