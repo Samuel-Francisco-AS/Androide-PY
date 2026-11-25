@@ -7,6 +7,13 @@
 *.iml
 local.properties
 
+# Python generated files
+**/__pycache__/
+*.py[cod]
+
+# Room generated schemas (not versioned during current development)
+android/app/schemas/
+
 # OS / editor
 .DS_Store
 Thumbs.db

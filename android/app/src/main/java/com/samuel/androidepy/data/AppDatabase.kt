@@ -6,19 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [ScriptEntity::class],
-    version = 1,
-    exportSchema = true
+    entities = [ScriptEntity::class, ScriptVersionEntity::class, ScriptExecutionEntity::class],
+    version = 2,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-
     abstract fun scriptDao(): ScriptDao
+    abstract fun scriptExecutionDao(): ScriptExecutionDao
 
     companion object {
         const val DATABASE_NAME = "androide_py.db"
 
-        @Volatile
-        private var instance: AppDatabase? = null
+        @Volatile private var instance: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
             return instance ?: synchronized(this) {
@@ -26,7 +25,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
-                ).build().also { instance = it }
+                )
+                    .fallbackToDestructiveMigration(true)
+                    .build()
+                    .also { instance = it }
             }
         }
     }

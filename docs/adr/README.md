@@ -9,9 +9,12 @@ ADRs preservam o contexto de uma escolha, alternativas consideradas, consequênc
 | ID | Decisão | Estado |
 |---|---|---|
 | [ADR-0001](0001-android-native-host.md) | Aplicativo hospedeiro Android nativo com Kotlin e Compose | Aceito |
-| [ADR-0002](0002-python-runtime-chaquopy.md) | Chaquopy como runtime Python inicial | Aceito para prototipação; validar no P0 |
-| [ADR-0003](0003-local-persistence-room-sqlite.md) | Room sobre SQLite como persistência local | Aceito |
-| [ADR-0004](0004-capability-based-android-bridge.md) | Android Bridge baseada em capacidades e adaptadores | Aceito |\n| [ADR-0005](0005-p0-toolchain-baseline.md) | Baseline de ferramentas e dependências da P0 | Aceito para implementação inicial; validar build local |
+| [ADR-0002](0002-python-runtime-chaquopy.md) | Chaquopy como runtime Python inicial | Validado na P0; pacotes adicionais exigem validação |
+| [ADR-0003](0003-local-persistence-room-sqlite.md) | Room sobre SQLite como persistência local | Validado na P0; migração P1 pendente |
+| [ADR-0004](0004-capability-based-android-bridge.md) | Android Bridge baseada em capacidades e adaptadores | Aceito |
+| [ADR-0005](0005-p0-toolchain-baseline.md) | Baseline de ferramentas e dependências da P0 | Validado |
+| [ADR-0006](0006-script-library-versioning-and-execution-history.md) | Versionamento, parâmetros e histórico P1 | Aceito; validar migração e build P1 |
+| [ADR-0007](0007-local-data-preservation-policy.md) | Preservação de dados locais durante o desenvolvimento | Aceito |
 
 ## Modelo
 

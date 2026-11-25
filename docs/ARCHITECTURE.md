@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** arquitetura inicial proposta; componentes sujeitos à validação do P0.
+**Status:** P0 validada e integrada; evolução da biblioteca de scripts P1 em implementação.
 
 ## 1. Visão geral
 
@@ -48,7 +48,7 @@ O diagrama representa responsabilidades lógicas, não exige que cada caixa seja
 |---|---|---|
 | Aplicativo Android | Kotlin | Host, ciclo de vida e integração |
 | Interface | Jetpack Compose | Interface nativa |
-| Runtime Python | Chaquopy | Candidato inicial; validar no P0 |
+| Runtime Python | Chaquopy 17.2.0 + Python 3.13 | Runtime inicial validado no Moto G06 durante P0 |
 | Persistência relacional | Room sobre SQLite | Acesso ao banco mediado por repositórios |
 | Agendamento | WorkManager e AlarmManager | Escolha depende da precisão e natureza da tarefa |
 | Interação com interface | AccessibilityService | Serviço nativo, consentimento explícito |
@@ -148,21 +148,31 @@ Módulos conceituais:
 | `mobile.network` | Operações de rede e conectividade |
 | `mobile.integrations` | Adaptadores opcionais como Shizuku/ADB |
 
-A API pública deve oferecer funções Python estáveis e tipos de retorno previsíveis. Detalhes de Java/Kotlin não devem vazar para os scripts.
+A API pública deve oferecer funções Python estáveis e tipos de retorno previsíveis. Detalhes de Java/Kotlin não devem vazar para os scripts. Na P1, `mobile.__version__`, `mobile.API_VERSION` e `mobile.capabilities.list_available()` identificam a versão e listam somente `device.get_info` e `apps.launch`, que estão implementadas. O catálogo descreve implementação, não garante disponibilidade universal em qualquer dispositivo.
 
 ### 3.5 Persistência e arquivos
 
 Room/SQLite será a fonte de verdade dos metadados. O acesso será mediado por repositórios Kotlin e serviços internos; Python não deve escrever diretamente nas tabelas do Room.
 
 Entidades iniciais:
-- Scripts e versões.
-- Automações e configurações.
-- Workflows e nós.
-- Agendamentos.
-- Execuções e logs.
-- Referências a artefatos.
+- Scripts e metadados.
+- Snapshots imutáveis de versões de scripts.
+- Execuções, parâmetros, status, horários, stdout, stderr e erro estruturado.
+- Workflows e nós (fases futuras).
+- Agendamentos (fase futura).
+- Referências a artefatos (fase futura).
 
-Arquivos de scripts, arquivos temporários, backups e artefatos serão armazenados em diretórios privados apropriados, com referências persistidas no banco.
+Arquivos de scripts, arquivos temporários, backups e artefatos serão armazenados em diretórios privados apropriados, com referências persistidas no banco. Na P1, importação/exportação de arquivos Python usa Storage Access Framework; a importação aceita texto UTF-8 de até 1 MiB e não executa automaticamente o conteúdo.
+
+#### Modelo P1 de biblioteca e histórico
+
+- `scripts`: código atual, nome, descrição, tags JSON, definições de parâmetros JSON, manifesto de dependências e timestamps.
+- `script_versions`: snapshots imutáveis por script e número sequencial de versão.
+- `script_executions`: histórico desacoplado do ciclo de vida do script, com nome/version snapshot, parâmetros resolvidos, estado, horários, duração, stdout/stderr, erro e flags de truncamento.
+- A exclusão de um script remove seus metadados e snapshots de versão em transação; registros de execução permanecem para preservar o histórico.
+- Durante o desenvolvimento, Room utiliza `fallbackToDestructiveMigration()` para recriar o banco quando não houver migração compatível; isso pode descartar todos os scripts, versões e execuções locais. Conforme ADR-0007, migrações de preservação só serão exigidas mediante solicitação expressa. O acesso permanece exclusivamente mediado por DAOs/repositórios Kotlin.
+- O script recebe valores de entrada por um dicionário Python chamado `params`; a validação do esquema e dos valores ocorre no host antes da execução.
+- O manifesto de dependências é declarativo. Não há promessa de instalação pip genérica em runtime; compatibilidade precisa ser confirmada para Chaquopy, CPython 3.13 e ABI Android alvo.
 
 ## 4. Contratos entre Kotlin e Python
 

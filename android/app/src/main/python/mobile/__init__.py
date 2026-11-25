@@ -1,5 +1,8 @@
 """High-level Python facade for Android capabilities."""
 
+__version__ = "0.2.0"
+API_VERSION = 1
+
 _bridge = None
 
 

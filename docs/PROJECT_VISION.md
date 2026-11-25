@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** visão inicial — planejamento
+**Status:** P0 concluída; P1 em implementação (biblioteca e gerenciamento de scripts).
 
 ## 1. Resumo
 

@@ -1,6 +1,6 @@
 # ADR-0003: Persistência local com Room e SQLite
 
-- **Status:** Aceito
+- **Status:** Validado na P0; estratégia destrutiva de desenvolvimento aceita na P1
 - **Data:** 2026-11-24
 
 ## Contexto
@@ -29,9 +29,24 @@ Arquivos de scripts, temporários, backups e artefatos serão armazenados no sis
 
 ### Custos e riscos
 - Kotlin precisa expor operações de persistência ao Python por contratos.
-- Migrações de schema exigem testes.
+- Mudanças incompatíveis de schema podem descartar todos os dados locais do banco durante o desenvolvimento.
 - Arquivos e registros do banco precisam de política de consistência e limpeza.
 
 ## Validação
 
 Implementar persistência mínima no P0 e validar gravação/leitura após reinício do aplicativo. Evoluir entidades e migrações conforme P1–P5.
+
+
+## Evolução P1 — scripts, versões e execuções
+
+A P1 mantém Room/SQLite como fonte de verdade e utiliza o schema versão 2:
+
+- scripts recebem descrição, tags, definições de parâmetros e manifesto declarativo de dependências;
+- `script_versions` armazena snapshots imutáveis numerados;
+- `script_executions` armazena estado, parâmetros resolvidos, timestamps, duração, stdout, stderr e erro;
+- excluir um script remove seus metadados e versões em transação, preservando os registros de execução;
+- o runner recebe parâmetros pelo dicionário Python `params`, sem acesso direto ao banco.
+
+Conforme o ADR-0007, a preservação de dados locais não é requisito padrão durante o desenvolvimento. O `Room.databaseBuilder` utiliza `fallbackToDestructiveMigration()`: quando a versão instalada não possui caminho de migração compatível, Room recria o banco usando o schema atual. Isso pode apagar scripts, versões e execuções locais. Migrações explícitas só serão adicionadas quando houver solicitação expressa de preservação.
+
+O schema Room não é exportado/versionado nesta etapa (`exportSchema = false`), pois não há migrações históricas a validar. A integridade do schema atual continua sendo verificada pelos testes de persistência e pelo build.

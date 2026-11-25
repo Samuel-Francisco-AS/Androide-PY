@@ -90,3 +90,26 @@ Os módulos Python usam um objeto Kotlin configurado pelo executor; os scripts n
 - Package visibility: https://developer.android.com/training/package-visibility/declaring
 - PackageManager.getLaunchIntentForPackage / getLaunchIntentSenderForPackage: https://developer.android.com/reference/android/content/pm/PackageManager
 - Interação com apps sob package visibility limitada: https://developer.android.com/training/package-visibility/use-cases
+
+
+## Extensão P1 — versão e catálogo público
+
+A biblioteca Python instalada passa a declarar:
+
+- mobile.__version__ == "0.2.0"
+- mobile.API_VERSION == 1
+- mobile.capabilities.list_available()
+- mobile.capabilities.is_implemented(capability_id)
+
+list_available() retorna um dicionário serializável com api_version, library_version e uma lista de capacidades. Nesta versão, o catálogo contém exclusivamente:
+
+| Identificador | API | Estado | Autorização especial |
+|---|---|---|---|
+| device.get_info | mobile.device.get_info() | Implementada | Não |
+| apps.launch | mobile.apps.launch(package_name) | Implementada | Não |
+
+O campo implemented indica que a API existe no pacote; requires_android_bridge indica que a execução precisa ocorrer pelo executor Androide PY com o adaptador Kotlin configurado. Isso não garante que uma operação específica seja permitida pelo Android.
+
+mobile.screen, mobile.notifications, mobile.files, mobile.system, mobile.sensors, mobile.network e mobile.integrations continuam planejados e não aparecem como capacidades implementadas.
+
+O catálogo é um contrato de introspecção da biblioteca, não um mecanismo de concessão de permissões nem uma promessa de suporte universal.

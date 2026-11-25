@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** planejamento inicial  
+**Status:** P0 integrada; P1 em implementação na branch `feat/p1-script-library`  
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -46,24 +46,30 @@
 - Workflow visual.
 - Sandbox para scripts não confiáveis.
 
-**Gate:** todos os critérios de aceite demonstrados em dispositivo físico e testes de integração essenciais aprovados.
+**Estado:** concluída e integrada em `main` por Squash Merge (PR #1). Testes host Python 10/10 e JVM/Kotlin 31/31 foram reportados como aprovados; os critérios funcionais foram validados fisicamente no Moto G06 por relato do usuário. Consulte `docs/operations/P0_IMPLEMENTATION_REPORT.md`.
 
 ## P1 — Biblioteca e gerenciamento de scripts
 
 **Objetivo:** transformar a prova de conceito em um ambiente utilizável de criação e execução.
 
 Entregas:
-- Biblioteca de scripts.
-- Criar, importar, renomear, duplicar e excluir.
-- Editor com realce de sintaxe e numeração de linhas.
-- Metadados, tags e descrição.
-- Parâmetros de entrada.
-- Histórico de versões inicial.
-- Console por execução.
-- Registro de execuções e erros.
-- Gerenciamento de dependências compatíveis.
+- Biblioteca local com pesquisa e operações CRUD: criar, importar, renomear, duplicar e excluir.
+- Importação/exportação de arquivos Python UTF-8 pelo Storage Access Framework, com limite de 1 MiB para importação.
+- Editor Compose com numeração de linhas e realce lexical básico de Python; não é uma IDE/parser completo.
+- Metadados: descrição, tags e parâmetros declarativos tipados.
+- Passagem dos parâmetros resolvidos ao script pelo dicionário Python `params`.
+- Histórico inicial de versões imutáveis e restauração como nova versão.
+- Registro persistente de execuções, status, parâmetros, horários, saída e falhas.
+- Console atual e histórico consultável por script.
+- Manifesto de dependências por script, com validação sintática local e política explícita de compatibilidade Chaquopy.
+- Biblioteca `mobile` versionada e catálogo de capacidades implementadas, sem anunciar módulos futuros como disponíveis.
+- Schema Room versão 2; durante o desenvolvimento, fallback destrutivo em versões incompatíveis conforme ADR-0007 (dados locais podem ser descartados).
 
-**Gate:** ciclo completo de criar/importar, editar, salvar, executar e consultar histórico validado.
+**Limites:** não há instalação dinâmica genérica de pacotes PyPI no aparelho. Dependências adicionais precisam de distribuição compatível com Chaquopy/Python 3.13/ABI arm64-v8a e inclusão controlada no build. O editor oferece realce lexical, não análise semântica, autocomplete ou depuração.
+
+**Estado:** implementação em andamento; veja `docs/operations/P1_EXECUTION_CHECKLIST.md` e `docs/operations/P1_IMPLEMENTATION_REPORT.md`.
+
+**Gate:** ciclo completo de criar/importar, editar, salvar, executar com parâmetros, consultar versões e histórico validado no Moto G06; comportamento do banco após atualização incompatível documentado; testes automatizados e build aprovados.
 
 ## P2 — Integração de acessibilidade
 
