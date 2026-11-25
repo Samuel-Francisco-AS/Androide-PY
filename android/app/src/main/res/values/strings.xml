@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Androide PY</string>
+    <string name="accessibility_service_label">Androide PY — Acessibilidade</string>
+    <string name="accessibility_service_description">Componente nativo do Androide PY para integração de acessibilidade. A ativação é manual e necessária para futuras operações de automação autorizadas.</string>
 </resources>
