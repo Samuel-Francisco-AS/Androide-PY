@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A (implementação e build debug) concluídas na branch; P2.1-B com implementação inicial publicada e build/testes pendentes; validação física para P2.1-C.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. P2.2 teve revisão técnica, decomposição e saneamento documental concluídos; implementação ainda não iniciada e depende de autorização explícita.
 
 ## 1. Resumo
 
