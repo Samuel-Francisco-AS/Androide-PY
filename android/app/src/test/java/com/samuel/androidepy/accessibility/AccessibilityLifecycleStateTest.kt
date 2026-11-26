@@ -6,6 +6,8 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class AccessibilityLifecycleStateTest {
 
@@ -52,6 +54,8 @@ class AccessibilityLifecycleStateTest {
         )
         assertNull(state.connectedServiceOrNull())
         assertFalse(state.isCurrentService(service))
+        assertEquals(AccessibilityStatus.NOT_ENABLED, state.onServiceSignal(service))
+        assertEquals(AccessibilityStatus.NOT_ENABLED, state.onServiceDisconnected(service))
     }
 
     @Test
@@ -77,7 +81,40 @@ class AccessibilityLifecycleStateTest {
         state.onServiceConnected(service)
 
         assertEquals(AccessibilityStatus.DISCONNECTED, state.onServiceDisconnected(service))
-        assertTrue(state.isCurrentService(service).not())
+        assertFalse(state.isCurrentService(service))
         assertNull(state.connectedServiceOrNull())
     }
 }
+
+
+    @Test
+    fun concurrentNewConnectionAndStaleDisconnectKeepNewService() {
+        val state = AccessibilityLifecycleState<ServiceToken>()
+        val oldService = ServiceToken()
+        val currentService = ServiceToken()
+        state.onServiceConnected(oldService)
+
+        val start = CountDownLatch(1)
+        val completed = CountDownLatch(2)
+
+        val connectThread = Thread {
+            start.await()
+            state.onServiceConnected(currentService)
+            completed.countDown()
+        }
+        val staleDisconnectThread = Thread {
+            start.await()
+            state.onServiceDisconnected(oldService)
+            completed.countDown()
+        }
+
+        connectThread.start()
+        staleDisconnectThread.start()
+        start.countDown()
+
+        assertTrue("Concurrent callbacks did not finish", completed.await(2, TimeUnit.SECONDS))
+        connectThread.join()
+        staleDisconnectThread.join()
+        assertEquals(AccessibilityStatus.CONNECTED, state.status)
+        assertSame(currentService, state.connectedServiceOrNull())
+    }
