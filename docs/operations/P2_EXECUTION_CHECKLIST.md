@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build debug local. P2.1-B com implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C iniciada: reducer puro de lifecycle e testes JVM criados; execução dos testes, nova compilação e validação física pendentes. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física parcial do ciclo de autorização no Moto G06. A reconexão e a reabertura/reinicialização ainda não foram verificadas. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -228,7 +228,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-B — Autorização e integração
 
-<badge>🟡 Em andamento — implementação, revisão estática e build local aprovados; testes integrados pendentes</badge>
+<badge color="success">Implementação, revisão estática e build aprovados</badge>
 
 **Escopo:** consentimento explícito, observabilidade e contratos operacionais.
 
@@ -247,16 +247,16 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-C — Testes e validação
 
-<badge>🟡 Em andamento — testes JVM criados; execução e validação física pendentes</badge>
+<badge>🟡 Em andamento — testes automatizados/build aprovados; validação física parcial</badge>
 
 **Escopo:** verificação integrada da fundação e do comportamento no dispositivo real.
 
 - [x] Criar testes JVM para transições de estado, autorização/revogação, interrupção, sinal de retomada, callbacks tardios, concorrência, valores wire dos estados e metadados dos erros; a lógica foi extraída para reducer Kotlin puro, sem dependência Android adicional.
-- [ ] Executar os testes JVM criados e os testes host Python existentes; a integração direta com AccessibilityManager/callbacks Android permanece dependente da validação no dispositivo.
+- [x] Executar os testes JVM criados e os testes host Python existentes. Em 25/11/2026, `:app:testDebugUnitTest` foi executado com sucesso; os testes Python host executados anteriormente nesta subetapa passaram: 13/13. A integração direta com AccessibilityManager/callbacks Android permanece dependente da validação no dispositivo.
 - [x] Revisar estaticamente manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
-- [ ] Confirmar por testes/build que a extração do reducer e a serialização do estado não introduziram regressões.
-- [ ] Gerar/conferir novo build APK após os ajustes de testabilidade e validar no Moto G06: habilitar, revogar, reconectar e reabrir/reiniciar o aplicativo.
-- [ ] Registrar evidências e limitações separando revisão estática, testes automatizados, build e validação física.
+- [x] Confirmar por testes/build que a extração do reducer e a serialização do estado compilaram e passaram nos testes JVM; execução reportada por Sam em 25/11/2026.
+- [x] Gerar/conferir novo build APK após os ajustes de testabilidade. Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s, 55 tarefas (18 executadas, 37 atualizadas). No Moto G06, confirmou o estado inicial `Não Habilitado`, a atualização para `Habilitado` após conceder Acessibilidade e o retorno para `Não Habilitado` após revogar a autorização. A validação de reconexão e reabertura/reinicialização permanece pendente.
+- [x] Registrar evidências e limitações separando revisão estática, testes automatizados, build e validação física; os resultados e pendências desta rodada estão documentados na seção 3.11 do relatório P2.
 
 **Critérios de aceite:** testes executados com resultados registrados; build local conferido; habilitação, revogação, reconexão e reinicialização observadas no Moto G06; checklist e relatório revisados. Qualquer item que dependa do usuário/dispositivo permanece pendente até haver confirmação.
 
@@ -440,6 +440,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 | 2026-11-25 | P2.1-B | UI de autorização, estado Kotlin/Bridge interno, interrupção e códigos de erro publicados; revisão estática PASS. Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada/47 atualizadas). Testes automatizados e validação física pendentes para P2.1-C. | `be5f91df1f868ab6f9071b3767385c3bf7f09288` + terminal Fedora do usuário |
 | 2026-11-25 | P2.1-C | Início da validação: reducer puro de lifecycle, serialização das transições e testes JVM de estados, revogação, interrupção, callbacks tardios/concorrentes e erros adicionados; revisão estática de manifesto/XML/lifecycle. Execução dos testes, novo build e validação física ainda pendentes. | commits `e6c085e`, `9683b86`, `6ce34f0`, `86c26c5`, `c798475`, `916a81e`, `cfe96e3`, `db31478` |
 | 2026-11-25 | P2.1-C | Sam executou testes JVM + build; compilação falhou antes de iniciar testes JVM por `AccessibilityStatus` ausente após extração do reducer. Causa identificada comparando com `be5f91d`: enum compartilhado não foi movido para arquivo próprio. Enum restaurado em `AccessibilityStatus.kt`, teste dos valores wire acrescentado. Testes Python host: 13/13 PASS. Reexecutar testes JVM/build após correção. | falha reportada no terminal Fedora; correção `c044818`, teste `de6271c` |
+| 2026-11-25 | P2.1-C | Após a correção de `AccessibilityStatus`, Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s; 55 tarefas (18 executadas, 37 atualizadas). Testes JVM executados com sucesso; testes Python host previamente reportados: 13/13 PASS. Validação física parcial no Moto G06: card inicialmente `Não Habilitado`; após habilitar o serviço e permitir as funcionalidades restritas exigidas pelo Android, card mudou para `Habilitado`; após desativar o serviço, voltou a `Não Habilitado`. Sam relatou que precisou desativar temporariamente o Play Protect para atualizar o APK. Isso foi registrado como fricção do processo de instalação, não como requisito do app nem como orientação de segurança. Reconexão e reabertura/reinicialização do app ainda não foram testadas. | execução local reportada por Sam; HEAD anterior `552d2cd` |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
