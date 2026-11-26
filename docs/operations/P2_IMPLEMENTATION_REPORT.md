@@ -565,3 +565,48 @@ Essas evidências não validam gestos, leitura de conteúdo, digitação, captur
 ### Limites de autorização e execução
 
 Na ocasião do registro (antes da nova autorização), a aprovação cobria somente saneamento documental. Em 26/11/2026, Sam autorizou explicitamente a implementação de código da P2.2-A na branch dedicada. Não autorizou P2.2-B/C, alteração de schema, merge ou alterações em `main`; build local e validação física permanecem a cargo de Sam.
+
+## 3.15 P2.2-A — Implementação do núcleo de interação — 26/11/2026
+
+### CONFERE
+- Branch confirmada: `feat/p2-accessibility-automation`; HEAD de entrada `1bc677743b99197a42bd63e1fbc58189b9b87411`; comparação com `main`: 154 commits à frente, 0 atrás, merge-base igual ao HEAD da `main`.
+- Foram relidos AGENTS.md, checklist, contratos Python/assíncrono, ADR-0008/0009, manifesto, serviço, gateway, Bridge, executor serial, runtime Chaquopy, módulos Python e testes relacionados.
+- O projeto já possui um único worker Python serial e `CompletableFuture` é compatível com minSdk 24; não foi criado executor Python adicional nem solicitada nova dependência/permissão Android.
+
+### IMPLEMENTA — arquivos publicados
+- `AccessibilityOperationCoordinator.kt`: fila FIFO nativa limitada a 16 solicitações totais, correlação por UUID, prazo monotônico com `SystemClock.elapsedRealtime()`, espera finita via `CompletableFuture.get()` fora da main thread, cancelamento lógico e proteção contra callbacks tardios. Um gesto ativo mantém seu slot até callback terminal ou teardown, mesmo após timeout.
+- `AccessibilityGateway.kt` e `AccessibilityError.kt`: verificação de autorização/conexão, encaminhamento e códigos estáveis para fila cheia, timeout, cancelamento, interrupção, desconexão e payload/operação inválidos.
+- `AndroidePyAccessibilityService.kt`: `tap`, `swipe` e `scroll` via `dispatchGesture`; `type_text` consulta somente o campo atualmente focado e usa `ACTION_SET_TEXT`, sem fallback por teclas.
+- `AccessibilityTextInputPolicy.kt`: allow-list conservadora para campos comuns de texto; bloqueia nós marcados como senha/sensíveis, variações de senha, campos numéricos, tipos desconhecidos, campos não focados, não editáveis ou desabilitados.
+- `AndroidBridgeAdapter.kt`: envelope JSON v1, UUID, timeout finito e resposta estruturada; chamada bloqueante é recusada na main thread.
+- `accessibility_service_config.xml`: habilita `canPerformGestures` e `canRetrieveWindowContent`, mantendo somente `typeWindowStateChanged` como evento configurado.
+- `mobile/screen.py`: API síncrona Python `get_status`, `tap`, `type_text`, `swipe` e `scroll`, com validação local e `ScreenError`.
+- Testes adicionados: `AccessibilityTextInputPolicyTest.kt` (6 casos) e `test_screen_api.py` (9 casos). O catálogo `mobile.capabilities` foi intencionalmente mantido sem operações `screen.*` até execução/aprovação dos testes correspondentes.
+
+### CONFERE — revisão estática
+- A implementação preserva o serviço gerenciado exclusivamente pelo Android, gateway application-scoped, worker Python serial e fronteira JSON/DTO; não expõe nós Android à API Python.
+- O conteúdo da janela é consultado apenas no momento de `type_text`, para localizar o foco de entrada; não há varredura de árvore, leitura de texto atual, OCR, screenshot ou monitoramento contínuo.
+- O texto digitado não é incluído em logs do adaptador. A operação substitui o conteúdo do campo; string vazia pode limpar o campo, conforme o comportamento documentado de `ACTION_SET_TEXT`.
+- A classificação de sensibilidade depende dos sinais que Android/aplicativos fornecem e não garante detectar semanticamente todo campo sensível. A política bloqueia categorias ambíguas, mas não é uma sandbox nem uma garantia universal de proteção.
+
+### TESTES, BUILD E VALIDAÇÃO FÍSICA
+- Testes da branch não foram executados nesta rodada; os arquivos de teste foram publicados. Uma execução isolada da lógica Python em harness temporário retornou 9/9, mas não substitui a execução da suíte oficial no checkout da branch.
+- Nenhum comando Gradle foi executado pela integração remota; build debug e testes JVM permanecem pendentes de Sam no Fedora.
+- Nenhuma operação foi validada fisicamente no Moto G06. Toque, deslize, rolagem e digitação comum permanecem pendentes de teste físico.
+- Não houve alteração de schema Room, instalação de APK, merge, PR ou alteração em `main`.
+
+### Commits da implementação
+- Coordenador: `8eda85bd3091d5cb979dd26887ae6fc05d398e11`.
+- Política de campo: `b2aeb3a7c6c323e4d2582f09fb2ebeb7b432405a`.
+- Fachada Python: `caa51d972e58ee9578927abc8031fb61e21ce6bb`.
+- Erros estáveis: `23709f38cab4961fb4e23c4c371a67be4b0dbfa2`.
+- Gateway: `bb13c92870938fbd51685046e13119cce680c1ac`.
+- Configuração XML: `ca89e4d4c422f94c36b5f61e6fdfdab52a14e209`.
+- Serviço e operações: `0723c00c9fe6251f5969d93e0fcaa3c8e956dbb6`.
+- Bridge: `8ff53217c181a806e41a32d8c3f2ec6eb00431f7`.
+- Correção do limite da fila: `b2fd34bfe72a77b38db3104fcdea4abd22ebff1d`.
+- Testes Python: `8cbd418bf5c8db724e4d0c3beaf068243198213f`.
+- Testes JVM da política: `b402eff3903c5514c3ab0faf426a08dbc7968815`.
+- Proteção contra interrupção/desconexão e ajuste de teardown: `7f36551919de5fb17efb519aaecec0f26da4f4aa`, `c8cecb584e52313a5680b1c701b343742f17e439`.
+
+**Estado:** P2.2-A permanece em andamento até que os testes oficiais, build debug e validação física sejam executados e aprovados. P2.2-B/C permanecem não iniciadas.
