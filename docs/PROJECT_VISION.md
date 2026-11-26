@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental concluída; P2.1-A com implementação inicial publicada, ainda sem build/testes.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A (implementação e build debug) concluídas na branch; validação física pendente para P2.1-C.
 
 ## 1. Resumo
 
