@@ -111,7 +111,7 @@ Executa um gesto de deslize entre dois pontos.
 
 Atalho geométrico de rolagem que executa um gesto vertical ou horizontal a partir do centro do display.
 
-- `direction`: `"up"`, `"down"`, `"left"` ou `"right"`.
+- `direction`: `"up"`, `"down"`, `"left"` ou `"right"`, indicando a direção em que o conteúdo deve se deslocar; o dedo percorre a direção oposta.
 - `distance`: fração entre 0 e 1 (exclusive 0, inclusive 1) do eixo correspondente do display.
 - `duration_ms`: mesmo limite de `swipe`.
 - O centro do display é a âncora inicial; esta primeira versão não recebe seletor de contêiner nem garante rolagem de uma região específica.
