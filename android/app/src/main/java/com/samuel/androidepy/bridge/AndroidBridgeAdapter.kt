@@ -2,6 +2,8 @@ package com.samuel.androidepy.bridge
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import com.samuel.androidepy.AndroidePyApplication
+import com.samuel.androidepy.accessibility.AccessibilityStatus
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -15,6 +17,30 @@ import org.json.JSONObject
 class AndroidBridgeAdapter(context: Context) {
 
     private val appContext = context.applicationContext
+
+    /**
+     * Internal status bridge for the future public mobile.screen.get_status() API.
+     * This method is not advertised in the Python capability catalog yet.
+     */
+    fun getAccessibilityStatusJson(): String {
+        val application = appContext as? AndroidePyApplication
+            ?: return JSONObject()
+                .put("schema_version", 1)
+                .put("ok", false)
+                .put("error", JSONObject()
+                    .put("code", "BRIDGE_NOT_CONFIGURED")
+                    .put("message", "A Android Bridge não está vinculada à aplicação Androide PY."))
+                .toString()
+
+        val status = application.accessibilityGateway.refreshStatus()
+        return JSONObject()
+            .put("schema_version", 1)
+            .put("ok", true)
+            .put("enabled", status != AccessibilityStatus.NOT_ENABLED)
+            .put("connected", status == AccessibilityStatus.CONNECTED)
+            .put("state", status.wireValue)
+            .toString()
+    }
 
     fun getDeviceInfoJson(): String {
         val result = JSONObject()
