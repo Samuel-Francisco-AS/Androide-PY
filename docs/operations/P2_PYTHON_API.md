@@ -1,6 +1,6 @@
 # P2.0.7 — Contrato público da API Python `mobile.screen`
 
-**Estado:** contrato público v1 definido; módulo Python `mobile.screen` ainda não implementado. A P2.1-B preparou somente um método JSON interno na Bridge para consulta de estado; ele não é chamado pela fachada Python nem anunciado no catálogo.  
+**Estado:** contrato público v1 definido; nenhuma função da fachada Python `mobile.screen` foi implementada ou anunciada. A P2.1-B/C implementou e validou somente a consulta nativa de autorização/estado por método JSON interno da Bridge; esse método ainda não é exposto como função pública Python. P2.2-A inicia a implementação da API pública.
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Dependência:** `P2_ASYNC_PROTOCOL.md` (protocolo interno v1).
@@ -11,7 +11,7 @@ A API `mobile.screen` oferece ao script Python operações síncronas e previsí
 
 A implementação Kotlin permanece assíncrona internamente conforme o protocolo P2.0.6. A espera ocorre somente no worker serial Python existente. A API não expõe objetos Android, nós de acessibilidade, handlers, futures ou detalhes do lifecycle.
 
-Esta especificação define contratos futuros. **Nenhuma função descrita aqui está implementada ou disponível no aplicativo neste momento.**
+Esta especificação define contratos públicos futuros. Na entrada da P2.2, nenhuma função `mobile.screen` está implementada ou disponível para scripts. A consulta interna de autorização Kotlin/Bridge validada na P2.1 não equivale à implementação da API pública.
 
 ## 2. Política de retorno e erros
 
@@ -92,6 +92,8 @@ Insere texto no campo editável atualmente focado.
 - Não tenta descobrir o campo por coordenadas e não promete fallback universal por teclas.
 - Campos sem foco, somente leitura, protegidos ou que não aceitem a ação podem produzir `ACTION_UNSUPPORTED` ou `ACTION_REJECTED`.
 - Texto digitado não deve ser incluído em logs por padrão.
+- Na P2.2-A, `type_text()` será liberado somente para campos comuns com foco e ação de texto suportada. Campos identificados como sensíveis e campos ambíguos serão bloqueados por padrão; não haverá fallback que contorne a proteção.
+- A futura exceção para preenchimento de campos sensíveis exigirá consentimento explícito e independente de escrita, concedido pela UI hospedeira e limitado à execução e ao aplicativo de destino, conforme ADR-0009. Essa concessão não faz parte da P2.2 inicial.
 
 ### `swipe(x1, y1, x2, y2, *, coordinate_space="pixels", duration_ms=350, timeout_ms=10_000) -> dict`
 
@@ -198,6 +200,6 @@ A revisão de privacidade P2.0.8 e os ADRs-0008/0009 foram concluídos e aceitos
 
 - Revisão estática do contrato contra `mobile/__init__.py`, `device.py`, `apps.py`, `capabilities.py`, `runner.py`, testes Python, `AndroidBridgeAdapter`, `ScriptExecutor` e protocolo P2.0.6.
 - Na revisão documental original, nenhum código Python/Kotlin havia sido alterado; a implementação posterior da P2.1-B adicionou somente um método JSON interno Kotlin à Bridge, sem criar módulo Python ou capacidades de tela.
-- A validação desta API pública continua pendente; nenhum `mobile.screen` é anunciado no catálogo.
-- Preparação documental P2.0.8–P2.0.10 concluída. P2.1-A foi compilada localmente; P2.1-B está em implementação e ainda aguarda build/testes; P2.1-C fará a validação integrada e física.
-- O contrato descreve funções futuras; `mobile.screen` e suas capacidades não estão implementadas nem anunciadas pelo catálogo atual.
+- A API pública continua pendente; nenhum `mobile.screen` é anunciado no catálogo.
+- P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. Evidências P2.1-C: testes JVM, Python host 13/13 PASS, build debug PASS; habilitação/revogação e reinicialização normal PASS no Moto G06/Android 15 (API 35). Force stop caracterizado como comportamento do Android.
+- P2.2 aprovada em três subetapas (núcleo de interação; captura/persistência de mapas; reutilização/validação integrada), ainda não iniciada na data desta atualização.
