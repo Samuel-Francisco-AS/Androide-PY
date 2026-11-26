@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. P2.2 teve revisão técnica, decomposição e saneamento documental concluídos; ainda não iniciada, aguardando autorização de implementação. Branch de trabalho: `feat/p2-accessibility-automation`.
+**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente; testes específicos, build e validação física pendentes. P2.2-B/C não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`.
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** P2.0 documental concluída. P2.1-A (fundação nativa), P2.1-B (autorização/integração) e P2.1-C (testes/validação) concluídas no escopo acordado. Evidências: 55 tarefas Gradle (18 executadas/37 atualizadas), testes JVM aprovados, testes Python host 13/13 PASS, build debug `BUILD SUCCESSFUL`; no Moto G06/Android 15 (API 35), habilitação/revogação e reinicialização normal PASS. Force stop foi caracterizado como ação do Android que desabilita a autorização. Nenhuma operação pública de automação está implementada. A P2.2 foi aprovada em três subetapas, mas ainda não iniciada. Branch: `feat/p2-accessibility-automation`.
+**Estado atual:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal. P2.2-A tem implementação publicada de coordenador/fila, `get_status`, `tap`, `type_text`, `swipe` e `scroll`, além de testes específicos adicionados. Testes da branch, build e validação física ainda pendentes; o catálogo não anuncia `screen.*`. P2.2-B/C não iniciadas. Branch: `feat/p2-accessibility-automation`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
@@ -92,7 +92,7 @@ A execução está limitada a três subetapas:
 - **P2.1-B — Autorização e integração:** UI explicativa e acesso explícito às configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis. Implementação, revisão estática e build debug aprovados.
 - **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação física no Moto G06. Concluída no escopo acordado: testes JVM e Python host 13/13 PASS, build debug PASS, habilitação/revogação PASS e reinicialização normal PASS. Force stop documentado como revogação executada pelo Android.
 
-A P2.1 recebe somente `typeWindowStateChanged`; não recupera conteúdo nem executa gestos. A autorização e os estados Kotlin foram validados no escopo P2.1-C. A API pública Python continua fora do catálogo até que cada operação seja implementada e testada.
+A configuração inicial da P2.1 recebia somente `typeWindowStateChanged`. Na P2.2-A, `canPerformGestures` e `canRetrieveWindowContent` foram habilitados, mantendo eventos mínimos. O conteúdo da janela é consultado somente para o campo focado em `type_text`; operações `screen.*` permanecem fora do catálogo até aprovação dos testes correspondentes.
 
 ### P2.2 — Prioridade A: interação e Mapa de Coordenadas
 
