@@ -63,14 +63,15 @@ class AndroidBridgeAdapter(context: Context) {
             }
 
             val envelope = JSONObject(requestJson)
-            if (envelope.optInt("schema_version", -1) != PROTOCOL_VERSION) {
+            val schemaVersion = envelope.opt("schema_version") as? Number
+            if (schemaVersion == null || schemaVersion.toDouble() != PROTOCOL_VERSION.toDouble()) {
                 throw AccessibilityOperationException(
                     AccessibilityErrorCode.INVALID_REQUEST,
                     "A versão da solicitação não é suportada."
                 )
             }
 
-            requestId = envelope.optString("request_id").takeIf { it.isNotBlank() }
+            requestId = (envelope.opt("request_id") as? String)?.takeIf { it.isNotBlank() }
             try {
                 UUID.fromString(requestId ?: "")
             } catch (_: IllegalArgumentException) {
@@ -80,7 +81,12 @@ class AndroidBridgeAdapter(context: Context) {
                 )
             }
 
-            val operation = envelope.optString("operation")
+            val operation = envelope.opt("operation") as? String
+                ?: throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "A operação deve ser identificada por texto.",
+                    requestId
+                )
             if (operation !in SUPPORTED_OPERATIONS) {
                 throw AccessibilityOperationException(
                     AccessibilityErrorCode.UNSUPPORTED_OPERATION,
@@ -95,8 +101,18 @@ class AndroidBridgeAdapter(context: Context) {
                     "O conteúdo da solicitação é inválido.",
                     requestId
                 )
-            val timeoutMs = envelope.optLong("timeout_ms", -1L)
-            if (timeoutMs !in MIN_TIMEOUT_MS..MAX_TIMEOUT_MS) {
+            val timeoutValue = envelope.opt("timeout_ms") as? Number
+                ?: throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "O prazo da solicitação deve ser um inteiro.",
+                    requestId
+                )
+            val timeoutNumber = timeoutValue.toDouble()
+            val timeoutMs = timeoutValue.toLong()
+            if (!timeoutNumber.isFinite() ||
+                timeoutNumber != timeoutMs.toDouble() ||
+                timeoutMs !in MIN_TIMEOUT_MS..MAX_TIMEOUT_MS
+            ) {
                 throw AccessibilityOperationException(
                     AccessibilityErrorCode.INVALID_REQUEST,
                     "O prazo da solicitação é inválido.",
