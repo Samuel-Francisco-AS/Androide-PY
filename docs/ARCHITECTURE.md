@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; contratos e decisões da P2 aceitos; P2.1-A implementada e compilada em build debug local, com validação física pendente.
+**Status:** P0 e P1 concluídas e integradas em `main`; contratos e decisões da P2 aceitos; P2.1-A implementada e compilada em build debug local; P2.1-B com implementação inicial publicada, build/testes pendentes; validação física integrada pendente.
 
 ## 1. Visão geral
 
