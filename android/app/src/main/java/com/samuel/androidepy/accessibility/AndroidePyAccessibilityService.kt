@@ -8,7 +8,7 @@ import com.samuel.androidepy.AndroidePyApplication
 /**
  * Android-managed entry point for future, explicitly authorized screen operations.
  *
- * P2.1-A intentionally does not inspect event contents, retrieve window nodes,
+ * The initial service intentionally does not inspect event contents, retrieve window nodes,
  * dispatch gestures, or retain UI objects.
  */
 class AndroidePyAccessibilityService : AccessibilityService() {
