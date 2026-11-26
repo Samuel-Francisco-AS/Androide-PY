@@ -578,7 +578,8 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - `AccessibilityGateway.kt` e `AccessibilityError.kt`: verificação de autorização/conexão, encaminhamento e códigos estáveis para fila cheia, timeout, cancelamento, interrupção, desconexão e payload/operação inválidos.
 - `AndroidePyAccessibilityService.kt`: `tap`, `swipe` e `scroll` via `dispatchGesture`; `type_text` consulta somente o campo atualmente focado e usa `ACTION_SET_TEXT`, sem fallback por teclas.
 - `AccessibilityTextInputPolicy.kt`: allow-list conservadora para campos comuns de texto; bloqueia nós marcados como senha/sensíveis, variações de senha, campos numéricos, tipos desconhecidos, campos não focados, não editáveis ou desabilitados.
-- `AndroidBridgeAdapter.kt`: envelope JSON v1, UUID, timeout finito e resposta estruturada; chamada bloqueante é recusada na main thread.
+- `AndroidBridgeAdapter.kt`: envelope JSON v1, UUID, tipos estritos e timeout inteiro finito, com resposta estruturada; chamada bloqueante é recusada na main thread.
+- `scroll(direction=...)` indica o movimento do conteúdo e despacha o gesto do dedo no sentido oposto. `tap` usa um traço mínimo de 1 px para evitar gesto de comprimento zero. Falhas de segurança/ação e falhas internas recebem códigos distintos.
 - `accessibility_service_config.xml`: habilita `canPerformGestures` e `canRetrieveWindowContent`, mantendo somente `typeWindowStateChanged` como evento configurado.
 - `mobile/screen.py`: API síncrona Python `get_status`, `tap`, `type_text`, `swipe` e `scroll`, com validação local e `ScreenError`.
 - Testes adicionados: `AccessibilityTextInputPolicyTest.kt` (6 casos) e `test_screen_api.py` (9 casos). O catálogo `mobile.capabilities` foi intencionalmente mantido sem operações `screen.*` até execução/aprovação dos testes correspondentes.
