@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. A implementação da P2.1-A está publicada, revisada estaticamente e compilada em build debug local. Testes automatizados e validação física permanecem pendentes. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
+**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. P2.1-A implementada e compilada em build debug local. P2.1-B tem implementação inicial publicada e revisão estática concluída; build e testes pendentes. A validação integrada/física e os testes globais ficam na P2.1-C. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
@@ -88,11 +88,11 @@ Entregas:
 ### P2.1 — Fundação nativa e autorização
 
 A execução está limitada a três subetapas:
-- **P2.1-A — Fundação nativa:** classe AccessibilityService, XML e manifesto, gateway application-scoped e lifecycle gerenciado pelo Android. Implementação inicial publicada; build pendente.
-- **P2.1-B — Autorização e integração:** explicação e instruções para configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis.
+- **P2.1-A — Fundação nativa:** classe AccessibilityService, XML e manifesto, gateway application-scoped e lifecycle gerenciado pelo Android. Implementação e build debug local concluídos.
+- **P2.1-B — Autorização e integração:** UI explicativa e acesso explícito às configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis. Implementação inicial publicada; build/testes pendentes.
 - **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação de habilitação/revogação/reconexão no Moto G06.
 
-A fundação inicial recebe somente `typeWindowStateChanged`; não declara capacidade de recuperar conteúdo nem de executar gestos. A tela de autorização e os estados públicos ainda não foram implementados.
+A fundação recebe somente `typeWindowStateChanged`; não declara capacidade de recuperar conteúdo nem de executar gestos. A tela de autorização e os estados Kotlin estão implementados inicialmente; a API pública Python continua fora do catálogo até implementação e testes.
 
 ### P2.2 — Prioridade A: interação e Mapa de Coordenadas
 - Implementar `tap`, `type_text`, `swipe` e `scroll` conforme contrato Python.
