@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física parcial do ciclo de autorização no Moto G06. A reconexão e a reabertura/reinicialização ainda não foram verificadas. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física do ciclo de autorização (PASS) e caracterização do comportamento de Forçar parada (comportamento esperado do Android; não é critério válido de reconexão). **Pendente:** teste físico de reinicialização normal do Moto G06, com a autorização mantida habilitada. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -441,6 +441,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 | 2026-11-25 | P2.1-C | Início da validação: reducer puro de lifecycle, serialização das transições e testes JVM de estados, revogação, interrupção, callbacks tardios/concorrentes e erros adicionados; revisão estática de manifesto/XML/lifecycle. Execução dos testes, novo build e validação física ainda pendentes. | commits `e6c085e`, `9683b86`, `6ce34f0`, `86c26c5`, `c798475`, `916a81e`, `cfe96e3`, `db31478` |
 | 2026-11-25 | P2.1-C | Sam executou testes JVM + build; compilação falhou antes de iniciar testes JVM por `AccessibilityStatus` ausente após extração do reducer. Causa identificada comparando com `be5f91d`: enum compartilhado não foi movido para arquivo próprio. Enum restaurado em `AccessibilityStatus.kt`, teste dos valores wire acrescentado. Testes Python host: 13/13 PASS. Reexecutar testes JVM/build após correção. | falha reportada no terminal Fedora; correção `c044818`, teste `de6271c` |
 | 2026-11-25 | P2.1-C | Após a correção de `AccessibilityStatus`, Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s; 55 tarefas (18 executadas, 37 atualizadas). Testes JVM executados com sucesso; testes Python host previamente reportados: 13/13 PASS. Validação física parcial no Moto G06: card inicialmente `Não Habilitado`; após habilitar o serviço e permitir as funcionalidades restritas exigidas pelo Android, card mudou para `Habilitado`; após desativar o serviço, voltou a `Não Habilitado`. Sam relatou que precisou desativar temporariamente o Play Protect para atualizar o APK. Isso foi registrado como fricção do processo de instalação, não como requisito do app nem como orientação de segurança. Reconexão e reabertura/reinicialização do app ainda não foram testadas. | execução local reportada por Sam; HEAD anterior `552d2cd` |
+| 2026-11-26 | P2.1-C / Forçar parada (F2) | Sam iniciou com o serviço `Conectado`, forçou a parada do Androide PY nas configurações do Android e reabriu o app. O card permaneceu `Não Habilitado` após 30 s; nas configurações do sistema, Sam confirmou que a autorização do AccessibilityService havia sido revogada pelo Android. Após habilitar novamente a autorização, o card voltou a `Conectado`. Revisão estática não encontrou código do app que revogue a autorização. Investigação do comportamento da plataforma identificou que o Android remove serviços do pacote forçado a parar da lista de serviços de acessibilidade habilitados. **Classificação: comportamento esperado da plataforma; F2 não mede reconexão com autorização preservada e não é falha do Androide PY. Nenhuma correção de código necessária.** Próximo teste físico: reinicialização normal, mantendo a autorização habilitada. | relato físico de Sam + revisão estática/técnica da assistente |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
@@ -468,3 +469,21 @@ A aprovação de um bloco não aprova automaticamente os demais.
 - [x] P2_IMPLEMENTATION_REPORT.md registra P2.0.10 e mantém P2.1 pendente.
 
 **Resultado:** revisão estática/documental aprovada. Nenhuma implementação, teste automatizado, build ou validação física P2 foi executada. A próxima subetapa é P2.1 — Fundação nativa e autorização.
+
+
+### P2.1-C — F2: Forçar parada do aplicativo — comportamento da plataforma — 2026-11-26
+
+**Roteiro e observação física — Moto G06 / Android 15 (API 35), relato de Sam:**
+1. Estado inicial do card: `Conectado`.
+2. Em Configurações Android → Apps → Androide PY, Sam acionou **Forçar parada**.
+3. Após reabrir o Androide PY e entrar na Biblioteca, o card permaneceu em `Não Habilitado`, inclusive após aguardar 30 segundos.
+4. Sam conferiu diretamente nas Configurações de Acessibilidade que a autorização do serviço havia sido desativada pelo próprio Android.
+5. Ao reativar a autorização nas configurações, o card voltou a `Conectado`.
+
+**Investigação técnica:** a revisão estática dos arquivos `AndroidManifest.xml`, `accessibility_service_config.xml`, `AccessibilityGateway.kt`, `AndroidePyAccessibilityService.kt`, `AccessibilityLifecycleState.kt`, `AccessibilityStatus.kt`, `AndroidePyApplication.kt`, `MainActivity.kt` e `MainScreen.kt` não encontrou lógica do Androide PY que desabilite o serviço, revogue a autorização ou altere configurações seguras do sistema. A análise do comportamento do Android/AOSP identificou que o tratamento de pacotes submetidos a force-stop remove o serviço correspondente da lista de serviços de acessibilidade habilitados. Isso explica a mudança observada no dispositivo.
+
+**Classificação:** comportamento esperado do sistema Android após `Force stop`; não é evidência de falha na reconexão do Androide PY. O teste não preservou a pré-condição de autorização habilitada e, portanto, **não deve ser usado como critério de reconexão**. Não implementar tentativa de reabilitação automática: um aplicativo comum não pode conceder a própria autorização de Acessibilidade nem contornar a decisão do sistema/usuário.
+
+**Decisão:** nenhum ajuste de código. O teste F2 fica registrado como caracterização da plataforma, fora dos critérios de PASS/FAIL de reconexão. Não recomendar desativar proteções do Android nem solicitar ADB, root ou Shizuku.
+
+**Próximo teste físico aprovado:** reiniciar normalmente o Moto G06 pelo menu de energia, mantendo o serviço habilitado antes do reboot; após o boot, desbloquear, abrir o Androide PY e conferir se a autorização continua habilitada e se o card retorna a `Conectado` sem reativação manual nas configurações. Registrar o resultado antes de alterar qualquer estado.
