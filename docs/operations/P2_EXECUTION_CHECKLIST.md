@@ -268,6 +268,14 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 **Objetivo:** permitir interação básica confiável com interfaces Android e registrar posições reutilizáveis.
 
+### Decisões aprovadas para P2.2 — 2026-11-26
+
+- **Decomposição:** P2.2-A (Núcleo de interação), P2.2-B (Captura e persistência dos mapas) e P2.2-C (Reutilização e validação integrada) aprovadas por Sam.
+- **Digitação:** `type_text()` será inicialmente restrito a campos comuns; campos sensíveis ou ambíguos serão bloqueados. Consentimento excepcional de escrita sensível fica para fase futura, conforme ADR-0009.
+- **Persistência:** scripts e dados atuais são descartáveis/de teste. Conforme ADR-0007, usar a solução destrutiva existente se for a opção de menor custo e maior simplicidade/confiabilidade; comunicar a perda potencial antes do APK com novo schema. Não criar migração de preservação sem necessidade.
+- **Ordem:** concluir saneamento documental antes de iniciar a P2.2-A.
+- **Autorização:** esta aprovação não autoriza implementação de código, alteração de schema, build, instalação ou merge. `main` permanece intocada.
+
 ### P2.2-A — Núcleo de interação
 
 - [ ] Conferir configuração do serviço e habilitar somente `canPerformGestures` e `canRetrieveWindowContent` estritamente necessários às operações aprovadas; manter eventos mínimos.
@@ -496,12 +504,3 @@ A aprovação de um bloco não aprova automaticamente os demais.
 **Escopo do resultado:** este teste valida a preservação da autorização e a disponibilidade após reinicialização normal. Não valida reconexão após Force stop (que foi classificado separadamente como comportamento esperado do Android), nem gestos, leitura de conteúdo, digitação, captura de tela, overlay ou API pública `mobile.screen`.
 
 **Estado da P2.1-C:** testes JVM, testes Python host, build debug e validações físicas combinadas da fundação/autorização concluídos conforme evidências registradas. Nenhuma alteração de código foi necessária nesta validação. Não houve merge ou alteração na `main`.
-
-
-## 5.1 — Decisões de entrada P2.2 aprovadas — 2026-11-26
-
-- **Decomposição:** P2.2-A (Núcleo de interação), P2.2-B (Captura e persistência dos mapas) e P2.2-C (Reutilização e validação integrada) aprovadas por Sam.
-- **Digitação:** `type_text()` será inicialmente restrito a campos comuns; campos sensíveis ou ambíguos serão bloqueados. Consentimento excepcional de escrita sensível fica para fase futura, conforme ADR-0009.
-- **Persistência:** scripts e dados atuais são descartáveis/de teste. Conforme ADR-0007, usar a solução destrutiva existente se for a opção de menor custo e maior simplicidade/confiabilidade; comunicar a perda potencial antes do APK com novo schema. Não criar migração de preservação sem necessidade.
-- **Ordem:** concluir saneamento documental antes de iniciar a P2.2-A.
-- **Autorização:** esta aprovação não autoriza implementação de código, alteração de schema, build, instalação ou merge. `main` permanece intocada.
