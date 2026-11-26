@@ -310,7 +310,11 @@ private fun AccessibilitySettingsCard(
             Text(statusTitle, style = MaterialTheme.typography.labelLarge)
             Text(statusDescription, style = MaterialTheme.typography.bodyMedium)
             Text(
-                "A ativação é opcional e manual. Nas configurações, você pode habilitar ou desabilitar o serviço quando quiser.",
+                "Nesta versão, o serviço recebe somente sinais de mudança de janela. Ele não lê textos, não captura imagens e não executa toques ou gestos.",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                "Serviços de acessibilidade podem observar mudanças na interface. Habilite somente se compreender essa finalidade. A ativação é opcional e manual; você pode desabilitar o serviço nas configurações do Android a qualquer momento.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
