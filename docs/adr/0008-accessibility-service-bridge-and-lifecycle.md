@@ -1,6 +1,6 @@
 # ADR-0008: AccessibilityService, gateway e fronteira da Android Bridge
 
-- **Status:** Aceito; P2.1-A implementada e compilada em build debug local; implementação inicial da P2.1-B publicada, ainda aguardando build/testes e validação física.
+- **Status:** Aceito; fundação e autorização P2.1-A/B/C concluídas e validadas no escopo acordado (testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06). As operações de interação, coordenador/fila, overlay e mapas permanecem não implementadas e são escopo futuro da P2.2.
 - **Data:** 2026-11-25
 - **Escopo:** P2 — automação de interfaces Android.
 
@@ -42,7 +42,7 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - A integração exige tratamento rigoroso de desconexão, timeout, callback tardio e cancelamento lógico.
 - Ações Android não garantem o efeito semântico esperado no aplicativo de destino.
 - Alguns aplicativos não expõem conteúdo ou recusam ações; nenhuma garantia de controle universal é feita.
-- O serviço e o overlay ainda precisam de implementação e validação no Moto G06.
+- A fundação do serviço e a autorização foram validadas no Moto G06; overlay, operações e mapas ainda precisam de implementação e validação nas subetapas P2.2.
 
 ## Contratos relacionados
 
@@ -59,4 +59,4 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - Testes de overlay concluído/cancelado/timeout/desconectado e ausência de permissões não aprovadas.
 - Build APK e validação física no Moto G06, conforme checklist P2.
 
-**Estado da evidência:** decisão documental aceita. A implementação inicial do AccessibilityService/gateway (P2.1-A) foi compilada em build debug local. A P2.1-B adicionou UI de autorização, consulta de estado e erros nativos, ainda aguardando build/testes. Overlay, operações de automação e testes integrados não foram implementados por este ADR; validação física permanece pendente.
+**Estado da evidência:** decisão arquitetural aceita. P2.1-A/B/C concluídas no escopo acordado: revisão estática, testes JVM, testes Python host 13/13, build debug e validação física no Moto G06 (habilitação/revogação e reinicialização normal PASS). Force stop foi classificado como comportamento esperado do Android, sem auto-habilitação. A evidência não valida gestos, digitação, leitura de conteúdo, overlay, mapas ou API `mobile.screen`; esses itens permanecem para P2.2 e etapas posteriores.
