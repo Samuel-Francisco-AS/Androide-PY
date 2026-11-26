@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build debug local. P2.1-B com implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C ainda não iniciada. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build debug local. P2.1-B com implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C iniciada: reducer puro de lifecycle e testes JVM criados; execução dos testes, nova compilação e validação física pendentes. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -247,11 +247,15 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-C — Testes e validação
 
+<badge>🟡 Em andamento — testes JVM criados; execução e validação física pendentes</badge>
+
 **Escopo:** verificação integrada da fundação e do comportamento no dispositivo real.
 
-- [ ] Criar/executar testes JVM/host para estados, gateway, protocolo, falhas, concorrência e callbacks tardios, conforme o ambiente disponível.
-- [ ] Revisar manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
-- [ ] Gerar/conferir build APK no fluxo local do projeto e validar no Moto G06: habilitar, revogar, reconectar e reabrir/reiniciar o aplicativo.
+- [x] Criar testes JVM para transições de estado, autorização/revogação, interrupção, sinal de retomada, callbacks tardios, concorrência e metadados dos erros; a lógica foi extraída para reducer Kotlin puro, sem dependência Android adicional.
+- [ ] Executar os testes JVM criados e os testes host Python existentes; a integração direta com AccessibilityManager/callbacks Android permanece dependente da validação no dispositivo.
+- [x] Revisar estaticamente manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
+- [ ] Confirmar por testes/build que a extração do reducer e a serialização do estado não introduziram regressões.
+- [ ] Gerar/conferir novo build APK após os ajustes de testabilidade e validar no Moto G06: habilitar, revogar, reconectar e reabrir/reiniciar o aplicativo.
 - [ ] Registrar evidências e limitações separando revisão estática, testes automatizados, build e validação física.
 
 **Critérios de aceite:** testes executados com resultados registrados; build local conferido; habilitação, revogação, reconexão e reinicialização observadas no Moto G06; checklist e relatório revisados. Qualquer item que dependa do usuário/dispositivo permanece pendente até haver confirmação.
