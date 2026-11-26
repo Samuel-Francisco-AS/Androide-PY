@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A (implementação e build debug local) concluídas; P2.1-B com implementação inicial publicada e build/testes pendentes na branch `feat/p2-accessibility-automation`; validação física pendente para P2.1-C.  
+**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. P2.2 teve revisão técnica, decomposição e saneamento documental concluídos; ainda não iniciada, aguardando autorização de implementação. Branch de trabalho: `feat/p2-accessibility-automation`.
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
