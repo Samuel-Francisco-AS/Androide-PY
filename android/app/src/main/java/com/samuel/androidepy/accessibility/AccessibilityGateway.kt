@@ -7,6 +7,7 @@ import android.view.accessibility.AccessibilityManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
 
 /**
  * Holds the service instance only while Android reports it as connected.
@@ -19,6 +20,7 @@ class AccessibilityGateway(context: Context) {
     private val appContext = context.applicationContext
     private val lock = Any()
     private val lifecycle = AccessibilityLifecycleState<AndroidePyAccessibilityService>()
+    private val operationCoordinator = AccessibilityOperationCoordinator()
 
     private val mutableStatus = MutableStateFlow(AccessibilityStatus.NOT_ENABLED)
     val status: StateFlow<AccessibilityStatus> = mutableStatus.asStateFlow()
@@ -59,6 +61,13 @@ class AccessibilityGateway(context: Context) {
             if (!lifecycle.isCurrentService(service)) return
             mutableStatus.value = lifecycle.onServiceInterrupted(service)
         }
+        operationCoordinator.failForService(
+            service,
+            AccessibilityOperationException(
+                AccessibilityErrorCode.SERVICE_INTERRUPTED,
+                "O serviço de acessibilidade foi interrompido."
+            )
+        )
         refreshStatus()
     }
 
@@ -80,9 +89,36 @@ class AccessibilityGateway(context: Context) {
             if (!lifecycle.isCurrentService(service)) return
             mutableStatus.value = lifecycle.onServiceDisconnected(service)
         }
+        operationCoordinator.failForService(
+            service,
+            AccessibilityOperationException(
+                AccessibilityErrorCode.SERVICE_DISCONNECTED,
+                "O serviço de acessibilidade foi desconectado."
+            )
+        )
         refreshStatus()
     }
 
     internal fun connectedServiceOrNull(): AndroidePyAccessibilityService? =
         synchronized(lock) { lifecycle.connectedServiceOrNull() }
+
+    internal fun executeOperation(request: AccessibilityOperationRequest): JSONObject {
+        val currentStatus = refreshStatus()
+        if (currentStatus == AccessibilityStatus.NOT_ENABLED) {
+            throw AccessibilityOperationException(
+                AccessibilityErrorCode.SERVICE_NOT_ENABLED,
+                "O serviço de acessibilidade não está habilitado.",
+                request.requestId
+            )
+        }
+
+        val service = connectedServiceOrNull()
+            ?: throw AccessibilityOperationException(
+                AccessibilityErrorCode.SERVICE_DISCONNECTED,
+                "O serviço de acessibilidade não está conectado.",
+                request.requestId
+            )
+
+        return operationCoordinator.execute(service, request)
+    }
 }
