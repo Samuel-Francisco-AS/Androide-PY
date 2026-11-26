@@ -116,4 +116,11 @@ class AccessibilityLifecycleStateTest {
         assertEquals(AccessibilityStatus.CONNECTED, state.status)
         assertSame(currentService, state.connectedServiceOrNull())
     }
+
+    @Test
+    fun statusWireValuesRemainStable() {
+        assertEquals("not_enabled", AccessibilityStatus.NOT_ENABLED.wireValue)
+        assertEquals("disconnected", AccessibilityStatus.DISCONNECTED.wireValue)
+        assertEquals("connected", AccessibilityStatus.CONNECTED.wireValue)
+    }
 }
