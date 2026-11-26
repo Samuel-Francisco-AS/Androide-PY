@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟢 P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. Evidências P2.1-C: testes JVM PASS, testes Python host 13/13 PASS, build debug `BUILD SUCCESSFUL` (55 tarefas: 18 executadas/37 atualizadas), habilitação/revogação física PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06/Android 15 (API 35), com autorização preservada e card `Conectado`. P2.2 aprovada em três subetapas e ainda não iniciada. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** 🟡 P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A em andamento: implementação Kotlin/Python publicada na branch e revisada estaticamente; testes específicos foram adicionados, mas ainda não foram executados na branch; build e validação física pendentes. P2.2-B/C não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -274,18 +274,32 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 - **Digitação:** `type_text()` será inicialmente restrito a campos comuns; campos sensíveis ou ambíguos serão bloqueados. Consentimento excepcional de escrita sensível fica para fase futura, conforme ADR-0009.
 - **Persistência:** scripts e dados atuais são descartáveis/de teste. Conforme ADR-0007, usar a solução destrutiva existente se for a opção de menor custo e maior simplicidade/confiabilidade; comunicar a perda potencial antes do APK com novo schema. Não criar migração de preservação sem necessidade.
 - **Ordem:** concluir saneamento documental antes de iniciar a P2.2-A.
-- **Autorização:** esta aprovação não autoriza implementação de código, alteração de schema, build, instalação ou merge. `main` permanece intocada.
+- **Autorização e limites:** em 26/11/2026 Sam autorizou explicitamente a implementação da P2.2-A na branch dedicada. A autorização não inclui alteração de schema, implementação P2.2-B/C, merge ou alteração da `main`; build, instalação e validação física continuam sob responsabilidade de Sam.
 
 ### P2.2-A — Núcleo de interação
 
-- [ ] Conferir configuração do serviço e habilitar somente `canPerformGestures` e `canRetrieveWindowContent` estritamente necessários às operações aprovadas; manter eventos mínimos.
-- [ ] Implementar coordenador nativo, fila limitada, correlação de solicitações, timeout monotônico, cancelamento lógico e descarte de callbacks tardios.
-- [ ] Implementar `get_status`, `tap`, `swipe`, `scroll` e `type_text` na Bridge e na fachada Python, mantendo o worker serial existente.
-- [ ] Serializar gestos até callback terminal/teardown; não bloquear main thread nem criar executor Python adicional.
-- [ ] Restringir `type_text()` a campos comuns, focados e que aceitem ação de texto; bloquear campos sensíveis e ambíguos, sem registrar o texto em logs. Consentimento excepcional para escrita sensível fica para fase futura.
+- [x] Conferir configuração do serviço e habilitar somente `canPerformGestures` e `canRetrieveWindowContent` estritamente necessários às operações aprovadas; manter eventos mínimos. XML atualizado e revisão estática concluída.
+- [x] Implementar coordenador nativo, fila limitada (16 solicitações totais), correlação por UUID, timeout monotônico, cancelamento lógico e descarte de callbacks tardios. Implementação publicada; execução automatizada ainda pendente.
+- [x] Implementar `get_status`, `tap`, `swipe`, `scroll` e `type_text` na Bridge e na fachada Python, mantendo o worker serial existente. Não foi criado worker adicional.
+- [x] Serializar gestos até callback terminal/teardown; não bloquear main thread nem criar executor Python adicional. O coordenador despacha no handler principal e aguarda somente no worker Python.
+- [x] Restringir `type_text()` a campos comuns, focados e que aceitem `ACTION_SET_TEXT`; bloquear campos sensíveis e ambíguos, sem registrar o texto em logs. Consentimento excepcional para escrita sensível fica para fase futura.
 - [ ] Testar argumentos, coordenadas, timeout incluindo fila, serviço não habilitado/desconectado, callback tardio, gesto concorrente, campo sem foco, somente leitura, senha/sensível, Unicode e limitações por aplicativo.
 - [ ] Anunciar no catálogo somente cada operação que já exista e tenha testes correspondentes.
 
+#### Registro de implementação P2.2-A — 2026-11-26
+
+**Estado:** 🟡 implementação publicada e revisada estaticamente; testes da branch, build e validação física pendentes.
+
+- XML do serviço agora habilita `canPerformGestures` e `canRetrieveWindowContent`; o filtro de eventos continua restrito a `typeWindowStateChanged`.
+- `AccessibilityOperationCoordinator` mantém uma fila nativa limitada a 16 solicitações totais, usa `SystemClock.elapsedRealtime()` para o prazo, correlação por UUID e `CompletableFuture` aguardado exclusivamente fora da main thread. Timeout/cancelamento lógico não prometem desfazer gesto já despachado; o slot de gesto só é liberado por callback terminal ou teardown.
+- `AndroidBridgeAdapter` valida o envelope JSON v1 e devolve erros estruturados. `AccessibilityGateway` verifica autorização/conexão e invalida pendências em interrupção/desconexão.
+- `mobile.screen` implementa `get_status`, `tap`, `type_text`, `swipe` e `scroll`. A fachada valida tipos, coordenadas, duração e timeout.
+- `type_text()` consulta somente o campo de entrada focado, verifica editabilidade, habilitação, `ACTION_SET_TEXT` e uma allow-list conservadora de `inputType`; senha, sinalização sensível, tipos numéricos/desconhecidos e classificações ambíguas são bloqueados. Não há leitura do texto atual, hint ou rótulo e o conteúdo digitado não é registrado pelo adaptador.
+- Foram adicionados `test_screen_api.py` (9 testes) e `AccessibilityTextInputPolicyTest.kt` (6 testes). **Os testes ainda não foram executados no checkout da branch.** Uma verificação Python isolada da lógica da fachada foi executada separadamente, mas não substitui a suíte oficial do projeto.
+- O catálogo `mobile.capabilities` permanece inalterado e não anuncia nenhuma operação `screen.*` até que os testes correspondentes sejam executados e aprovados.
+- Nenhum build Gradle, APK ou teste Kotlin/JVM foi executado nesta rodada; validação física no Moto G06 permanece pendente.
+
+**Commits de implementação publicados:** `8eda85b` (coordenador), `b2aeb3a` (política de digitação), `caa51d9` (fachada Python), `23709f3` (erros), `bb13c92` (gateway), `ca89e4d` (capabilities XML), `0723c00` (operações do serviço), `8ff5321` (Bridge), `b2fd34b` (capacidade da fila), `8cbd418` (testes Python), `b402eff` (testes JVM) e ajustes `7f36551`/`c8cecb5`.
 **Gate P2.2-A:** operações básicas implementadas ponta a ponta, testes JVM/Python aprovados, build debug aprovado e validação física de toque/deslize/rolagem/digitação comum no Moto G06, com limites registrados.
 
 ### P2.2-B — Captura e persistência dos mapas
