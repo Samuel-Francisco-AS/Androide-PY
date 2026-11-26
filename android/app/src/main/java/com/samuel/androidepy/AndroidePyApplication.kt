@@ -9,7 +9,7 @@ import com.samuel.androidepy.execution.ScriptExecutor
 
 class AndroidePyApplication : Application() {
     val accessibilityGateway: AccessibilityGateway by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        AccessibilityGateway()
+        AccessibilityGateway(this)
     }
 
     private val database by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
