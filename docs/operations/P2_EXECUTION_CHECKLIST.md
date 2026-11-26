@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build debug local. P2.1-B com implementação inicial publicada e revisão estática concluída; build/testes pendentes. P2.1-C ainda não iniciada e concentrará validação integrada e física. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build debug local. P2.1-B com implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C ainda não iniciada. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -228,7 +228,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-B — Autorização e integração
 
-<badge>🟡 Em andamento — implementação publicada; build pendente</badge>
+<badge>🟡 Em andamento — implementação, revisão estática e build local aprovados; testes integrados pendentes</badge>
 
 **Escopo:** consentimento explícito, observabilidade e contratos operacionais.
 
@@ -240,7 +240,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 **Critérios de aceite:** o usuário controla a autorização nas configurações Android; a UI explica a finalidade e não tenta concedê-la; estados de autorização e conexão não são confundidos; erros são estáveis; a Bridge não expõe objetos Android arbitrários.
 
-**Evidência de implementação revisada estaticamente:** `AccessibilitySettingsCard` na biblioteca apresenta finalidade, estado, capacidades atuais, limites de coleta e riscos de acessibilidade, além de instrução de ativação/desativação manual; `Settings.ACTION_ACCESSIBILITY_SETTINGS` só é aberto pelo botão explícito. `AccessibilityGateway` consulta `AccessibilityManager.getEnabledAccessibilityServiceList()` e combina a autorização com a conexão real, expondo `StateFlow<AccessibilityStatus>` com `not_enabled`, `disconnected` e `connected`. O retorno da tela de configurações atualiza o estado. `onInterrupt()` invalida o estado operacional; o próximo evento de janela permitido restaura a disponibilidade sem ler seu payload. `AndroidBridgeAdapter.getAccessibilityStatusJson()` prepara o envelope JSON interno, sem expor ainda função Python. Códigos nativos estáveis foram definidos em `AccessibilityError.kt`. O catálogo `mobile.capabilities` não foi alterado. Arquivos: `AccessibilityGateway.kt`, `AndroidePyAccessibilityService.kt`, `AccessibilityError.kt`, `AndroidBridgeAdapter.kt`, `AndroidePyApplication.kt` e `MainScreen.kt`. Nenhum build/teste da P2.1-B foi executado ainda.
+**Evidência de implementação revisada estaticamente:** `AccessibilitySettingsCard` na biblioteca apresenta finalidade, estado, capacidades atuais, limites de coleta e riscos de acessibilidade, além de instrução de ativação/desativação manual; `Settings.ACTION_ACCESSIBILITY_SETTINGS` só é aberto pelo botão explícito. `AccessibilityGateway` consulta `AccessibilityManager.getEnabledAccessibilityServiceList()` e combina a autorização com a conexão real, expondo `StateFlow<AccessibilityStatus>` com `not_enabled`, `disconnected` e `connected`. O retorno da tela de configurações atualiza o estado. `onInterrupt()` invalida o estado operacional; o próximo evento de janela permitido restaura a disponibilidade sem ler seu payload. `AndroidBridgeAdapter.getAccessibilityStatusJson()` prepara o envelope JSON interno, sem expor ainda função Python. Códigos nativos estáveis foram definidos em `AccessibilityError.kt`. O catálogo `mobile.capabilities` não foi alterado. Arquivos: `AccessibilityGateway.kt`, `AndroidePyAccessibilityService.kt`, `AccessibilityError.kt`, `AndroidBridgeAdapter.kt`, `AndroidePyApplication.kt` e `MainScreen.kt`. Build debug local confirmado por Sam em 25/11/2026: `:app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada, 47 atualizadas). Isso comprova compilação, não execução em runtime. Testes automatizados e validação física permanecem reservados à P2.1-C.
 
 
 **Mapeia os requisitos originais:** P2.1.3, P2.1.4, P2.1.6 e P2.1.7; completa o lifecycle observável de P2.1.5.
@@ -433,7 +433,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 | 2026-11-25 | P2.0.10 | Harmonização documental dos documentos principais, ADRs e contratos; checklist conferido. Sem alterações de produção, testes, build ou validação física. | Commit documental desta subetapa |
 | 2026-11-25 | P2.1-A | Serviço, configuração XML, manifesto e gateway application-scoped publicados; revisão estática e XML PASS. Build/testes e validação física pendentes. | `9d5b8af5624142719a8712f39e7087b65929ef8b` |
 | 2026-11-25 | P2.1-A | Build local informado por Sam: `:app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL`, 38 s, 48 tarefas (18 executadas/30 atualizadas). Nenhum teste JVM/host ou teste físico registrado. | Build local — terminal Fedora do usuário |
-| 2026-11-25 | P2.1-B | UI de autorização, estado Kotlin/Bridge interno, interrupção e códigos de erro publicados; revisão estática PASS. Build/testes e validação física pendentes. | `e08eadf5068e19230808307b93caaa7cf7938469` |
+| 2026-11-25 | P2.1-B | UI de autorização, estado Kotlin/Bridge interno, interrupção e códigos de erro publicados; revisão estática PASS. Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada/47 atualizadas). Testes automatizados e validação física pendentes para P2.1-C. | `be5f91df1f868ab6f9071b3767385c3bf7f09288` + terminal Fedora do usuário |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
