@@ -293,7 +293,7 @@ Nenhum teste P2 foi executado na abertura deste relatório.
 | Autorização/revogação no Moto G06 | PASS — card e estado do Android acompanharam habilitação/revogação |
 | Force stop | Comportamento esperado do Android: autorização desabilitada pelo sistema; não é teste de reconexão com autorização preservada |
 | Reinicialização normal | PASS — autorização preservada e card `Conectado` após reboot no Moto G06/Android 15 (API 35) |
-| P2.2 — interação/mapas | Não iniciada; saneamento documental em andamento |
+| P2.2 — interação/mapas | Não iniciada; revisão técnica, decomposição e saneamento documental concluídos; aguardando autorização de implementação |
 | P2.3/P2.4/P2.5 | Não iniciadas |
 
 Os resultados históricos da P0/P1 não são evidência de funcionamento da P2.
