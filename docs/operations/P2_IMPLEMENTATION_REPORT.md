@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente após harmonização; nenhuma implementação de produção P2 foi iniciada. P2.1-A — Fundação nativa — é a próxima subetapa. Testes automatizados, build APK e validação física de funcionalidades P2 ainda não foram executados.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — com implementação inicial publicada e revisão estática concluída; build/testes pendentes. P2.1-C — Testes e validação — ainda não iniciada; testes integrados e validação física pendentes.
 
 ## 1. Objetivo
 
@@ -341,6 +341,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | Decomposição P2.1 simplificada por aprovação de Sam: os nove requisitos originais foram preservados e agrupados em P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). Nenhuma implementação foi iniciada nesta atualização documental. |
 | 2026-11-25 | P2.1-A: implementação inicial do AccessibilityService, configuração mínima, declaração no manifesto e gateway application-scoped publicada e revisada estaticamente. Sem build, testes automatizados ou validação física; esses gates permanecem pendentes. |
 | 2026-11-25 | P2.1-A | Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 38 s (48 tarefas; 18 executadas, 30 atualizadas). Sem testes automatizados ou validação física nesta etapa. P2.1-A concluída quanto à implementação e compilação. |
+| 2026-11-25 | P2.1-B | UI de autorização e status, estado Kotlin/Bridge interno, política de interrupção e códigos estáveis publicados e revisados estaticamente. Build e testes pendentes; nenhuma API Python anunciada. |
 
 
 ## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
