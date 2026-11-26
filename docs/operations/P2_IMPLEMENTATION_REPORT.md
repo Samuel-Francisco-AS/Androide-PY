@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C — Testes e validação — ainda não iniciada.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C — Testes e validação — iniciada; reducer puro de lifecycle e testes JVM criados, com execução, novo build e validação física pendentes.
 
 ## 1. Objetivo
 
@@ -431,3 +431,30 @@ Os arquivos publicados foram relidos. O catálogo `mobile.capabilities` permanec
 **Build local — evidência reportada por Sam:** em 25/11/2026, na branch `feat/p2-accessibility-automation`, após `git fetch origin`, `git switch feat/p2-accessibility-automation` e `git pull --ff-only` (branch atualizada, sem alterações a baixar), Sam executou em `android/` o comando `./gradlew :app:assembleDebug --no-daemon --max-workers=2`. Resultado: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada, 47 atualizadas). O build foi realizado sobre o HEAD publicado `be5f91df1f868ab6f9071b3767385c3bf7f09288` (`be5f91d`).
 
 **Limites e estado:** a compilação confirma que a implementação P2.1-B compila no ambiente Fedora, mas não comprova comportamento em runtime. Nenhum teste automatizado JVM/host nem validação física da P2.1-B foi registrado. A subetapa permanece em andamento quanto à validação integrada; P2.1-C continua responsável pelos testes e pelo Moto G06. Nenhuma API Python `mobile.screen` foi anunciada.
+
+## 3.10 P2.1-C — Testes e validação: início — 25/11/2026
+
+### CONFERE
+
+- P2.1-B compila no Fedora conforme build local reportado por Sam; o resultado anterior é evidência da versão be5f91d, anterior aos ajustes de testabilidade descritos abaixo.
+- A implementação inicial não tinha testes JVM específicos para o lifecycle do AccessibilityService.
+- O gateway usa APIs Android (AccessibilityManager, ComponentName e callbacks de AccessibilityService), enquanto a lógica de transição entre autorização, conexão, interrupção e callbacks antigos pode ser isolada sem framework Android.
+- O módulo já utiliza JUnit 4.13.2; não foi adicionada dependência de teste ou runtime.
+
+### DEFINE
+
+Manter a validação proporcional ao escopo P2.1: testar no JVM as regras determinísticas de estado/identidade e os metadados de erro; revisar estaticamente a integração Android; reservar o comportamento real de AccessibilityManager, habilitação, revogação e lifecycle do serviço para o Moto G06. Não adicionar Robolectric, instrumentação ou dependências externas nesta subetapa sem necessidade comprovada.
+
+### IMPLEMENTA
+
+- Criado AccessibilityLifecycleState.kt, reducer Kotlin puro e genérico, responsável pelas transições not_enabled, disconnected e connected, interrupção, retomada por sinal, revogação e proteção por identidade contra callbacks tardios.
+- AccessibilityGateway.kt delega as transições ao reducer e serializa consulta de autorização e callbacks sob o mesmo lock, evitando que uma consulta de estado fique intercalada com a atualização de lifecycle.
+- Criado AccessibilityLifecycleStateTest.kt: cobre estado inicial/autorização, conexão/interrupção/retomada, revogação, callbacks de instância antiga, desconexão e corrida entre nova conexão e callback de desconexão antigo.
+- Criado AccessibilityErrorTest.kt: cobre códigos wire, política retryable e metadados de AccessibilityOperationException.
+- Revisão estática do manifesto e XML: serviço declarado com BIND_ACCESSIBILITY_SERVICE, intent-filter e metadata; configuração limitada a typeWindowStateChanged, canRetrieveWindowContent=false e canPerformGestures=false. O serviço lê somente o tipo do evento e não inspeciona o payload.
+
+### CONFERE — estado após implementação
+
+Os arquivos Kotlin e testes foram relidos após publicação. A lógica pura é testável por JUnit local sem Robolectric. A integração Android real não é simulada por esses testes: a consulta ao registro de serviços habilitados, o bind/desbind, a interrupção do sistema e a atualização da UI precisam ser observados no dispositivo.
+
+**Limites e pendências:** os testes JVM ainda não foram executados; os testes Python host existentes ainda não foram executados nesta subetapa; nenhum novo build foi executado após a extração do reducer e os testes. A validação física no Moto G06 permanece pendente. O build aprovado anteriormente de P2.1-B não substitui a compilação dos commits novos de P2.1-C. Nenhuma API Python mobile.screen foi criada ou anunciada.
