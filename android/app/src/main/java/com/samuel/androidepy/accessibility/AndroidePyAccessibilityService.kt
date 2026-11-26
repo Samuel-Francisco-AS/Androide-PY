@@ -79,9 +79,9 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             when (request.operation) {
                 "screen.tap" -> {
                     val point = resolvePoint(
-                        request.payload.getDouble("x"),
-                        request.payload.getDouble("y"),
-                        request.payload.optString("coordinate_space", "pixels")
+                        readNumber(request, "x"),
+                        readNumber(request, "y"),
+                        readString(request, "coordinate_space", "pixels")
                     )
                     dispatchGestureOperation(
                         request,
@@ -96,14 +96,14 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
                 "screen.swipe" -> {
                     val start = resolvePoint(
-                        request.payload.getDouble("x1"),
-                        request.payload.getDouble("y1"),
-                        request.payload.optString("coordinate_space", "pixels")
+                        readNumber(request, "x1"),
+                        readNumber(request, "y1"),
+                        readString(request, "coordinate_space", "pixels")
                     )
                     val end = resolvePoint(
-                        request.payload.getDouble("x2"),
-                        request.payload.getDouble("y2"),
-                        request.payload.optString("coordinate_space", "pixels")
+                        readNumber(request, "x2"),
+                        readNumber(request, "y2"),
+                        readString(request, "coordinate_space", "pixels")
                     )
                     dispatchGestureOperation(
                         request,
@@ -111,7 +111,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                         start.second,
                         end.first,
                         end.second,
-                        request.payload.getLong("duration_ms"),
+                        readDuration(request),
                         completion
                     )
                 }
@@ -120,12 +120,12 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                     val metrics = resources.displayMetrics
                     val width = metrics.widthPixels
                     val height = metrics.heightPixels
-                    val direction = request.payload.getString("direction")
-                    val distance = request.payload.getDouble("distance")
+                    val direction = readString(request, "direction")
+                    val distance = readNumber(request, "distance")
                     if (!distance.isFinite() || distance <= 0.0 || distance > 1.0) {
                         throw invalidPayload(request, "A distância de rolagem é inválida.")
                     }
-                    val duration = request.payload.getLong("duration_ms")
+                    val duration = readDuration(request)
                     val span = when (direction) {
                         "up", "down" -> (height - 1) * distance
                         "left", "right" -> (width - 1) * distance
@@ -134,10 +134,11 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                     val centerX = (width - 1) / 2.0
                     val centerY = (height - 1) / 2.0
                     val (x1, y1, x2, y2) = when (direction) {
-                        "down" -> listOf(centerX, centerY - span / 2, centerX, centerY + span / 2)
-                        "up" -> listOf(centerX, centerY + span / 2, centerX, centerY - span / 2)
-                        "right" -> listOf(centerX - span / 2, centerY, centerX + span / 2, centerY)
-                        else -> listOf(centerX + span / 2, centerY, centerX - span / 2, centerY)
+                        // Direction describes content movement, so the finger travels oppositely.
+                        "down" -> listOf(centerX, centerY + span / 2, centerX, centerY - span / 2)
+                        "up" -> listOf(centerX, centerY - span / 2, centerX, centerY + span / 2)
+                        "right" -> listOf(centerX + span / 2, centerY, centerX - span / 2, centerY)
+                        else -> listOf(centerX - span / 2, centerY, centerX + span / 2, centerY)
                     }
                     dispatchGestureOperation(
                         request,
@@ -151,7 +152,8 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                 }
 
                 "screen.type_text" -> {
-                    val text = request.payload.getString("text")
+                    val text = request.payload.opt("text") as? String
+                        ?: throw invalidPayload(request, "O texto deve ser uma string.")
                     if (text.length > MAX_TEXT_CHARS) {
                         throw invalidPayload(request, "O texto excede o limite permitido.")
                     }
@@ -233,9 +235,16 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             throw invalidPayload(request, "A duração do gesto é inválida.")
         }
 
+        val pathEnd = if (x1 == x2 && y1 == y2) {
+            val width = resources.displayMetrics.widthPixels.toFloat()
+            val tapEndX = if (x1 < width - 1f) x1 + 1f else (x1 - 1f).coerceAtLeast(0f)
+            tapEndX to y1
+        } else {
+            x2 to y2
+        }
         val path = Path().apply {
             moveTo(x1, y1)
-            lineTo(x2, y2)
+            lineTo(pathEnd.first, pathEnd.second)
         }
         val gesture = GestureDescription.Builder()
             .addStroke(
@@ -358,6 +367,33 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             node?.recycle()
             root.recycle()
         }
+    }
+
+    private fun readNumber(request: AccessibilityOperationRequest, key: String): Double {
+        val value = request.payload.opt(key) as? Number
+            ?: throw invalidPayload(request, "O parâmetro $key deve ser numérico.")
+        return value.toDouble()
+    }
+
+    private fun readString(
+        request: AccessibilityOperationRequest,
+        key: String,
+        defaultValue: String? = null
+    ): String {
+        if (!request.payload.has(key) && defaultValue != null) return defaultValue
+        return request.payload.opt(key) as? String
+            ?: throw invalidPayload(request, "O parâmetro $key deve ser texto.")
+    }
+
+    private fun readDuration(request: AccessibilityOperationRequest): Long {
+        val value = request.payload.opt("duration_ms") as? Number
+            ?: throw invalidPayload(request, "A duração do gesto deve ser um inteiro.")
+        val numeric = value.toDouble()
+        val duration = value.toLong()
+        if (!numeric.isFinite() || numeric != duration.toDouble()) {
+            throw invalidPayload(request, "A duração do gesto deve ser um inteiro.")
+        }
+        return duration
     }
 
     private fun operationResult(request: AccessibilityOperationRequest) =
