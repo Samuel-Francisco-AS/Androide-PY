@@ -156,7 +156,7 @@ Um retorno positivo de `dispatchGesture()` significa apenas que o sistema aceito
 
 Este contrato não define ainda nomes/funções públicas finais de `mobile.screen`, parâmetros por operação, defaults de timeout por função, tipos de retorno específicos, política de exceções Python nem catálogo de capacidades. Esses pontos pertencem à P2.0.7.
 
-Também não implementa AccessibilityService, gateway, fila, cancelamento, testes ou build. É uma especificação arquitetural aprovada para orientar as próximas etapas, não evidência de funcionalidade disponível.
+Este documento define o contrato do protocolo; não implementa a fila de solicitações, cancelamento, despacho de operações ou testes. A fundação do AccessibilityService/gateway foi implementada em P2.1-A e a consulta de estado em P2.1-B; as operações descritas continuam indisponíveis até suas etapas de implementação e validação.
 
 ## 11. Referências oficiais
 
