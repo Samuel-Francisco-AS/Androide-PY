@@ -46,7 +46,7 @@ internal class AccessibilityOperationCoordinator {
         val deadline = SystemClock.elapsedRealtime() + request.timeoutMs
 
         synchronized(lock) {
-            if (queue.size + if (active == null) 0 else 1 >= MAX_PENDING) {
+            if (queue.size + (if (active == null) 0 else 1) >= MAX_PENDING) {
                 throw operationError(
                     AccessibilityErrorCode.QUEUE_FULL,
                     "A fila de operações de acessibilidade está cheia.",
