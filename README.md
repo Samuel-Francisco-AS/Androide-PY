@@ -53,7 +53,7 @@ A P0 está integrada em `main`. O usuário reportou build APK, instalação e ab
 
 A P1 foi integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo acordado foi validado no Moto G06; P1-TF13 e cenários adicionais de tipo inválido, fila cheia, falhas de persistência, dependências e fallback destrutivo específico permanecem diferidos, sem serem declarados aprovados. Consulte o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md) e o [relatório P1](docs/operations/P1_IMPLEMENTATION_REPORT.md).
 
-**P2 — estado atual:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — teve a implementação inicial publicada e revisada estaticamente; build, testes e validação física permanecem pendentes. P2.1-B e P2.1-C ainda não foram iniciadas. A próxima subetapa após o gate P2.0 é P2.1-A — Fundação nativa. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
+**P2 — estado atual:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — concluída quanto à implementação e ao build debug local; testes automatizados e validação física permanecem para P2.1-C. P2.1-B — Autorização e integração — com implementação inicial publicada e revisão estática concluída; build e testes pendentes. P2.1-C ainda não foi iniciada. A próxima ação é compilar a implementação P2.1-B no Fedora. A P2 prioriza A (interação e Mapa de Coordenadas), B (consulta/coleta) e C (leitura/identificação), conforme o [roadmap](docs/ROADMAP.md) e o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md).
 
 ## Build e testes
 
