@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Validação física P2.1-C concluída no escopo acordado:** ciclo de autorização PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06. **P2.2:** revisão técnica, decomposição em três subetapas e saneamento documental concluídos; implementação ainda não iniciada e depende de autorização explícita.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação Kotlin/Python publicada e revisada estaticamente na branch; testes específicos adicionados, mas ainda não executados no checkout; build e validação física pendentes. P2.2-B/C não iniciadas.
 
 ## 1. Objetivo
 
@@ -293,7 +293,7 @@ Nenhum teste P2 foi executado na abertura deste relatório.
 | Autorização/revogação no Moto G06 | PASS — card e estado do Android acompanharam habilitação/revogação |
 | Force stop | Comportamento esperado do Android: autorização desabilitada pelo sistema; não é teste de reconexão com autorização preservada |
 | Reinicialização normal | PASS — autorização preservada e card `Conectado` após reboot no Moto G06/Android 15 (API 35) |
-| P2.2 — interação/mapas | Não iniciada; revisão técnica, decomposição e saneamento documental concluídos; aguardando autorização de implementação |
+| P2.2-A — núcleo de interação | Implementação publicada e revisada estaticamente; testes específicos adicionados, mas pendentes de execução; build e validação física pendentes |
 | P2.3/P2.4/P2.5 | Não iniciadas |
 
 Os resultados históricos da P0/P1 não são evidência de funcionamento da P2.
@@ -564,4 +564,4 @@ Essas evidências não validam gestos, leitura de conteúdo, digitação, captur
 
 ### Limites de autorização e execução
 
-A aprovação acima autoriza somente alterações documentais de saneamento nesta rodada. Não autoriza implementação de código P2.2, alteração de schema, build, instalação, merge ou alterações em `main`. A branch de trabalho continua `feat/p2-accessibility-automation`.
+Na ocasião do registro (antes da nova autorização), a aprovação cobria somente saneamento documental. Em 26/11/2026, Sam autorizou explicitamente a implementação de código da P2.2-A na branch dedicada. Não autorizou P2.2-B/C, alteração de schema, merge ou alterações em `main`; build local e validação física permanecem a cargo de Sam.
