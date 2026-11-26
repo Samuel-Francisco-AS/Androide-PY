@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟢 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C concluída no escopo acordado: testes JVM/Python host e build debug aprovados; ciclo físico de autorização PASS; Forçar parada caracterizado como comportamento esperado do Android; reinicialização normal PASS no Moto G06, com autorização preservada e card `Conectado` após o boot. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟢 P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. Evidências P2.1-C: testes JVM PASS, testes Python host 13/13 PASS, build debug `BUILD SUCCESSFUL` (55 tarefas: 18 executadas/37 atualizadas), habilitação/revogação física PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06/Android 15 (API 35), com autorização preservada e card `Conectado`. P2.2 aprovada em três subetapas e ainda não iniciada. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -247,7 +247,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-C — Testes e validação
 
-<badge>🟡 Em andamento — testes automatizados/build aprovados; validação física parcial</badge>
+<badge color="success">Concluída no escopo acordado</badge>
 
 **Escopo:** verificação integrada da fundação e do comportamento no dispositivo real.
 
@@ -255,10 +255,10 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 - [x] Executar os testes JVM criados e os testes host Python existentes. Em 25/11/2026, `:app:testDebugUnitTest` foi executado com sucesso; os testes Python host executados anteriormente nesta subetapa passaram: 13/13. A integração direta com AccessibilityManager/callbacks Android permanece dependente da validação no dispositivo.
 - [x] Revisar estaticamente manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
 - [x] Confirmar por testes/build que a extração do reducer e a serialização do estado compilaram e passaram nos testes JVM; execução reportada por Sam em 25/11/2026.
-- [x] Gerar/conferir novo build APK após os ajustes de testabilidade. Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s, 55 tarefas (18 executadas, 37 atualizadas). No Moto G06, confirmou o estado inicial `Não Habilitado`, a atualização para `Habilitado` após conceder Acessibilidade e o retorno para `Não Habilitado` após revogar a autorização. A validação de reconexão e reabertura/reinicialização permanece pendente.
+- [x] Gerar/conferir novo build APK após os ajustes de testabilidade. Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s, 55 tarefas (18 executadas, 37 atualizadas). No Moto G06, confirmou estado inicial `Não Habilitado`, atualização após habilitação, retorno após revogação e preservação da autorização/card `Conectado` após reinicialização normal. Force stop foi testado separadamente e classificado como revogação da autorização pelo Android.
 - [x] Registrar evidências e limitações separando revisão estática, testes automatizados, build e validação física; os resultados e pendências desta rodada estão documentados na seção 3.11 do relatório P2.
 
-**Critérios de aceite:** testes executados com resultados registrados; build local conferido; habilitação, revogação, reconexão e reinicialização observadas no Moto G06; checklist e relatório revisados. Qualquer item que dependa do usuário/dispositivo permanece pendente até haver confirmação.
+**Critérios de aceite:** testes JVM/host executados e registrados; build local conferido; habilitação/revogação e reinicialização normal observadas no Moto G06; Force stop caracterizado separadamente como comportamento da plataforma; checklist e relatório revisados. Critérios atendidos no escopo acordado. Não se declara validada a reconexão após Force stop, pois o Android revoga a autorização nesse cenário.
 
 **Mapeia os requisitos originais:** P2.1.8 e P2.1.9; verifica os requisitos P2.1.1–P2.1.7 em conjunto.
 
@@ -268,43 +268,41 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 **Objetivo:** permitir interação básica confiável com interfaces Android e registrar posições reutilizáveis.
 
-### A1 — Toques e cliques
+### P2.2-A — Núcleo de interação
 
-- [ ] **P2.2.1** Definir API de toque por coordenadas em pixels e normalizadas, com validação de limites e contexto de tela.
-- [ ] **P2.2.2** Implementar toque simples usando APIs de gesto do AccessibilityService (`dispatchGesture`) quando suportadas.
-- [ ] **P2.2.3** Retornar resultado estruturado: aceito/enviado, falha, motivo e metadados relevantes; não prometer que o app de destino concluiu a ação apenas porque o gesto foi despachado.
-- [ ] **P2.2.4** Testar bordas, coordenadas inválidas, mudança de orientação, serviço desabilitado e falha de despacho.
+- [ ] Conferir configuração do serviço e habilitar somente `canPerformGestures` e `canRetrieveWindowContent` estritamente necessários às operações aprovadas; manter eventos mínimos.
+- [ ] Implementar coordenador nativo, fila limitada, correlação de solicitações, timeout monotônico, cancelamento lógico e descarte de callbacks tardios.
+- [ ] Implementar `get_status`, `tap`, `swipe`, `scroll` e `type_text` na Bridge e na fachada Python, mantendo o worker serial existente.
+- [ ] Serializar gestos até callback terminal/teardown; não bloquear main thread nem criar executor Python adicional.
+- [ ] Restringir `type_text()` a campos comuns, focados e que aceitem ação de texto; bloquear campos sensíveis e ambíguos, sem registrar o texto em logs. Consentimento excepcional para escrita sensível fica para fase futura.
+- [ ] Testar argumentos, coordenadas, timeout incluindo fila, serviço não habilitado/desconectado, callback tardio, gesto concorrente, campo sem foco, somente leitura, senha/sensível, Unicode e limitações por aplicativo.
+- [ ] Anunciar no catálogo somente cada operação que já exista e tenha testes correspondentes.
 
-### A2 — Digitação
+**Gate P2.2-A:** operações básicas implementadas ponta a ponta, testes JVM/Python aprovados, build debug aprovado e validação física de toque/deslize/rolagem/digitação comum no Moto G06, com limites registrados.
 
-- [ ] **P2.2.5** Definir API para inserir texto em elemento focado e/ou alvo identificado, usando ações de acessibilidade apropriadas.
-- [ ] **P2.2.6** Definir política para campos não editáveis, foco ausente, teclado virtual, seleção/substituição de conteúdo e texto Unicode.
-- [ ] **P2.2.7** Não registrar texto digitado em logs por padrão; tratar campos de senha e dados sensíveis com restrições explícitas.
-- [ ] **P2.2.8** Testar texto comum, acentos, Unicode, campo sem foco, campo somente leitura e campo sensível.
-- [ ] **P2.2.9** Documentar limitações: nem todo app/campo aceita ação de texto via acessibilidade; não prometer digitação universal.
+### P2.2-B — Captura e persistência dos mapas
 
-### A3 — Rolagem e gestos básicos
+- [ ] Implementar timer configurável, captura imediata e cancelamento da sessão.
+- [ ] Implementar overlay visível `TYPE_ACCESSIBILITY_OVERLAY`, controlado pelo serviço conectado, com seleção, nomeação, correção/refazer ponto, conclusão e cancelamento de múltiplos pontos.
+- [ ] Garantir remoção do overlay em conclusão, cancelamento, timeout, interrupção, desconexão e teardown; nenhum mapa parcial pode ser persistido.
+- [ ] Definir modelo mínimo versionado: nome/ID, data, dimensões, densidade/orientação/insets necessários, pacote em primeiro plano quando disponível e pontos nomeados em pixels/normalizados.
+- [ ] Persistir por Room/DAO/repositório Kotlin; Python recebe somente DTOs serializáveis. Não criar banco separado nem exportar mapas automaticamente.
+- [ ] Aplicar a decisão de dados descartáveis conforme ADR-0007: não implementar migração de preservação se fallback destrutivo for mais simples e confiável. Antes do primeiro APK com alteração de schema, avisar que scripts, versões e execuções locais podem ser apagados.
+- [ ] Testar modelo, validação, transações, nomes duplicados, captura parcial/cancelamento, timeout, teardown e persistência após reabertura.
 
-- [ ] **P2.2.10** Definir rolagem vertical/horizontal e parâmetros de direção, distância/duração ou gesto equivalente.
-- [ ] **P2.2.11** Implementar rolagem/gesto por ações de nó quando disponíveis e fallback por gesto coordenado quando apropriado.
-- [ ] **P2.2.12** Distinguir operação solicitada de confirmação de que o conteúdo realmente se moveu.
-- [ ] **P2.2.13** Testar contêiner rolável, tela sem rolagem, limites superior/inferior, orientação e gesto interrompido.
-- [ ] **P2.2.14** Avaliar toque longo e deslize como gestos adicionais do mesmo núcleo, sem bloquear entregas fundamentais.
+**Gate P2.2-B:** overlay e captura múltipla funcionam no Moto G06; cancelamento/erros não deixam overlay ou dados parciais; persistência local é testada; impacto destrutivo do schema foi comunicado.
 
-### A4 — Mapa de Coordenadas (Prioridade A)
+### P2.2-C — Reutilização e validação integrada
 
-- [ ] **P2.2.15** Definir modelo de dados do mapa: identificador, nome, pontos nomeados, x/y em pixels, x/y normalizados, largura/altura de referência, orientação, densidade/insets quando necessários e observações.
-- [ ] **P2.2.16** Implementar espera configurável antes de iniciar a seleção; 30 segundos é exemplo inicial, com opção de iniciar manualmente/cancelar.
-- [ ] **P2.2.17** Implementar overlay translúcido de seleção, preferencialmente `TYPE_ACCESSIBILITY_OVERLAY` após validação técnica; mostrar grade/mira e feedback do ponto tocado.
-- [ ] **P2.2.18** Capturar um ponto por interação e permitir nomear/salvar múltiplos pontos no mesmo mapa.
-- [ ] **P2.2.19** Permitir concluir, cancelar, refazer ponto e encerrar automaticamente a camada; garantir que a camada não bloqueie a navegação após o término.
-- [ ] **P2.2.20** Devolver os pontos ao Python como dados serializáveis e permitir referenciá-los pelo nome em execuções futuras.
-- [ ] **P2.2.21** Definir persistência de mapas/perfis: local, versionada e sem acoplamento ao histórico de execução de scripts; avaliar repositório existente antes de criar armazenamento novo.
-- [ ] **P2.2.22** Implementar operação para executar toque a partir de um ponto salvo, com checagem de compatibilidade de tela e opção explícita de coordenada normalizada.
-- [ ] **P2.2.23** Testar seleção com timer, seleção imediata, cancelamento, múltiplos pontos, reinício do app, rotação e diferenças de resolução.
-- [ ] **P2.2.24** Registrar limites: coordenadas não reconhecem semanticamente o botão; mudanças de layout, escala, barras do sistema, teclado, densidade ou conteúdo dinâmico podem invalidar o mapa.
+- [ ] Implementar `list_coordinate_maps`, `get_coordinate_map`, `delete_coordinate_map` e `tap_point`.
+- [ ] Reprojetar coordenadas normalizadas para o display atual e validar pacote/orientação/contexto quando disponível; divergências produzem erro estável.
+- [ ] Testar mapas/pontos inexistentes, nomes, exclusão, resolução diferente, rotação, pacote divergente e mudanças de layout.
+- [ ] Executar suíte JVM/host Python, build APK e roteiro físico completo no Moto G06; separar resultados automatizados, build e validação física.
+- [ ] Atualizar relatório, checklist, arquitetura e roadmap com commits/evidências; revisar diff antes de propor qualquer integração.
 
-**Gate P2.2:** cliques/toques, digitação e rolagem validados individualmente; mapa visual seleciona e persiste pontos reutilizáveis no Moto G06. Capacidades não testadas permanecem pendentes.
+**Gate P2.2-C:** API completa de mapas e reutilização validada ponta a ponta, com limitações documentadas. P2.2 somente poderá ser marcada concluída após evidências de cada subetapa.
+
+**Restrições transversais:** não criar outro worker Python ou banco; não bloquear a main thread; não solicitar `SYSTEM_ALERT_WINDOW`; screenshots, OCR, monitoramento contínuo e leitura semântica ampla permanecem fora da P2.2.
 
 ## 6. P2.3 — Prioridade B: consulta e coleta de dados
 
@@ -498,3 +496,12 @@ A aprovação de um bloco não aprova automaticamente os demais.
 **Escopo do resultado:** este teste valida a preservação da autorização e a disponibilidade após reinicialização normal. Não valida reconexão após Force stop (que foi classificado separadamente como comportamento esperado do Android), nem gestos, leitura de conteúdo, digitação, captura de tela, overlay ou API pública `mobile.screen`.
 
 **Estado da P2.1-C:** testes JVM, testes Python host, build debug e validações físicas combinadas da fundação/autorização concluídos conforme evidências registradas. Nenhuma alteração de código foi necessária nesta validação. Não houve merge ou alteração na `main`.
+
+
+## 5.1 — Decisões de entrada P2.2 aprovadas — 2026-11-26
+
+- **Decomposição:** P2.2-A (Núcleo de interação), P2.2-B (Captura e persistência dos mapas) e P2.2-C (Reutilização e validação integrada) aprovadas por Sam.
+- **Digitação:** `type_text()` será inicialmente restrito a campos comuns; campos sensíveis ou ambíguos serão bloqueados. Consentimento excepcional de escrita sensível fica para fase futura, conforme ADR-0009.
+- **Persistência:** scripts e dados atuais são descartáveis/de teste. Conforme ADR-0007, usar a solução destrutiva existente se for a opção de menor custo e maior simplicidade/confiabilidade; comunicar a perda potencial antes do APK com novo schema. Não criar migração de preservação sem necessidade.
+- **Ordem:** concluir saneamento documental antes de iniciar a P2.2-A.
+- **Autorização:** esta aprovação não autoriza implementação de código, alteração de schema, build, instalação ou merge. `main` permanece intocada.
