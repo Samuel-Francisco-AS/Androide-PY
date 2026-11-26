@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.samuel.androidepy.AndroidePyApplication
@@ -52,8 +51,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     override fun onUnbind(intent: Intent): Boolean {
         serviceOperational = false
         accessibilityGateway?.onServiceDisconnected(this)
-        super.onUnbind(intent)
-        return false
+        return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
