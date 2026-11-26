@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física do ciclo de autorização (PASS) e caracterização do comportamento de Forçar parada (comportamento esperado do Android; não é critério válido de reconexão). **Pendente:** teste físico de reinicialização normal do Moto G06, com a autorização mantida habilitada. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física do ciclo de autorização (PASS) e caracterização do comportamento de Forçar parada (comportamento esperado do Android; não é critério válido de reconexão). **Validação física P2.1-C:** ciclo de autorização PASS; Forçar parada classificado como comportamento esperado do Android; reinicialização normal PASS no Moto G06 (autorização preservada e card `Conectado` após reboot). P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -487,3 +487,15 @@ A aprovação de um bloco não aprova automaticamente os demais.
 **Decisão:** nenhum ajuste de código. O teste F2 fica registrado como caracterização da plataforma, fora dos critérios de PASS/FAIL de reconexão. Não recomendar desativar proteções do Android nem solicitar ADB, root ou Shizuku.
 
 **Próximo teste físico aprovado:** reiniciar normalmente o Moto G06 pelo menu de energia, mantendo o serviço habilitado antes do reboot; após o boot, desbloquear, abrir o Androide PY e conferir se a autorização continua habilitada e se o card retorna a `Conectado` sem reativação manual nas configurações. Registrar o resultado antes de alterar qualquer estado.
+
+| 2026-11-26 | P2.1-C / Reinicialização normal | **PASS físico — relato de Sam:** antes do reboot, autorização de Acessibilidade habilitada e card `Conectado`; após reinicialização normal do Moto G06, a autorização permaneceu habilitada e o card permaneceu `Conectado`, sem intervenção manual. Critérios de preservação da autorização e disponibilidade após reboot satisfeitos neste dispositivo/versão testados. | relato físico de Sam; Moto G06 / Android 15 (API 35) |
+
+### P2.1-C — Reinicialização normal — PASS físico — 2026-11-26
+
+**Relato de Sam — Moto G06 / Android 15 (API 35):** antes da reinicialização normal, a autorização de Acessibilidade estava ativada e o card da Biblioteca apresentava `Conectado`. Após reiniciar o aparelho, a autorização continuou ativada e o card permaneceu `Conectado`.
+
+**Resultado: PASS** para os critérios definidos: o Android preservou a autorização e o serviço estava conectado após o reboot, sem necessidade de reativação manual nas configurações. A evidência é um relato de validação física no dispositivo indicado; não deve ser generalizada para todos os fabricantes/versões Android.
+
+**Escopo do resultado:** este teste valida a preservação da autorização e a disponibilidade após reinicialização normal. Não valida reconexão após Force stop (que foi classificado separadamente como comportamento esperado do Android), nem gestos, leitura de conteúdo, digitação, captura de tela, overlay ou API pública `mobile.screen`.
+
+**Estado da P2.1-C:** testes JVM, testes Python host, build debug e validações físicas combinadas da fundação/autorização concluídos conforme evidências registradas. Nenhuma alteração de código foi necessária nesta validação. Não houve merge ou alteração na `main`.
