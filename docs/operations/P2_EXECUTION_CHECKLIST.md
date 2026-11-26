@@ -228,15 +228,20 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-B — Autorização e integração
 
+<badge>🟡 Em andamento — implementação publicada; build pendente</badge>
+
 **Escopo:** consentimento explícito, observabilidade e contratos operacionais.
 
-- [ ] Disponibilizar explicação de finalidade, capacidades, riscos e instruções para habilitar/desabilitar o serviço; abrir somente a tela oficial de configurações Android após ação explícita do usuário.
-- [ ] Expor estados distintos `not_enabled`, `disconnected` e `connected` para a camada Kotlin e preparar sua exposição pela Bridge sem ativar autorização automaticamente.
-- [ ] Definir comportamento mínimo de eventos/janelas de observação e garantir que a desconexão/interrupção invalide o estado operacional; não iniciar coleta contínua.
-- [ ] Padronizar falhas para serviço não habilitado, serviço desconectado/interrompido, operação não suportada e timeout, preservando os códigos definidos no protocolo P2.
-- [ ] Não anunciar `mobile.screen` nem capacidades de acessibilidade no catálogo Python antes de suas operações existirem e serem testadas.
+- [x] Disponibilizar explicação de finalidade, capacidades, riscos e instruções para habilitar/desabilitar o serviço; abrir somente a tela oficial de configurações Android após ação explícita do usuário.
+- [x] Expor estados distintos `not_enabled`, `disconnected` e `connected` para a camada Kotlin e preparar sua exposição pela Bridge sem ativar autorização automaticamente.
+- [x] Definir comportamento mínimo de eventos/janelas de observação e garantir que a desconexão/interrupção invalide o estado operacional; não iniciar coleta contínua.
+- [x] Padronizar falhas para serviço não habilitado, serviço desconectado/interrompido, operação não suportada e timeout, preservando os códigos definidos no protocolo P2.
+- [x] Manter `mobile.screen` e capacidades de acessibilidade fora do catálogo Python até que as operações existam e sejam testadas.
 
 **Critérios de aceite:** o usuário controla a autorização nas configurações Android; a UI explica a finalidade e não tenta concedê-la; estados de autorização e conexão não são confundidos; erros são estáveis; a Bridge não expõe objetos Android arbitrários.
+
+**Evidência de implementação revisada estaticamente:** `AccessibilitySettingsCard` na biblioteca apresenta finalidade, estado e instrução de ativação/desativação manual; `Settings.ACTION_ACCESSIBILITY_SETTINGS` só é aberto pelo botão explícito. `AccessibilityGateway` consulta `AccessibilityManager.getEnabledAccessibilityServiceList()` e combina a autorização com a conexão real, expondo `StateFlow<AccessibilityStatus>` com `not_enabled`, `disconnected` e `connected`. O retorno da tela de configurações atualiza o estado. `onInterrupt()` invalida o estado operacional; o próximo evento de janela permitido restaura a disponibilidade sem ler seu payload. `AndroidBridgeAdapter.getAccessibilityStatusJson()` prepara o envelope JSON interno, sem expor ainda função Python. Códigos nativos estáveis foram definidos em `AccessibilityError.kt`. O catálogo `mobile.capabilities` não foi alterado. Arquivos: `AccessibilityGateway.kt`, `AndroidePyAccessibilityService.kt`, `AccessibilityError.kt`, `AndroidBridgeAdapter.kt`, `AndroidePyApplication.kt` e `MainScreen.kt`. Nenhum build/teste da P2.1-B foi executado ainda.
+
 
 **Mapeia os requisitos originais:** P2.1.3, P2.1.4, P2.1.6 e P2.1.7; completa o lifecycle observável de P2.1.5.
 
