@@ -13,6 +13,7 @@ internal class AccessibilityLifecycleState<T : Any> {
     private var connectedService: T? = null
     private var interrupted = false
 
+    @get:Synchronized
     val status: AccessibilityStatus
         get() = when {
             !authorizationEnabled -> AccessibilityStatus.NOT_ENABLED
@@ -20,6 +21,7 @@ internal class AccessibilityLifecycleState<T : Any> {
             else -> AccessibilityStatus.DISCONNECTED
         }
 
+    @Synchronized
     fun updateAuthorization(enabled: Boolean): AccessibilityStatus {
         authorizationEnabled = enabled
         if (!enabled) {
@@ -29,6 +31,7 @@ internal class AccessibilityLifecycleState<T : Any> {
         return status
     }
 
+    @Synchronized
     fun onServiceConnected(service: T): AccessibilityStatus {
         authorizationEnabled = true
         connectedService = service
@@ -36,16 +39,19 @@ internal class AccessibilityLifecycleState<T : Any> {
         return status
     }
 
+    @Synchronized
     fun onServiceInterrupted(service: T): AccessibilityStatus {
         if (connectedService === service) interrupted = true
         return status
     }
 
+    @Synchronized
     fun onServiceSignal(service: T): AccessibilityStatus {
         if (connectedService === service && interrupted) interrupted = false
         return status
     }
 
+    @Synchronized
     fun onServiceDisconnected(service: T): AccessibilityStatus {
         if (connectedService === service) {
             connectedService = null
@@ -54,11 +60,14 @@ internal class AccessibilityLifecycleState<T : Any> {
         return status
     }
 
+    @Synchronized
     fun isCurrentService(service: T): Boolean = connectedService === service
 
+    @Synchronized
     fun isInterruptedService(service: T): Boolean =
         connectedService === service && interrupted
 
+    @Synchronized
     fun connectedServiceOrNull(): T? =
         if (status == AccessibilityStatus.CONNECTED) connectedService else null
 }
