@@ -111,7 +111,7 @@ Código de terceiros será considerado não confiável. A primeira versão será
 
 - **P0:** concluída e integrada em `main`.
 - **P1:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo físico acordado foi validado; P1-TF13 e verificações adicionais permanecem explicitamente diferidas nos documentos operacionais.
-- **P2:** P2.0 documental concluída na branch `feat/p2-accessibility-automation`. P2.1-A implementada e compilada em build debug local. P2.1-B tem implementação inicial publicada: UI de autorização, estados Kotlin, consulta JSON interna na Bridge e erros estáveis; build e testes ainda pendentes. A API pública `mobile.screen`, overlay e Mapas de Coordenadas continuam não implementados. A validação integrada/física será realizada na P2.1-C.
+- **P2:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. Force stop foi caracterizado como revogação executada pelo Android. A API pública `mobile.screen`, gestos, digitação, overlay e Mapas de Coordenadas continuam não implementados. A P2.2 foi definida em três subetapas e aguarda autorização para implementação.
 
 A P2 adota três prioridades funcionais: A — interação geométrica e Mapa de Coordenadas; B — consulta/coleta sob demanda; C — leitura e identificação semântica de elementos. A fundação nativa e autorização precedem essas entregas. Screenshots, OCR e notificações não integram a P2 inicial.
 
