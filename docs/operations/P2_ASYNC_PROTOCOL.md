@@ -1,6 +1,6 @@
 # P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService
 
-**Estado:** contrato definido documentalmente; implementação ainda não iniciada.  
+**Estado:** contrato definido documentalmente; fundação do serviço e consulta nativa de estado estão em implementação P2.1-A/B; protocolo de operações ainda não implementado.  
 **Versão do protocolo:** 1  
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25
@@ -130,7 +130,7 @@ O gateway distingue três estados:
 - `DISCONNECTED`: a autorização está habilitada, mas não há instância operacional conectada.
 - `CONNECTED`: o Android vinculou o serviço e `onServiceConnected()` publicou uma instância disponível.
 
-Antes de despachar, verificar estado habilitado e conectado. Não inferir conexão apenas pela configuração de Settings. Em `onInterrupt()`, falhar solicitações que não podem continuar com `SERVICE_INTERRUPTED`; em desconexão/unbind, limpar a referência e falhar pendências com `SERVICE_DISCONNECTED`. Uma reconexão não ressuscita requisições antigas.
+Antes de despachar, verificar estado habilitado e conectado. Não inferir conexão apenas pela configuração de Settings. Em `onInterrupt()`, invalidar a disponibilidade operacional e falhar solicitações que não podem continuar com `SERVICE_INTERRUPTED`; a implementação inicial da P2.1-B mantém o estado `disconnected` até o próximo evento de janela permitido, sem ler seu payload. Em desconexão/unbind, limpar a referência e falhar pendências com `SERVICE_DISCONNECTED`. Uma reconexão não ressuscita requisições antigas.
 
 O serviço é criado e destruído exclusivamente pelo Android. O gateway application-scoped não instancia o serviço, não mantém Activity e recebe/remova a referência apenas pelos callbacks do lifecycle.
 
