@@ -27,7 +27,7 @@ class AccessibilityGateway(context: Context) {
      * Refreshes authorization from Android's enabled-service registry and combines
      * it with the actual service lifecycle state. It never enables the service.
      */
-    fun refreshStatus(): AccessibilityStatus {
+    fun refreshStatus(): AccessibilityStatus = synchronized(lock) {
         val manager = appContext.getSystemService(Context.ACCESSIBILITY_SERVICE)
             as? AccessibilityManager
         val expectedComponent = ComponentName(
@@ -45,11 +45,7 @@ class AccessibilityGateway(context: Context) {
                     serviceInfo.name == expectedComponent.className
             }
 
-        synchronized(lock) {
-            val next = lifecycle.updateAuthorization(enabled)
-            mutableStatus.value = next
-            return next
-        }
+        lifecycle.updateAuthorization(enabled).also { mutableStatus.value = it }
     }
 
     internal fun onServiceConnected(service: AndroidePyAccessibilityService) {
