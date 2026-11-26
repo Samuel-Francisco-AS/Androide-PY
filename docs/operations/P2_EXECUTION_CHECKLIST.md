@@ -251,7 +251,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 **Escopo:** verificação integrada da fundação e do comportamento no dispositivo real.
 
-- [x] Criar testes JVM para transições de estado, autorização/revogação, interrupção, sinal de retomada, callbacks tardios, concorrência e metadados dos erros; a lógica foi extraída para reducer Kotlin puro, sem dependência Android adicional.
+- [x] Criar testes JVM para transições de estado, autorização/revogação, interrupção, sinal de retomada, callbacks tardios, concorrência, valores wire dos estados e metadados dos erros; a lógica foi extraída para reducer Kotlin puro, sem dependência Android adicional.
 - [ ] Executar os testes JVM criados e os testes host Python existentes; a integração direta com AccessibilityManager/callbacks Android permanece dependente da validação no dispositivo.
 - [x] Revisar estaticamente manifesto, configuração XML, lifecycle, referências do serviço, tratamento de interrupção/desconexão e ausência de bloqueio da main thread.
 - [ ] Confirmar por testes/build que a extração do reducer e a serialização do estado não introduziram regressões.
@@ -439,6 +439,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 | 2026-11-25 | P2.1-A | Build local informado por Sam: `:app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL`, 38 s, 48 tarefas (18 executadas/30 atualizadas). Nenhum teste JVM/host ou teste físico registrado. | Build local — terminal Fedora do usuário |
 | 2026-11-25 | P2.1-B | UI de autorização, estado Kotlin/Bridge interno, interrupção e códigos de erro publicados; revisão estática PASS. Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada/47 atualizadas). Testes automatizados e validação física pendentes para P2.1-C. | `be5f91df1f868ab6f9071b3767385c3bf7f09288` + terminal Fedora do usuário |
 | 2026-11-25 | P2.1-C | Início da validação: reducer puro de lifecycle, serialização das transições e testes JVM de estados, revogação, interrupção, callbacks tardios/concorrentes e erros adicionados; revisão estática de manifesto/XML/lifecycle. Execução dos testes, novo build e validação física ainda pendentes. | commits `e6c085e`, `9683b86`, `6ce34f0`, `86c26c5`, `c798475`, `916a81e`, `cfe96e3`, `db31478` |
+| 2026-11-25 | P2.1-C | Sam executou testes JVM + build; compilação falhou antes de iniciar testes JVM por `AccessibilityStatus` ausente após extração do reducer. Causa identificada comparando com `be5f91d`: enum compartilhado não foi movido para arquivo próprio. Enum restaurado em `AccessibilityStatus.kt`, teste dos valores wire acrescentado. Testes Python host: 13/13 PASS. Reexecutar testes JVM/build após correção. | falha reportada no terminal Fedora; correção `c044818`, teste `de6271c` |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
