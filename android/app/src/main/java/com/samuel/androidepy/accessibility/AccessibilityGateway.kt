@@ -45,7 +45,8 @@ class AccessibilityGateway(context: Context) {
             .orEmpty()
             .any { info ->
                 val serviceInfo = info.resolveInfo?.serviceInfo
-                serviceInfo?.packageName == expectedComponent.packageName &&
+                serviceInfo != null &&
+                    serviceInfo.packageName == expectedComponent.packageName &&
                     serviceInfo.name == expectedComponent.className
             }
 
@@ -89,8 +90,8 @@ class AccessibilityGateway(context: Context) {
         synchronized(lock) {
             if (connectedService !== service || !interrupted) return
             interrupted = false
-            mutableStatus.value = AccessibilityStatus.CONNECTED
         }
+        refreshStatus()
     }
 
     internal fun onServiceDisconnected(service: AndroidePyAccessibilityService) {
