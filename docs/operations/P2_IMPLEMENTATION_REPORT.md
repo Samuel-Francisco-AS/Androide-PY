@@ -340,6 +340,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | P2.0.10: visão, arquitetura, roadmap, ADRs/índices e contratos harmonizados com as decisões aceitas; sem alterações de produção, testes, build ou validação física. Próxima etapa: P2.1. |
 | 2026-11-25 | Decomposição P2.1 simplificada por aprovação de Sam: os nove requisitos originais foram preservados e agrupados em P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). Nenhuma implementação foi iniciada nesta atualização documental. |
 | 2026-11-25 | P2.1-A: implementação inicial do AccessibilityService, configuração mínima, declaração no manifesto e gateway application-scoped publicada e revisada estaticamente. Sem build, testes automatizados ou validação física; esses gates permanecem pendentes. |
+| 2026-11-25 | P2.1-A | Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 38 s (48 tarefas; 18 executadas, 30 atualizadas). Sem testes automatizados ou validação física nesta etapa. P2.1-A concluída quanto à implementação e compilação. |
 
 
 ## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
@@ -390,4 +391,6 @@ A revisão documental e estática de entrada foi concluída. A implementação i
 
 **Conferência estática:** manifesto contém serviço exportado protegido por `BIND_ACCESSIBILITY_SERVICE`, intent-filter e metadata; XML solicita somente `typeWindowStateChanged`, declara `canRetrieveWindowContent=false` e `canPerformGestures=false`; serviço não lê eventos e registra/desregistra sua instância nos callbacks; gateway é application-scoped, usa referência volátil, estado interno `StateFlow` e limpeza protegida por identidade; nenhum `Activity`, novo worker ou runtime foi introduzido. Os arquivos remotos foram relidos após publicação.
 
-**Limites:** nenhum build, teste automatizado ou validação física foi executado. O reconhecimento pelo Android, comportamento real de habilitação/revogação e lifecycle em API 35 permanecem para P2.1-C. P2.1-A permanece em andamento até essa validação integrada.
+**Build local:** Sam executou `cd android && ./gradlew :app:assembleDebug --no-daemon --max-workers=2` no Fedora em 25/11/2026. Resultado informado: `BUILD SUCCESSFUL` em 38 s; 48 tarefas (18 executadas, 30 atualizadas). Isso confirma compilação, não comportamento em runtime.
+
+**Limites:** não há teste automatizado nem validação física registrada. O reconhecimento pelo Android, habilitação/revogação, reconexão e lifecycle em API 35 permanecem para a P2.1-C. P2.1-A está concluída quanto à implementação e ao build; a validação integrada da P2.1 permanece pendente.
