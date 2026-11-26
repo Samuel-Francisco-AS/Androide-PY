@@ -4,19 +4,20 @@
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Escopo:** P2 — AccessibilityService, consulta de interface, interação e Mapas de Coordenadas.  
-**Natureza:** análise e contratos; não implementa serviço, autorização, overlay, persistência ou API Python.
+**Natureza:** análise de riscos e contratos de segurança. Atualização de estado em 2026-11-26: AccessibilityService/autorização P2.1 validados; P2.2-A tem implementação publicada de gestos e preenchimento comum, ainda sem testes/build/validação física nesta branch. Overlay, persistência de mapas e consentimentos sensíveis permanecem não implementados.
 
 ## 1. Resultado da revisão do estado real
 
-A revisão foi feita sobre `feat/p2-accessibility-automation`, comparada a `main` (`205044caffc9df7acb94f43eb85cbeea0787d9f3`). A branch está 20 commits à frente e 0 atrás. O diff contém somente documentação P2; nenhum código de produção foi alterado na P2 até esta revisão.
+A revisão original foi feita antes da implementação P2.2. A atualização de 26/11/2026 conferiu a branch `feat/p2-accessibility-automation` e a implementação publicada; os estados de build/teste permanecem separados da revisão estática.
 
 Foram conferidos `AGENTS.md`, checklist P2, contratos P2.0.6/P2.0.7, visão, arquitetura, roadmap, ADRs 0003/0004/0006/0007, manifesto, Bridge, runtime, executor, runner, entidades/repositórios Room e testes existentes.
 
 Constatações relevantes:
 
-- Não existe AccessibilityService, configuração XML do serviço, overlay, gateway de acessibilidade ou API `mobile.screen`.
+- O AccessibilityService, a configuração XML e o gateway foram implementados na P2.1 e validados no escopo acordado. Na P2.2-A foram publicados coordenador/fila, operações de gesto, `type_text()` restrito e módulo Python `mobile.screen`; testes específicos foram adicionados, mas ainda não executados na branch.
+- Não existe overlay nem persistência de Mapas de Coordenadas; esses itens pertencem à P2.2-B/C.
 - O manifesto declara `android:allowBackup="false"`; não há declaração de serviço de acessibilidade nem permissões de overlay.
-- O catálogo Python anuncia somente `device.get_info` e `apps.launch`.
+- O catálogo Python continua anunciando somente `device.get_info` e `apps.launch`; operações `screen.*` permanecem deliberadamente não anunciadas até aprovação dos testes correspondentes.
 - A aplicação já possui Room privado ao aplicativo, com entidades de scripts, versões e execuções. A política vigente usa `fallbackToDestructiveMigration()`; mudanças de schema podem descartar dados locais.
 - O histórico P1 persiste parâmetros, stdout, stderr e exceções/tracebacks. O executor também registra exceções do host no Logcat. Portanto, não seria correto afirmar que o histórico atual armazena apenas metadados.
 - O runtime executa scripts Python no processo/permissões do aplicativo. Não há sandbox; scripts podem utilizar bibliotecas e rede disponíveis ao processo.
