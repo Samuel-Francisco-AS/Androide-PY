@@ -2,12 +2,12 @@ package com.samuel.androidepy.bridge
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import com.samuel.androidepy.AndroidePyApplication
-import com.samuel.androidepy.accessibility.AccessibilityStatus
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Build
+import com.samuel.androidepy.AndroidePyApplication
+import com.samuel.androidepy.accessibility.AccessibilityStatus
 import org.json.JSONArray
 import org.json.JSONObject
 
