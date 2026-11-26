@@ -59,4 +59,4 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - Testes de overlay concluído/cancelado/timeout/desconectado e ausência de permissões não aprovadas.
 - Build APK e validação física no Moto G06, conforme checklist P2.
 
-**Estado da evidência:** decisão documental aceita. Nenhum serviço, gateway, overlay ou teste P2 foi implementado ou executado por este ADR.
+**Estado da evidência:** decisão documental aceita. A implementação inicial do AccessibilityService/gateway (P2.1-A) foi compilada em build debug local. A P2.1-B adicionou UI de autorização, consulta de estado e erros nativos, ainda aguardando build/testes. Overlay, operações de automação e testes integrados não foram implementados por este ADR; validação física permanece pendente.
