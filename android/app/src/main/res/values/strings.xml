@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">Androide PY</string>
     <string name="accessibility_service_label">Androide PY — Acessibilidade</string>
-    <string name="accessibility_service_description">Componente nativo do Androide PY para integração de acessibilidade. A ativação é manual e necessária para futuras operações de automação autorizadas.</string>
+    <string name="accessibility_service_description">Recebe somente sinais de mudança de janela nesta versão. Não lê textos, não captura imagens nem executa gestos. A ativação é manual e pode ser desfeita nas configurações do Android.</string>
 </resources>
