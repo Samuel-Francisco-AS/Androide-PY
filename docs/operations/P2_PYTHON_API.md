@@ -1,6 +1,6 @@
 # P2.0.7 — Contrato público da API Python `mobile.screen`
 
-**Estado:** contrato público v1 definido; implementação ainda não iniciada.  
+**Estado:** contrato público v1 definido; módulo Python `mobile.screen` ainda não implementado. A P2.1-B preparou somente um método JSON interno na Bridge para consulta de estado; ele não é chamado pela fachada Python nem anunciado no catálogo.  
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Dependência:** `P2_ASYNC_PROTOCOL.md` (protocolo interno v1).
@@ -197,7 +197,7 @@ A revisão de privacidade P2.0.8 e os ADRs-0008/0009 foram concluídos e aceitos
 ## 9. Verificação e estado
 
 - Revisão estática do contrato contra `mobile/__init__.py`, `device.py`, `apps.py`, `capabilities.py`, `runner.py`, testes Python, `AndroidBridgeAdapter`, `ScriptExecutor` e protocolo P2.0.6.
-- Nenhum código Python/Kotlin foi alterado.
-- Nenhum teste host/JVM, build APK ou validação física foi executado.
-- Preparação documental: P2.0.8 (revisão de segurança) e P2.0.9 (ADRs) concluídas; P2.0.10 harmoniza os documentos principais. Após o gate P2.0, a próxima subetapa é P2.1 (fundação nativa e autorização).
+- Na revisão documental original, nenhum código Python/Kotlin havia sido alterado; a implementação posterior da P2.1-B adicionou somente um método JSON interno Kotlin à Bridge, sem criar módulo Python ou capacidades de tela.
+- A validação desta API pública continua pendente; nenhum `mobile.screen` é anunciado no catálogo.
+- Preparação documental P2.0.8–P2.0.10 concluída. P2.1-A foi compilada localmente; P2.1-B está em implementação e ainda aguarda build/testes; P2.1-C fará a validação integrada e física.
 - O contrato descreve funções futuras; `mobile.screen` e suas capacidades não estão implementadas nem anunciadas pelo catálogo atual.
