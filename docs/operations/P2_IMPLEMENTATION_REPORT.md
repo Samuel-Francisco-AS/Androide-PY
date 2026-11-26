@@ -4,8 +4,8 @@
 **Branch:** `feat/p2-accessibility-automation`  
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
-**Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Validação física P2.1-C concluída no escopo acordado:** ciclo de autorização PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06.
+**Data do registro:** 2026-11-26  
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Validação física P2.1-C concluída no escopo acordado:** ciclo de autorização PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06. **P2.2:** revisão técnica, decomposição em três subetapas e saneamento documental concluídos; implementação ainda não iniciada e depende de autorização explícita.
 
 ## 1. Objetivo
 
