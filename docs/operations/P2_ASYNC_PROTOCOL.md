@@ -1,6 +1,6 @@
 # P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService
 
-**Estado:** contrato definido documentalmente; fundação do serviço e consulta nativa de estado estão em implementação P2.1-A/B; protocolo de operações ainda não implementado.  
+**Estado:** contrato v1 definido documentalmente. A fundação do AccessibilityService, gateway e consulta nativa de estado foram implementadas e validadas na P2.1-A/B/C. Fila operacional, despacho de gestos, coordenador, timeout/cancelamento de operações e fachada Python ainda não foram implementados; pertencem à P2.2.
 **Versão do protocolo:** 1  
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25
@@ -156,7 +156,7 @@ Um retorno positivo de `dispatchGesture()` significa apenas que o sistema aceito
 
 Este contrato não define ainda nomes/funções públicas finais de `mobile.screen`, parâmetros por operação, defaults de timeout por função, tipos de retorno específicos, política de exceções Python nem catálogo de capacidades. Esses pontos pertencem à P2.0.7.
 
-Este documento define o contrato do protocolo; não implementa a fila de solicitações, cancelamento, despacho de operações ou testes. A fundação do AccessibilityService/gateway foi implementada em P2.1-A e a consulta de estado em P2.1-B; as operações descritas continuam indisponíveis até suas etapas de implementação e validação.
+Este documento define o contrato do protocolo, não a implementação operacional. P2.1-A/B/C concluídas no escopo acordado: serviço/gateway e consulta de estado nativa implementados, revisados, testados e validados fisicamente quanto à autorização e reboot. A fila operacional, despacho de operações, serialização de gestos, cancelamento lógico e fachada Python continuam indisponíveis até implementação e testes da P2.2.
 
 ## 11. Referências oficiais
 
