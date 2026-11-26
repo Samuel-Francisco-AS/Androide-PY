@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; contratos e decisões da P2 aceitos; implementação inicial da P2.1-A publicada na branch, ainda sem build/testes.
+**Status:** P0 e P1 concluídas e integradas em `main`; contratos e decisões da P2 aceitos; P2.1-A implementada e compilada em build debug local, com validação física pendente.
 
 ## 1. Visão geral
 
@@ -177,7 +177,7 @@ Arquivos de scripts, arquivos temporários, backups e artefatos serão armazenad
 
 ### 3.6 Acessibilidade e interação de interface — direção P2
 
-A P2.1-A publicou a declaração do AccessibilityService como serviço Android nativo, com ciclo de vida gerenciado exclusivamente pelo sistema. A configuração inicial recebe somente `typeWindowStateChanged`, não recupera conteúdo de janelas e não executa gestos. O serviço não interpreta nem retém o payload dos eventos. A implementação ainda aguarda build, testes e validação no dispositivo. O usuário habilita/desabilita manualmente o serviço nas configurações. Um gateway application-scoped recebe a instância apenas pelos callbacks do serviço; não instancia o serviço nem retém Activity, e limpa a referência por identidade no teardown. A primeira implementação publica somente o estado interno de conexão; autorização habilitada, estados públicos e falhas operacionais ficam para P2.1-B.
+A P2.1-A publicou a declaração do AccessibilityService como serviço Android nativo, com ciclo de vida gerenciado exclusivamente pelo sistema. A configuração inicial recebe somente `typeWindowStateChanged`, não recupera conteúdo de janelas e não executa gestos. O serviço não interpreta nem retém o payload dos eventos. O build debug local foi concluído com sucesso; testes automatizados e validação no dispositivo permanecem pendentes. O usuário habilita/desabilita manualmente o serviço nas configurações. Um gateway application-scoped recebe a instância apenas pelos callbacks do serviço; não instancia o serviço nem retém Activity, e limpa a referência por identidade no teardown. A primeira implementação publica somente o estado interno de conexão; autorização habilitada, estados públicos e falhas operacionais ficam para P2.1-B.
 
 A fronteira pública permanece Python-first: scripts chamam funções síncronas em mobile.screen; a Bridge Kotlin e o gateway trabalham assincronamente, encaminhando solicitações ao serviço. A espera finita ocorre somente no worker serial Python existente, nunca na main thread Android. Fila nativa limitada e gestos serializados evitam sobreposição de operações que possam cancelar umas às outras. Timeout e cancelamento são lógicos: uma ação já despachada pode continuar e não há promessa de rollback.
 
