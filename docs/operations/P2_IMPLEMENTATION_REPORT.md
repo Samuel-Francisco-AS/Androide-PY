@@ -283,18 +283,18 @@ A sequência preserva a prioridade funcional sem eliminar dependências técnica
 
 Nenhum teste P2 foi executado na abertura deste relatório.
 
-| Categoria | Estado atualizado em 25/11/2026 |
+| Categoria | Estado atualizado em 26/11/2026 |
 |---|---|
-| Revisão documental e arquitetural | P2.0.3–P2.0.10 concluídas documentalmente |
-| Inspeção do código P2.1 | Revisão estática do manifesto, XML, lifecycle, gateway e integração concluída |
+| Revisão documental e arquitetural | P2.0.1–P2.0.10 concluídas documentalmente |
+| Inspeção estática P2.1 | PASS — manifesto, XML, lifecycle, gateway, interrupção/desconexão e main thread revisados |
 | Testes Python host | 13/13 PASS, conforme execução reportada por Sam |
 | Testes JVM/Kotlin | PASS em `:app:testDebugUnitTest`, conforme execução reportada por Sam |
 | Build APK | `:app:assembleDebug` PASS; build combinado com testes JVM: `BUILD SUCCESSFUL`, 32 s, 55 tarefas |
-| Validação de autorização no Moto G06 | Parcial PASS: estado inicial não habilitado, habilitação e revogação refletidas corretamente no card |
-| Reconexão e reabertura/reinicialização | Pendente |
-| Validação Prioridade A | Pendente |
-| Validação Prioridade B | Pendente |
-| Validação Prioridade C | Pendente |
+| Autorização/revogação no Moto G06 | PASS — card e estado do Android acompanharam habilitação/revogação |
+| Force stop | Comportamento esperado do Android: autorização desabilitada pelo sistema; não é teste de reconexão com autorização preservada |
+| Reinicialização normal | PASS — autorização preservada e card `Conectado` após reboot no Moto G06/Android 15 (API 35) |
+| P2.2 — interação/mapas | Não iniciada; saneamento documental em andamento |
+| P2.3/P2.4/P2.5 | Não iniciadas |
 
 Os resultados históricos da P0/P1 não são evidência de funcionamento da P2.
 
@@ -540,3 +540,28 @@ Antes da reinicialização normal, a autorização de Acessibilidade estava ativ
 Combinando as evidências já registradas — testes JVM e Python host, build debug, ciclo físico de habilitação/revogação, caracterização de Force stop como comportamento esperado da plataforma e reinicialização normal PASS — a validação da fundação nativa e autorização P2.1-C está concluída no escopo acordado.
 
 **Limites preservados:** isso não valida gestos, leitura de conteúdo, digitação, captura de tela, overlay ou a futura API pública `mobile.screen`. Essas capacidades permanecem para as subetapas funcionais posteriores da P2. Nenhuma alteração de código foi necessária nesta rodada. Nenhum merge em `main` foi realizado ou autorizado.
+
+
+## 3.14 — Fechamento P2.1-C e definição aprovada da P2.2 — 2026-11-26
+
+### Estado consolidado
+
+A P2.1-C foi concluída no escopo acordado. Evidências reportadas por Sam:
+
+- `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s, 55 tarefas (18 executadas/37 atualizadas).
+- Testes Python host: 13/13 PASS.
+- Revisão estática de manifesto, XML, lifecycle, referências do serviço, interrupção/desconexão e ausência de bloqueio da main thread.
+- Moto G06/Android 15 (API 35): habilitação e revogação PASS; Force stop caracterizado como comportamento do Android, que remove a autorização; reinicialização normal PASS, mantendo autorização e card `Conectado`.
+
+Essas evidências não validam gestos, leitura de conteúdo, digitação, captura de tela, overlay ou API pública `mobile.screen`. Nenhuma operação de automação foi anunciada no catálogo.
+
+### Decisões aprovadas para P2.2
+
+1. Decomposição aprovada em três subetapas: **P2.2-A — Núcleo de interação**, **P2.2-B — Captura e persistência dos mapas**, **P2.2-C — Reutilização e validação integrada**. Escopos, critérios e testes constam no checklist operacional.
+2. `type_text()` será implementado inicialmente apenas para campos comuns. Campos sensíveis e ambíguos serão bloqueados. Exceções por consentimento explícito para preenchimento sensível ficam para fase futura, conforme ADR-0009.
+3. Os scripts e dados atualmente armazenados são apenas de teste e podem ser descartados. Para a mudança de schema Room da P2.2-B, a estratégia destrutiva existente é preferida se exigir menos trabalho e oferecer caminho mais simples/confiável. Não será criada migração de preservação apenas para conservar esses dados. O risco de perda deverá ser comunicado antes do APK que aplicar o novo schema.
+4. Saneamento documental e atualização dos estados divergentes devem ocorrer antes da implementação da P2.2-A.
+
+### Limites de autorização e execução
+
+A aprovação acima autoriza somente alterações documentais de saneamento nesta rodada. Não autoriza implementação de código P2.2, alteração de schema, build, instalação, merge ou alterações em `main`. A branch de trabalho continua `feat/p2-accessibility-automation`.
