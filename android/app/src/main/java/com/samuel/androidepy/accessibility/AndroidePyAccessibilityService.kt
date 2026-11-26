@@ -168,12 +168,21 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             }
         } catch (error: AccessibilityOperationException) {
             completion(null, error)
+        } catch (_: SecurityException) {
+            completion(
+                null,
+                AccessibilityOperationException(
+                    AccessibilityErrorCode.ACTION_REJECTED,
+                    "O Android negou a operação solicitada.",
+                    request.requestId
+                )
+            )
         } catch (_: Exception) {
             completion(
                 null,
                 AccessibilityOperationException(
-                    AccessibilityErrorCode.INVALID_PAYLOAD,
-                    "Os parâmetros da operação são inválidos.",
+                    AccessibilityErrorCode.INTERNAL_ERROR,
+                    "Ocorreu uma falha interna ao processar a operação.",
                     request.requestId
                 )
             )
