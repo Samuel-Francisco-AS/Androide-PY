@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental concluída; P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. P2.2 ainda não iniciada; revisão técnica e decomposição aprovadas, aguardando atualização documental de entrada. Nenhuma operação pública `mobile.screen` foi implementada ou anunciada.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2 teve revisão técnica, decomposição e saneamento documental concluídos; implementação ainda não iniciada e depende de autorização explícita de Sam. Nenhuma operação pública `mobile.screen` foi implementada ou anunciada.
 
 ## 1. Visão geral
 
