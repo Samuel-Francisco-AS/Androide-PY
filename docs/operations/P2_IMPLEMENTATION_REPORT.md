@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C — Testes e validação — iniciada; reducer puro de lifecycle e testes JVM criados, com execução, novo build e validação física pendentes.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Pendente para concluir a validação física combinada:** teste de reinicialização normal do Moto G06 mantendo a autorização habilitada.
 
 ## 1. Objetivo
 
@@ -498,3 +498,28 @@ A tentativa anterior de build havia falhado antes de executar os testes JVM devi
 - Testes JVM + build: comando acima, `BUILD SUCCESSFUL`, 32 s, 55 tarefas.
 - Validação física: relato explícito de Sam no Moto G06, Android 15/API 35.
 - Checklist operacional atualizado em conjunto com esta seção.
+
+
+## 3.12 P2.1-C — F2: Forçar parada e comportamento do Android — 26/11/2026
+
+### Relato físico — Moto G06 / Android 15 (API 35)
+
+Sam iniciou o teste com o card em `Conectado`, acionou **Forçar parada** em Configurações Android → Apps → Androide PY e reabriu o aplicativo. O card permaneceu em `Não Habilitado` mesmo após 30 segundos. Sam verificou nas configurações de Acessibilidade que o Android havia desativado a autorização do serviço. Ao habilitar novamente a autorização manualmente, o card retornou a `Conectado`.
+
+### Revisão estática do aplicativo
+
+Foram conferidos: `AndroidManifest.xml`, `res/xml/accessibility_service_config.xml`, `AccessibilityGateway.kt`, `AndroidePyAccessibilityService.kt`, `AccessibilityLifecycleState.kt`, `AccessibilityStatus.kt`, `AndroidePyApplication.kt`, `MainActivity.kt` e `MainScreen.kt`. Não foi encontrado código que desabilite o componente, revogue a autorização de Acessibilidade ou modifique configurações seguras do Android.
+
+### Análise e classificação
+
+O comportamento observado é consistente com o tratamento do Android/AOSP para pacotes submetidos a force-stop: o sistema remove o serviço de acessibilidade do pacote da lista de serviços habilitados. Assim, a autorização deixa de estar habilitada; o estado `Não Habilitado` apresentado pelo app corresponde ao estado reportado pelo sistema.
+
+**Classificação: comportamento esperado da plataforma Android, não defeito do Androide PY.** Como a autorização foi revogada pelo sistema durante o procedimento, o teste não avalia reconexão com a autorização preservada e não pode ser usado como critério de PASS/FAIL de reconexão. Não se deve tentar contornar esse comportamento nem reabilitar o serviço automaticamente: a concessão de Acessibilidade pertence ao usuário e ao sistema operacional.
+
+**Decisão:** nenhuma alteração de código. Registrar F2 como caracterização da plataforma, não como pendência de reconexão.
+
+### Próximo teste físico — reinicialização normal
+
+Sam aprovou somente o teste de reinicialização normal do Moto G06, mantendo a autorização habilitada antes do reboot. Após reiniciar, desbloquear o dispositivo, abrir o Androide PY e entrar na Biblioteca; conferir se a autorização continua habilitada e se o card retorna a `Conectado` sem intervenção manual nas configurações de Acessibilidade. Aguardar até aproximadamente 30 segundos e registrar separadamente o estado da autorização e o estado do card.
+
+O teste ainda não foi executado. Nenhuma integração em `main` foi realizada ou autorizada; a branch de trabalho continua `feat/p2-accessibility-automation`.
