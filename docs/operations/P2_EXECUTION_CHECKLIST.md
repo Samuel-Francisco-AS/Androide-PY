@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C com testes JVM/Python host e build debug aprovados, além de validação física do ciclo de autorização (PASS) e caracterização do comportamento de Forçar parada (comportamento esperado do Android; não é critério válido de reconexão). **Validação física P2.1-C:** ciclo de autorização PASS; Forçar parada classificado como comportamento esperado do Android; reinicialização normal PASS no Moto G06 (autorização preservada e card `Conectado` após reboot). P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
+**Estado geral:** 🟢 P2.1-A concluída quanto à implementação e build; P2.1-B concluída quanto à implementação, revisão estática e build; P2.1-C concluída no escopo acordado: testes JVM/Python host e build debug aprovados; ciclo físico de autorização PASS; Forçar parada caracterizado como comportamento esperado do Android; reinicialização normal PASS no Moto G06, com autorização preservada e card `Conectado` após o boot. P0 e P1 permanecem integradas em `main`; esta branch parte da `main` pós-P1.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
