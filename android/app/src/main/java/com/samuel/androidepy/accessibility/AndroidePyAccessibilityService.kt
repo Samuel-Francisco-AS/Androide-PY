@@ -22,13 +22,14 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        // Window-state events are the only configured signal at this stage.
-        // Their payload is deliberately not read or retained in P2.1-A.
+        // Read only the configured event type; never inspect or retain its payload.
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            accessibilityGateway?.onServiceSignal(this)
+        }
     }
 
     override fun onInterrupt() {
-        // No accessibility operation is dispatched in P2.1-A.
-        // Pending-operation failure will be added with the request gateway.
+        accessibilityGateway?.onServiceInterrupted(this)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
