@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental concluída e P2.1-A com implementação inicial publicada na branch `feat/p2-accessibility-automation`, ainda sem build/testes.  
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A (implementação e build debug local) concluídas na branch `feat/p2-accessibility-automation`; validação física pendente para P2.1-C.  
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. A implementação inicial da P2.1-A está publicada e revisada estaticamente; build, testes e validação física ainda estão pendentes. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
+**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. A implementação da P2.1-A está publicada, revisada estaticamente e compilada em build debug local. Testes automatizados e validação física permanecem pendentes. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
