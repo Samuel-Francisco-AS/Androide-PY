@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — com implementação inicial publicada e revisão estática concluída; build/testes pendentes. P2.1-C — Testes e validação — ainda não iniciada; testes integrados e validação física pendentes.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados; testes automatizados e validação física integrados permanecem para P2.1-C. P2.1-C — Testes e validação — ainda não iniciada.
 
 ## 1. Objetivo
 
@@ -341,7 +341,7 @@ Esses itens não bloqueiam a criação da branch e dos documentos operacionais, 
 | 2026-11-25 | Decomposição P2.1 simplificada por aprovação de Sam: os nove requisitos originais foram preservados e agrupados em P2.1-A (fundação nativa), P2.1-B (autorização e integração) e P2.1-C (testes e validação). Nenhuma implementação foi iniciada nesta atualização documental. |
 | 2026-11-25 | P2.1-A: implementação inicial do AccessibilityService, configuração mínima, declaração no manifesto e gateway application-scoped publicada e revisada estaticamente. Sem build, testes automatizados ou validação física; esses gates permanecem pendentes. |
 | 2026-11-25 | P2.1-A | Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 38 s (48 tarefas; 18 executadas, 30 atualizadas). Sem testes automatizados ou validação física nesta etapa. P2.1-A concluída quanto à implementação e compilação. |
-| 2026-11-25 | P2.1-B | UI de autorização e status, estado Kotlin/Bridge interno, política de interrupção e códigos estáveis publicados e revisados estaticamente. Build e testes pendentes; nenhuma API Python anunciada. |
+| 2026-11-25 | P2.1-B | UI de autorização e status, estado Kotlin/Bridge interno, política de interrupção e códigos estáveis publicados e revisados estaticamente. Sam confirmou build local `:app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada/47 atualizadas). Testes automatizados e validação física pendentes para P2.1-C; nenhuma API Python anunciada. |
 
 
 ## 3.7 P2.0.10 — Harmonização documental — 25/11/2026
@@ -428,4 +428,6 @@ Implementação publicada:
 
 Os arquivos publicados foram relidos. O catálogo `mobile.capabilities` permanece sem capacidades de tela; nenhum módulo público `mobile.screen` foi criado. A UI não habilita o serviço nem tenta alterar Settings sem ação do usuário. Não há leitura de conteúdo de janela, captura de tela, gesto, polling contínuo ou novo worker/runtime.
 
-**Limites:** build, testes automatizados e validação física da P2.1-B ainda não foram executados. A subetapa permanece em andamento até a compilação local e correções decorrentes. P2.1-C continuará responsável pelos testes integrados e pelo Moto G06.
+**Build local — evidência reportada por Sam:** em 25/11/2026, na branch `feat/p2-accessibility-automation`, após `git fetch origin`, `git switch feat/p2-accessibility-automation` e `git pull --ff-only` (branch atualizada, sem alterações a baixar), Sam executou em `android/` o comando `./gradlew :app:assembleDebug --no-daemon --max-workers=2`. Resultado: `BUILD SUCCESSFUL` em 13 s; 48 tarefas (1 executada, 47 atualizadas). O build foi realizado sobre o HEAD publicado `be5f91df1f868ab6f9071b3767385c3bf7f09288` (`be5f91d`).
+
+**Limites e estado:** a compilação confirma que a implementação P2.1-B compila no ambiente Fedora, mas não comprova comportamento em runtime. Nenhum teste automatizado JVM/host nem validação física da P2.1-B foi registrado. A subetapa permanece em andamento quanto à validação integrada; P2.1-C continua responsável pelos testes e pelo Moto G06. Nenhuma API Python `mobile.screen` foi anunciada.
