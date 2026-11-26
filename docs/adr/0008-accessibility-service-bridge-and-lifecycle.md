@@ -1,6 +1,6 @@
 # ADR-0008: AccessibilityService, gateway e fronteira da Android Bridge
 
-- **Status:** Aceito; fundação e autorização P2.1-A/B/C concluídas e validadas no escopo acordado (testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06). As operações de interação, coordenador/fila, overlay e mapas permanecem não implementadas e são escopo futuro da P2.2.
+- **Status:** Aceito; fundação e autorização P2.1-A/B/C concluídas e validadas no escopo acordado. A P2.2-A tem implementação publicada de coordenador/fila, operações geométricas e digitação comum na branch, com revisão estática concluída; testes específicos, build e validação física permanecem pendentes. Overlay e mapas continuam não implementados e pertencem à P2.2-B/C.
 - **Data:** 2026-11-25
 - **Escopo:** P2 — automação de interfaces Android.
 
@@ -42,7 +42,7 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - A integração exige tratamento rigoroso de desconexão, timeout, callback tardio e cancelamento lógico.
 - Ações Android não garantem o efeito semântico esperado no aplicativo de destino.
 - Alguns aplicativos não expõem conteúdo ou recusam ações; nenhuma garantia de controle universal é feita.
-- A fundação do serviço e a autorização foram validadas no Moto G06; overlay, operações e mapas ainda precisam de implementação e validação nas subetapas P2.2.
+- A fundação do serviço e a autorização foram validadas no Moto G06. A implementação das operações da P2.2-A foi publicada, mas ainda depende de testes/build e validação física no Moto G06. Overlay e mapas continuam para P2.2-B/C.
 
 ## Contratos relacionados
 
