@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-25  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Pendente para concluir a validação física combinada:** teste de reinicialização normal do Moto G06 mantendo a autorização habilitada.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A — Fundação nativa — implementada e compilada em build debug local. P2.1-B — Autorização e integração — implementação publicada, revisão estática e build debug local aprovados. P2.1-C — testes JVM/Python host e build debug aprovados; validação física do ciclo de autorização PASS; F2 (Forçar parada) caracterizado como comportamento esperado do Android, não como falha do app. **Validação física P2.1-C concluída no escopo acordado:** ciclo de autorização PASS, Force stop caracterizado como comportamento esperado do Android e reinicialização normal PASS no Moto G06.
 
 ## 1. Objetivo
 
@@ -523,3 +523,20 @@ O comportamento observado é consistente com o tratamento do Android/AOSP para p
 Sam aprovou somente o teste de reinicialização normal do Moto G06, mantendo a autorização habilitada antes do reboot. Após reiniciar, desbloquear o dispositivo, abrir o Androide PY e entrar na Biblioteca; conferir se a autorização continua habilitada e se o card retorna a `Conectado` sem intervenção manual nas configurações de Acessibilidade. Aguardar até aproximadamente 30 segundos e registrar separadamente o estado da autorização e o estado do card.
 
 O teste ainda não foi executado. Nenhuma integração em `main` foi realizada ou autorizada; a branch de trabalho continua `feat/p2-accessibility-automation`.
+
+
+## 3.13 P2.1-C — Reinicialização normal — PASS físico — 26/11/2026
+
+### Relato de Sam — Moto G06 / Android 15 (API 35)
+
+Antes da reinicialização normal, a autorização de Acessibilidade estava ativada e o card da Biblioteca apresentava `Conectado`. Após o aparelho reiniciar, Sam observou que a autorização permaneceu ativada e que o status continuou `Conectado`.
+
+### Resultado
+
+**PASS** para os critérios deste teste: a autorização foi preservada pelo Android e o serviço estava conectado após o boot, sem intervenção manual nas configurações de Acessibilidade. Trata-se de evidência física reportada por Sam no Moto G06 / Android 15 (API 35), sem generalização para todos os dispositivos Android.
+
+### Fechamento da validação P2.1-C
+
+Combinando as evidências já registradas — testes JVM e Python host, build debug, ciclo físico de habilitação/revogação, caracterização de Force stop como comportamento esperado da plataforma e reinicialização normal PASS — a validação da fundação nativa e autorização P2.1-C está concluída no escopo acordado.
+
+**Limites preservados:** isso não valida gestos, leitura de conteúdo, digitação, captura de tela, overlay ou a futura API pública `mobile.screen`. Essas capacidades permanecem para as subetapas funcionais posteriores da P2. Nenhuma alteração de código foi necessária nesta rodada. Nenhum merge em `main` foi realizado ou autorizado.
