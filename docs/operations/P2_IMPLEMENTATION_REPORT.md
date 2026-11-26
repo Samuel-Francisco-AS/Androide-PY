@@ -283,14 +283,15 @@ A sequência preserva a prioridade funcional sem eliminar dependências técnica
 
 Nenhum teste P2 foi executado na abertura deste relatório.
 
-| Categoria | Estado inicial |
+| Categoria | Estado atualizado em 25/11/2026 |
 |---|---|
-| Revisão documental e arquitetural | P2.0.3–P2.0.5 revisadas; baseline física API 35 reportada e lifecycle conferido |
-| Inspeção do código P2 | Revisão estática inicial concluída; implementação ainda não iniciada |
-| Testes Python host | Não executados para P2 |
-| Testes JVM/Kotlin | Não executados para P2 |
-| Build APK | Não executado para P2 |
-| Validação de autorização no Moto G06 | Pendente |
+| Revisão documental e arquitetural | P2.0.3–P2.0.10 concluídas documentalmente |
+| Inspeção do código P2.1 | Revisão estática do manifesto, XML, lifecycle, gateway e integração concluída |
+| Testes Python host | 13/13 PASS, conforme execução reportada por Sam |
+| Testes JVM/Kotlin | PASS em `:app:testDebugUnitTest`, conforme execução reportada por Sam |
+| Build APK | `:app:assembleDebug` PASS; build combinado com testes JVM: `BUILD SUCCESSFUL`, 32 s, 55 tarefas |
+| Validação de autorização no Moto G06 | Parcial PASS: estado inicial não habilitado, habilitação e revogação refletidas corretamente no card |
+| Reconexão e reabertura/reinicialização | Pendente |
 | Validação Prioridade A | Pendente |
 | Validação Prioridade B | Pendente |
 | Validação Prioridade C | Pendente |
@@ -458,3 +459,42 @@ Manter a validação proporcional ao escopo P2.1: testar no JVM as regras determ
 Os arquivos Kotlin e testes foram relidos após publicação. A lógica pura é testável por JUnit local sem Robolectric. A integração Android real não é simulada por esses testes: a consulta ao registro de serviços habilitados, o bind/desbind, a interrupção do sistema e a atualização da UI precisam ser observados no dispositivo.
 
 **Limites e pendências:** os testes JVM ainda não foram executados; os testes Python host existentes ainda não foram executados nesta subetapa; nenhum novo build foi executado após a extração do reducer e os testes. A validação física no Moto G06 permanece pendente. O build aprovado anteriormente de P2.1-B não substitui a compilação dos commits novos de P2.1-C. Nenhuma API Python mobile.screen foi criada ou anunciada.
+
+## 3.11 P2.1-C — Execução automatizada e validação física parcial — 25/11/2026
+
+### Testes automatizados e build
+
+Após a correção do enum compartilhado `AccessibilityStatus`, Sam atualizou a branch `feat/p2-accessibility-automation` até o commit `552d2cd` e executou no Fedora, em `android/`:
+
+```bash
+./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2
+```
+
+**Resultado reportado:** `BUILD SUCCESSFUL` em 32 s; 55 tarefas (18 executadas, 37 atualizadas). A tarefa `:app:testDebugUnitTest` foi executada e concluiu com sucesso; `:app:assembleDebug` também concluiu com sucesso. Os testes Python host executados anteriormente nesta rodada passaram em **13/13** (`unittest discover -s app/src/test/python -v`). Não foi necessário adicionar dependências.
+
+A tentativa anterior de build havia falhado antes de executar os testes JVM devido à ausência de `AccessibilityStatus`, removido acidentalmente durante a extração do reducer. A definição foi restaurada em `AccessibilityStatus.kt`, os valores wire receberam cobertura de teste e a execução seguinte passou.
+
+### Validação física — Moto G06 / Android 15 (API 35)
+
+**Relato de Sam, após atualizar o APK e executar o roteiro:**
+1. Ao abrir a Biblioteca, o card apresentou **“Não Habilitado”**, coerente com o serviço ainda desativado.
+2. Ao abrir as configurações de Acessibilidade, o Android exigiu permitir **funcionalidades restritas** para o aplicativo antes de habilitar o serviço. Após a autorização, ao retornar à Biblioteca, o card passou a indicar **“Habilitado”**.
+3. Sam desativou o serviço nas configurações do Android; ao retornar, o card voltou a **“Não Habilitado”**.
+
+**Resultado:** PASS para o ciclo físico de consulta do estado de autorização, habilitação e revogação, com atualização observável da UI.
+
+**Fricção de instalação reportada:** para atualizar o aplicativo, Sam precisou desativar o Play Protect. Esse fato é registrado apenas como observação do ambiente/processo de instalação. Não é requisito funcional do Androide PY e não constitui recomendação para desativar proteções do dispositivo. O requisito de permitir funcionalidades restritas foi apresentado pelo próprio Android no fluxo de habilitação do serviço.
+
+### Limites que permanecem
+
+- A validação física confirma autorização habilitada/desabilitada e atualização do card. Não confirma ainda o estado operacional `disconnected` em uma desconexão inesperada, interrupção/retomada, reconexão do serviço ou comportamento após reabrir/reiniciar o aplicativo.
+- Não foram testados gestos, leitura de conteúdo, digitação, captura de tela, overlay ou qualquer operação da futura API `mobile.screen`; essas capacidades continuam fora do que foi implementado nesta etapa.
+- O catálogo Python permanece inalterado, sem anunciar `mobile.screen`.
+- A P2.1-C permanece em andamento até a verificação de reconexão e reabertura/reinicialização, ou decisão explícita de Sam para adiar esses casos. Nenhuma integração em `main` foi realizada ou autorizada.
+
+### Evidências desta rodada
+
+- Testes Python host: 13/13 PASS, conforme resultado anterior reportado por Sam.
+- Testes JVM + build: comando acima, `BUILD SUCCESSFUL`, 32 s, 55 tarefas.
+- Validação física: relato explícito de Sam no Moto G06, Android 15/API 35.
+- Checklist operacional atualizado em conjunto com esta seção.
