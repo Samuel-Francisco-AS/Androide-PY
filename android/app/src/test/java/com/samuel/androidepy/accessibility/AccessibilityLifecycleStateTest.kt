@@ -84,8 +84,6 @@ class AccessibilityLifecycleStateTest {
         assertFalse(state.isCurrentService(service))
         assertNull(state.connectedServiceOrNull())
     }
-}
-
 
     @Test
     fun concurrentNewConnectionAndStaleDisconnectKeepNewService() {
@@ -118,3 +116,4 @@ class AccessibilityLifecycleStateTest {
         assertEquals(AccessibilityStatus.CONNECTED, state.status)
         assertSame(currentService, state.connectedServiceOrNull())
     }
+}
