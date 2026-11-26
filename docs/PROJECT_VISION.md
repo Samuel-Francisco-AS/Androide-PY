@@ -111,7 +111,7 @@ Código de terceiros será considerado não confiável. A primeira versão será
 
 - **P0:** concluída e integrada em `main`.
 - **P1:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo físico acordado foi validado; P1-TF13 e verificações adicionais permanecem explicitamente diferidas nos documentos operacionais.
-- **P2:** preparação documental em andamento na branch `feat/p2-accessibility-automation`. Os contratos `mobile.screen`, protocolo assíncrono e decisões de segurança foram definidos. A P2.1-A publicou a classe inicial do AccessibilityService, configuração XML, declaração no manifesto e gateway application-scoped; overlay, Mapas de Coordenadas e API `mobile.screen` continuam não implementados.
+- **P2:** P2.0 documental concluída na branch `feat/p2-accessibility-automation`. P2.1-A implementada e compilada em build debug local. P2.1-B tem implementação inicial publicada: UI de autorização, estados Kotlin, consulta JSON interna na Bridge e erros estáveis; build e testes ainda pendentes. A API pública `mobile.screen`, overlay e Mapas de Coordenadas continuam não implementados. A validação integrada/física será realizada na P2.1-C.
 
 A P2 adota três prioridades funcionais: A — interação geométrica e Mapa de Coordenadas; B — consulta/coleta sob demanda; C — leitura e identificação semântica de elementos. A fundação nativa e autorização precedem essas entregas. Screenshots, OCR e notificações não integram a P2 inicial.
 
