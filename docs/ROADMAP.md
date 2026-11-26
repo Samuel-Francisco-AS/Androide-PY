@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** preparação documental P2.0.1–P2.0.10 concluída. A P2.1 foi agrupada em três subetapas: A — fundação nativa; B — autorização e integração; C — testes e validação. P2.1-A implementada e compilada em build debug local. P2.1-B tem implementação inicial publicada e revisão estática concluída; build e testes pendentes. A validação integrada/física e os testes globais ficam na P2.1-C. Nenhuma operação de automação está pronta. A branch de trabalho é `feat/p2-accessibility-automation`, baseada em `main`.
+**Estado atual:** P2.0 documental concluída. P2.1-A (fundação nativa), P2.1-B (autorização/integração) e P2.1-C (testes/validação) concluídas no escopo acordado. Evidências: 55 tarefas Gradle (18 executadas/37 atualizadas), testes JVM aprovados, testes Python host 13/13 PASS, build debug `BUILD SUCCESSFUL`; no Moto G06/Android 15 (API 35), habilitação/revogação e reinicialização normal PASS. Force stop foi caracterizado como ação do Android que desabilita a autorização. Nenhuma operação pública de automação está implementada. A P2.2 foi aprovada em três subetapas, mas ainda não iniciada. Branch: `feat/p2-accessibility-automation`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
@@ -89,17 +89,20 @@ Entregas:
 
 A execução está limitada a três subetapas:
 - **P2.1-A — Fundação nativa:** classe AccessibilityService, XML e manifesto, gateway application-scoped e lifecycle gerenciado pelo Android. Implementação e build debug local concluídos.
-- **P2.1-B — Autorização e integração:** UI explicativa e acesso explícito às configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis. Implementação inicial publicada; build/testes pendentes.
-- **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação de habilitação/revogação/reconexão no Moto G06.
+- **P2.1-B — Autorização e integração:** UI explicativa e acesso explícito às configurações Android, estados `not_enabled`/`disconnected`/`connected`, política mínima de eventos e erros estáveis. Implementação, revisão estática e build debug aprovados.
+- **P2.1-C — Testes e validação:** testes JVM/host, revisão integrada, build local e validação física no Moto G06. Concluída no escopo acordado: testes JVM e Python host 13/13 PASS, build debug PASS, habilitação/revogação PASS e reinicialização normal PASS. Force stop documentado como revogação executada pelo Android.
 
-A fundação recebe somente `typeWindowStateChanged`; não declara capacidade de recuperar conteúdo nem de executar gestos. A tela de autorização e os estados Kotlin estão implementados inicialmente; a API pública Python continua fora do catálogo até implementação e testes.
+A P2.1 recebe somente `typeWindowStateChanged`; não recupera conteúdo nem executa gestos. A autorização e os estados Kotlin foram validados no escopo P2.1-C. A API pública Python continua fora do catálogo até que cada operação seja implementada e testada.
 
 ### P2.2 — Prioridade A: interação e Mapa de Coordenadas
-- Implementar `tap`, `type_text`, `swipe` e `scroll` conforme contrato Python.
-- Serializar gestos e aplicar timeouts que incluam fila e execução.
-- Implementar captura visual com espera configurável, overlay `TYPE_ACCESSIBILITY_OVERLAY` temporário/cancelável e múltiplos pontos nomeados.
-- Persistir mapas mínimos via Room/repositórios Kotlin, permitir listar/obter/excluir e reutilizar pontos com validação de contexto.
-- Não solicitar `SYSTEM_ALERT_WINDOW`; o overlay intercepta intencionalmente os toques durante a seleção.
+
+A execução foi aprovada em três subetapas:
+
+- **P2.2-A — Núcleo de interação:** habilitar somente as capabilities Android necessárias; implementar coordenador/fila e protocolo operacional; `get_status`, `tap`, `type_text`, `swipe` e `scroll`; serializar gestos; aplicar timeout/cancelamento lógico; expor fachada Python e anunciar individualmente somente operações implementadas e testadas. `type_text()` inicialmente atua apenas em campos comuns; campos sensíveis ou ambíguos são bloqueados. Exceções por consentimento explícito para preenchimento sensível ficam para fase futura.
+- **P2.2-B — Captura e persistência dos mapas:** implementar timer e overlay `TYPE_ACCESSIBILITY_OVERLAY` temporário/cancelável, seleção/nomeação/correção de múltiplos pontos, cancelamento sem persistência parcial, modelo mínimo e persistência por Room/repositórios Kotlin. Conforme ADR-0007 e aprovação de Sam, scripts e dados atuais são de teste e podem ser descartados: preferir fallback/migração destrutiva se for o caminho mais simples e confiável; avisar sobre o impacto antes do APK que altera o schema.
+- **P2.2-C — Reutilização e validação integrada:** implementar listar/obter/excluir mapas e `tap_point`, reprojeção de coordenadas, validação de pacote/orientação/contexto e integração ponta a ponta. Testar operações, persistência e limites em automação JVM/Python, build e Moto G06.
+
+**Restrições transversais:** não criar outro worker Python ou banco; não bloquear a main thread; não solicitar `SYSTEM_ALERT_WINDOW`; não implementar screenshot/OCR, monitoramento contínuo ou leitura semântica ampla nesta etapa. O overlay intercepta intencionalmente os toques somente durante a captura.
 
 ### P2.3 — Prioridade B: consulta e coleta
 - Consultar conteúdo comum sob demanda, limitado à operação e ao mínimo necessário.
