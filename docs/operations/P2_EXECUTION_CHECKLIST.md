@@ -210,7 +210,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 
 ### P2.1-A — Fundação nativa
 
-<badge>🟡 Em andamento</badge>
+<badge color="success">Concluída — implementação e build</badge>
 
 **Escopo:** serviço Android e infraestrutura application-scoped.
 
@@ -220,9 +220,9 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 - [x] Implementar limpeza idempotente e protegida por identidade em `onUnbind()`/`onDestroy()`; não instanciar o serviço manualmente, não reter Activity e não criar um segundo runtime/worker Python.
 - [x] Manter observação mínima: somente `typeWindowStateChanged`; sem leitura do payload, varredura de árvore, leitura de texto, captura contínua ou capacidades de gesto/consulta.
 
-**Critérios de aceite estática:** classe, manifesto e XML coerentes; gateway application-scoped registra apenas a instância conectada pelo Android e não permite que callback tardio de instância antiga limpe uma conexão nova; referências removidas no teardown. O reconhecimento pelo Android e o lifecycle real serão verificados na P2.1-C.
+**Critérios de aceite estática:** classe, manifesto e XML coerentes; gateway application-scoped registra apenas a instância conectada pelo Android e não permite que callback tardio de instância antiga limpe uma conexão nova; referências removidas no teardown. O reconhecimento pelo Android e o lifecycle real permanecem para a validação integrada da P2.1-C.
 
-**Evidência publicada:** implementação inicial em `AndroidePyAccessibilityService.kt`, `AccessibilityGateway.kt`, `AndroidePyApplication.kt`, `AndroidManifest.xml`, `res/xml/accessibility_service_config.xml` e `res/values/strings.xml`. Commits: `9612bc0`, `cbdb98f`, `fc98ea2`, `aa61911`, `add80e6`, `7bdd832` e `9d5b8af`. Revisão estática dos arquivos concluída; nenhum build ou teste foi executado. Estado: implementação publicada e revisada; build local pendente.
+**Evidência publicada:** implementação inicial em `AndroidePyAccessibilityService.kt`, `AccessibilityGateway.kt`, `AndroidePyApplication.kt`, `AndroidManifest.xml`, `res/xml/accessibility_service_config.xml` e `res/values/strings.xml`. Commits: `9612bc0`, `cbdb98f`, `fc98ea2`, `aa61911`, `add80e6`, `7bdd832` e `9d5b8af`. Revisão estática dos arquivos concluída. Build local executado por Sam em 25/11/2026: `cd android && ./gradlew :app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL` em 38 s (48 actionable tasks: 18 executed, 30 up-to-date). Nenhum teste automatizado ou validação física foi executado nesta etapa.
 
 **Mapeia os requisitos originais:** P2.1.1, P2.1.2 e a parte de lifecycle de P2.1.5; estabelece a base técnica para P2.1.6.
 
@@ -427,6 +427,7 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 | 2026-11-25 | P2.0.8 | Revisão de privacidade e segurança publicada em `docs/operations/P2_SECURITY_REVIEW.md`; política de campos sensíveis, mapas, overlay, logs e limites residuais documentada. Revisão estática; sem implementação, testes, build ou validação física. | `af09745bf87055dcfd3382de7cbc60bf742b1882` |
 | 2026-11-25 | P2.0.10 | Harmonização documental dos documentos principais, ADRs e contratos; checklist conferido. Sem alterações de produção, testes, build ou validação física. | Commit documental desta subetapa |
 | 2026-11-25 | P2.1-A | Serviço, configuração XML, manifesto e gateway application-scoped publicados; revisão estática e XML PASS. Build/testes e validação física pendentes. | `9d5b8af5624142719a8712f39e7087b65929ef8b` |
+| 2026-11-25 | P2.1-A | Build local informado por Sam: `:app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL`, 38 s, 48 tarefas (18 executadas/30 atualizadas). Nenhum teste JVM/host ou teste físico registrado. | Build local — terminal Fedora do usuário |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
