@@ -1,6 +1,6 @@
 # ADR-0008: AccessibilityService, gateway e fronteira da Android Bridge
 
-- **Status:** Aceito; P2.1-A implementada e compilada em build debug local. Testes automatizados e validação física ainda pendentes.
+- **Status:** Aceito; P2.1-A implementada e compilada em build debug local; implementação inicial da P2.1-B publicada, ainda aguardando build/testes e validação física.
 - **Data:** 2026-11-25
 - **Escopo:** P2 — automação de interfaces Android.
 
