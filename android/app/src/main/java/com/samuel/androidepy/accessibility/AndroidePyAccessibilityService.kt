@@ -27,29 +27,37 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 
+    @Volatile
+    private var serviceOperational = false
+
     override fun onServiceConnected() {
         super.onServiceConnected()
+        serviceOperational = true
         accessibilityGateway?.onServiceConnected(this)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         // Read only the configured window-state signal; never inspect its payload.
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            serviceOperational = true
             accessibilityGateway?.onServiceSignal(this)
         }
     }
 
     override fun onInterrupt() {
+        serviceOperational = false
         accessibilityGateway?.onServiceInterrupted(this)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
+        serviceOperational = false
         accessibilityGateway?.onServiceDisconnected(this)
         super.onUnbind(intent)
         return false
     }
 
     override fun onDestroy() {
+        serviceOperational = false
         accessibilityGateway?.onServiceDisconnected(this)
         super.onDestroy()
     }
@@ -58,6 +66,17 @@ class AndroidePyAccessibilityService : AccessibilityService() {
         request: AccessibilityOperationRequest,
         completion: (JSONObject?, AccessibilityOperationException?) -> Unit
     ) {
+        if (!serviceOperational) {
+            completion(
+                null,
+                AccessibilityOperationException(
+                    AccessibilityErrorCode.SERVICE_DISCONNECTED,
+                    "O serviço de acessibilidade não está operacional.",
+                    request.requestId
+                )
+            )
+            return
+        }
         try {
             when (request.operation) {
                 "screen.tap" -> {
