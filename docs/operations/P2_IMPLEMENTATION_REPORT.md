@@ -394,3 +394,37 @@ A revisão documental e estática de entrada foi concluída. A implementação i
 **Build local:** Sam executou `cd android && ./gradlew :app:assembleDebug --no-daemon --max-workers=2` no Fedora em 25/11/2026. Resultado informado: `BUILD SUCCESSFUL` em 38 s; 48 tarefas (18 executadas, 30 atualizadas). Isso confirma compilação, não comportamento em runtime.
 
 **Limites:** não há teste automatizado nem validação física registrada. O reconhecimento pelo Android, habilitação/revogação, reconexão e lifecycle em API 35 permanecem para a P2.1-C. P2.1-A está concluída quanto à implementação e ao build; a validação integrada da P2.1 permanece pendente.
+
+## 3.9 P2.1-B — Autorização e integração: CONFERE / DEFINE / IMPLEMENTA — 25/11/2026
+
+### CONFERE
+
+- P2.1-A foi concluída quanto à implementação e ao build debug local; a validação física integrada continua reservada à P2.1-C.
+- A UI principal é Compose em `MainScreen.kt`; a tela Biblioteca já possui espaço de configuração e usa Activity Result APIs.
+- O serviço é declarado com filtro mínimo `typeWindowStateChanged`; não solicita acesso ao conteúdo de janelas nem gestos. A interrupção precisa invalidar a disponibilidade operacional sem iniciar coleta contínua.
+- `AccessibilityManager.getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)` fornece a lista de serviços habilitados; a identidade é conferida por package/class do serviço próprio. A conexão continua determinada exclusivamente pelos callbacks reais do serviço.
+- `P2_ASYNC_PROTOCOL.md` e `P2_PYTHON_API.md` exigem distinção entre autorização e conexão, códigos estáveis e catálogo Python conservador.
+
+### DEFINE
+
+Implementar nesta subetapa:
+1. Cartão na Biblioteca explicando finalidade e ativação/desativação manual, com botão explícito para abrir `Settings.ACTION_ACCESSIBILITY_SETTINGS`.
+2. Estado Kotlin único e observável com `not_enabled`, `disconnected` e `connected`; combinar consulta do AccessibilityManager com lifecycle real, sem inferir conexão da autorização.
+3. Atualizar o estado ao retornar das configurações. `onInterrupt()` invalida disponibilidade; somente o próximo evento de janela permitido restaura estado operacional. O payload do evento permanece intocado.
+4. Preparar JSON interno na Android Bridge e definir códigos nativos estáveis, sem disponibilizar `mobile.screen` ou alterar o catálogo Python antes dos testes correspondentes.
+
+### IMPLEMENTA
+
+Implementação publicada:
+- `AccessibilityGateway.kt`: recebe applicationContext, consulta a lista de serviços habilitados, publica `AccessibilityStatus` por StateFlow, separa autorização/conexão e trata interrupção.
+- `AndroidePyAccessibilityService.kt`: encaminha somente o tipo do evento de janela permitido para restaurar disponibilidade após interrupção; não lê payload.
+- `MainScreen.kt`: cartão de status na Biblioteca; a tela oficial de configurações só é aberta após toque explícito; status é atualizado no retorno.
+- `AndroidBridgeAdapter.kt`: `getAccessibilityStatusJson()` interno, ainda não chamado pela fachada Python.
+- `AccessibilityError.kt`: códigos estáveis de serviço não habilitado/desconectado/interrompido, operação não suportada, ação não suportada/rejeitada e timeout.
+- `AndroidePyApplication.kt`: injeta applicationContext no gateway.
+
+### CONFERE — revisão estática
+
+Os arquivos publicados foram relidos. O catálogo `mobile.capabilities` permanece sem capacidades de tela; nenhum módulo público `mobile.screen` foi criado. A UI não habilita o serviço nem tenta alterar Settings sem ação do usuário. Não há leitura de conteúdo de janela, captura de tela, gesto, polling contínuo ou novo worker/runtime.
+
+**Limites:** build, testes automatizados e validação física da P2.1-B ainda não foram executados. A subetapa permanece em andamento até a compilação local e correções decorrentes. P2.1-C continuará responsável pelos testes integrados e pelo Moto G06.
