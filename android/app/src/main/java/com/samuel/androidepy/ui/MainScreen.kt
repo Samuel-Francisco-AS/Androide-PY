@@ -1,7 +1,9 @@
 package com.samuel.androidepy.ui
 
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.samuel.androidepy.AndroidePyApplication
+import com.samuel.androidepy.accessibility.AccessibilityStatus
 import com.samuel.androidepy.data.ScriptEntity
 import com.samuel.androidepy.execution.ScriptExecutionRequest
 import com.samuel.androidepy.execution.ScriptParameterResolver
@@ -64,6 +67,16 @@ fun MainScreen(application: AndroidePyApplication) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scripts by repository.observeAll().collectAsState(initial = emptyList())
+    val accessibilityStatus by application.accessibilityGateway.status.collectAsState()
+    val accessibilitySettingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        application.accessibilityGateway.refreshStatus()
+    }
+
+    LaunchedEffect(application.accessibilityGateway) {
+        application.accessibilityGateway.refreshStatus()
+    }
 
     var selectedScriptId by rememberSaveable { mutableStateOf<String?>(null) }
     var initialized by rememberSaveable { mutableStateOf(false) }
@@ -179,6 +192,10 @@ fun MainScreen(application: AndroidePyApplication) {
         if (selectedScript == null) {
             LibraryScreen(
                 scripts = scripts,
+                accessibilityStatus = accessibilityStatus,
+                onOpenAccessibilitySettings = {
+                    accessibilitySettingsLauncher.launch(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                },
                 searchQuery = searchQuery,
                 onSearchChange = { searchQuery = it },
                 feedback = feedback,
@@ -271,8 +288,47 @@ fun MainScreen(application: AndroidePyApplication) {
 }
 
 @Composable
+private fun AccessibilitySettingsCard(
+    status: AccessibilityStatus,
+    onOpenSettings: () -> Unit
+) {
+    val (statusTitle, statusDescription) = when (status) {
+        AccessibilityStatus.NOT_ENABLED -> "Não habilitado" to
+            "O serviço ainda não foi autorizado nas configurações do Android."
+        AccessibilityStatus.DISCONNECTED -> "Habilitado, mas desconectado" to
+            "A autorização está ativa, mas o Android ainda não conectou o serviço ou ele foi interrompido."
+        AccessibilityStatus.CONNECTED -> "Conectado" to
+            "O Android conectou o serviço. As operações de automação ainda não estão disponíveis nesta etapa."
+    }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Acessibilidade do Androide PY", style = MaterialTheme.typography.titleMedium)
+            Text(statusTitle, style = MaterialTheme.typography.labelLarge)
+            Text(statusDescription, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "A ativação é opcional e manual. Nas configurações, você pode habilitar ou desabilitar o serviço quando quiser.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            OutlinedButton(
+                onClick = onOpenSettings,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Abrir configurações de acessibilidade")
+            }
+        }
+    }
+}
+
+@Composable
 private fun LibraryScreen(
     scripts: List<ScriptEntity>,
+    accessibilityStatus: AccessibilityStatus,
+    onOpenAccessibilitySettings: () -> Unit,
     searchQuery: String,
     onSearchChange: (String) -> Unit,
     feedback: String,
@@ -295,6 +351,10 @@ private fun LibraryScreen(
         modifier = Modifier.fillMaxSize().padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        AccessibilitySettingsCard(
+            status = accessibilityStatus,
+            onOpenSettings = onOpenAccessibilitySettings
+        )
         Text("Androide PY", style = MaterialTheme.typography.headlineLarge)
         Text("Biblioteca de scripts", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
