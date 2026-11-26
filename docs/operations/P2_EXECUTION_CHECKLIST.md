@@ -488,7 +488,6 @@ A aprovação de um bloco não aprova automaticamente os demais.
 
 **Próximo teste físico aprovado:** reiniciar normalmente o Moto G06 pelo menu de energia, mantendo o serviço habilitado antes do reboot; após o boot, desbloquear, abrir o Androide PY e conferir se a autorização continua habilitada e se o card retorna a `Conectado` sem reativação manual nas configurações. Registrar o resultado antes de alterar qualquer estado.
 
-| 2026-11-26 | P2.1-C / Reinicialização normal | **PASS físico — relato de Sam:** antes do reboot, autorização de Acessibilidade habilitada e card `Conectado`; após reinicialização normal do Moto G06, a autorização permaneceu habilitada e o card permaneceu `Conectado`, sem intervenção manual. Critérios de preservação da autorização e disponibilidade após reboot satisfeitos neste dispositivo/versão testados. | relato físico de Sam; Moto G06 / Android 15 (API 35) |
 
 ### P2.1-C — Reinicialização normal — PASS físico — 2026-11-26
 
