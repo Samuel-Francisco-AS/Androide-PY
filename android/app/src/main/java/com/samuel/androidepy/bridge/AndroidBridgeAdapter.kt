@@ -6,10 +6,15 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Looper
 import com.samuel.androidepy.AndroidePyApplication
+import com.samuel.androidepy.accessibility.AccessibilityErrorCode
+import com.samuel.androidepy.accessibility.AccessibilityOperationException
+import com.samuel.androidepy.accessibility.AccessibilityOperationRequest
 import com.samuel.androidepy.accessibility.AccessibilityStatus
-import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
+import java.util.UUID
 
 /**
  * Android-side adapter for the public capabilities exposed to Python.
@@ -19,8 +24,7 @@ class AndroidBridgeAdapter(context: Context) {
     private val appContext = context.applicationContext
 
     /**
-     * Internal status bridge for the future public mobile.screen.get_status() API.
-     * This method is not advertised in the Python capability catalog yet.
+     * Internal status bridge for mobile.screen.get_status().
      */
     fun getAccessibilityStatusJson(): String {
         val application = appContext as? AndroidePyApplication
@@ -29,7 +33,8 @@ class AndroidBridgeAdapter(context: Context) {
                 .put("ok", false)
                 .put("error", JSONObject()
                     .put("code", "BRIDGE_NOT_CONFIGURED")
-                    .put("message", "A Android Bridge não está vinculada à aplicação Androide PY."))
+                    .put("message", "A Android Bridge não está vinculada à aplicação Androide PY.")
+                    .put("retryable", false))
                 .toString()
 
         val status = application.accessibilityGateway.refreshStatus()
@@ -42,6 +47,126 @@ class AndroidBridgeAdapter(context: Context) {
             .toString()
     }
 
+    /**
+     * Receives a versioned JSON request from the existing serial Python worker.
+     * The only blocking wait occurs inside the native coordinator, which rejects
+     * calls from Android's main thread.
+     */
+    fun executeAccessibilityOperationJson(requestJson: String): String {
+        var requestId: String? = null
+        return try {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INTERNAL_ERROR,
+                    "A operação não pode aguardar na thread principal."
+                )
+            }
+
+            val envelope = JSONObject(requestJson)
+            if (envelope.optInt("schema_version", -1) != PROTOCOL_VERSION) {
+                throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "A versão da solicitação não é suportada."
+                )
+            }
+
+            requestId = envelope.optString("request_id").takeIf { it.isNotBlank() }
+            try {
+                UUID.fromString(requestId ?: "")
+            } catch (_: IllegalArgumentException) {
+                throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "O identificador da solicitação é inválido."
+                )
+            }
+
+            val operation = envelope.optString("operation")
+            if (operation !in SUPPORTED_OPERATIONS) {
+                throw AccessibilityOperationException(
+                    AccessibilityErrorCode.UNSUPPORTED_OPERATION,
+                    "A operação solicitada não está disponível.",
+                    requestId
+                )
+            }
+
+            val payload = envelope.optJSONObject("payload")
+                ?: throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_PAYLOAD,
+                    "O conteúdo da solicitação é inválido.",
+                    requestId
+                )
+            val timeoutMs = envelope.optLong("timeout_ms", -1L)
+            if (timeoutMs !in MIN_TIMEOUT_MS..MAX_TIMEOUT_MS) {
+                throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "O prazo da solicitação é inválido.",
+                    requestId
+                )
+            }
+
+            val application = appContext as? AndroidePyApplication
+                ?: throw AccessibilityOperationException(
+                    AccessibilityErrorCode.INTERNAL_ERROR,
+                    "A Android Bridge não está vinculada à aplicação.",
+                    requestId
+                )
+
+            val request = AccessibilityOperationRequest(
+                requestId = requestId!!,
+                operation = operation,
+                payload = payload,
+                timeoutMs = timeoutMs
+            )
+            val result = application.accessibilityGateway.executeOperation(request)
+
+            JSONObject()
+                .put("schema_version", PROTOCOL_VERSION)
+                .put("request_id", request.requestId)
+                .put("ok", true)
+                .put("result", result)
+                .put("error", JSONObject.NULL)
+                .toString()
+        } catch (error: AccessibilityOperationException) {
+            operationFailure(requestId ?: error.requestId, error)
+        } catch (_: JSONException) {
+            operationFailure(
+                requestId,
+                AccessibilityOperationException(
+                    AccessibilityErrorCode.INVALID_REQUEST,
+                    "A solicitação JSON está malformada.",
+                    requestId
+                )
+            )
+        } catch (_: Exception) {
+            operationFailure(
+                requestId,
+                AccessibilityOperationException(
+                    AccessibilityErrorCode.INTERNAL_ERROR,
+                    "Não foi possível processar a operação de acessibilidade.",
+                    requestId
+                )
+            )
+        }
+    }
+
+    private fun operationFailure(
+        requestId: String?,
+        error: AccessibilityOperationException
+    ): String {
+        val errorPayload = JSONObject()
+            .put("code", error.code.wireCode)
+            .put("message", error.message)
+            .put("retryable", error.retryable)
+
+        return JSONObject()
+            .put("schema_version", PROTOCOL_VERSION)
+            .put("request_id", requestId ?: JSONObject.NULL)
+            .put("ok", false)
+            .put("result", JSONObject.NULL)
+            .put("error", errorPayload)
+            .toString()
+    }
+
     fun getDeviceInfoJson(): String {
         val result = JSONObject()
             .put("schema_version", 1)
@@ -51,7 +176,7 @@ class AndroidBridgeAdapter(context: Context) {
             .put("device", Build.DEVICE)
             .put("android_release", Build.VERSION.RELEASE)
             .put("api_level", Build.VERSION.SDK_INT)
-            .put("supported_abis", JSONArray(Build.SUPPORTED_ABIS.toList()))
+            .put("supported_abis", org.json.JSONArray(Build.SUPPORTED_ABIS.toList()))
             .put("app_package_name", appContext.packageName)
             .put("app_version_name", appVersionName() ?: JSONObject.NULL)
 
@@ -182,6 +307,18 @@ class AndroidBridgeAdapter(context: Context) {
         } catch (_: PackageManager.NameNotFoundException) {
             null
         }
+    }
+
+    private companion object {
+        const val PROTOCOL_VERSION = 1
+        const val MIN_TIMEOUT_MS = 1L
+        const val MAX_TIMEOUT_MS = 120_000L
+        val SUPPORTED_OPERATIONS = setOf(
+            "screen.tap",
+            "screen.type_text",
+            "screen.swipe",
+            "screen.scroll"
+        )
     }
 }
 
