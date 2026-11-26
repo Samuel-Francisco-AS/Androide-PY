@@ -609,5 +609,6 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - Testes Python: `8cbd418bf5c8db724e4d0c3beaf068243198213f`.
 - Testes JVM da política: `b402eff3903c5514c3ab0faf426a08dbc7968815`.
 - Proteção contra interrupção/desconexão e ajuste de teardown: `7f36551919de5fb17efb519aaecec0f26da4f4aa`, `c8cecb584e52313a5680b1c701b343742f17e439`.
+- Validação estrita de payload nativo, semântica de rolagem, traço mínimo do toque e classificação de falhas: `a0bcf6c03c48609dd68bc5d8d66bcc14b6530fb9`, `01e186c2ac3e0f358f2268b3d2946f03e3620ce8`, `6c506c8acf14c80f95fc7a89d3ee40d3555339fb`.
 
 **Estado:** P2.2-A permanece em andamento até que os testes oficiais, build debug e validação física sejam executados e aprovados. P2.2-B/C permanecem não iniciadas.
