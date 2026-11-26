@@ -18,12 +18,7 @@ class AccessibilityGateway(context: Context) {
 
     private val appContext = context.applicationContext
     private val lock = Any()
-
-    @Volatile
-    private var connectedService: AndroidePyAccessibilityService? = null
-
-    @Volatile
-    private var interrupted = false
+    private val lifecycle = AccessibilityLifecycleState<AndroidePyAccessibilityService>()
 
     private val mutableStatus = MutableStateFlow(AccessibilityStatus.NOT_ENABLED)
     val status: StateFlow<AccessibilityStatus> = mutableStatus.asStateFlow()
@@ -51,16 +46,7 @@ class AccessibilityGateway(context: Context) {
             }
 
         synchronized(lock) {
-            if (!enabled) {
-                connectedService = null
-                interrupted = false
-            }
-
-            val next = when {
-                !enabled -> AccessibilityStatus.NOT_ENABLED
-                connectedService != null && !interrupted -> AccessibilityStatus.CONNECTED
-                else -> AccessibilityStatus.DISCONNECTED
-            }
+            val next = lifecycle.updateAuthorization(enabled)
             mutableStatus.value = next
             return next
         }
@@ -68,16 +54,14 @@ class AccessibilityGateway(context: Context) {
 
     internal fun onServiceConnected(service: AndroidePyAccessibilityService) {
         synchronized(lock) {
-            connectedService = service
-            interrupted = false
-            mutableStatus.value = AccessibilityStatus.CONNECTED
+            mutableStatus.value = lifecycle.onServiceConnected(service)
         }
     }
 
     internal fun onServiceInterrupted(service: AndroidePyAccessibilityService) {
         synchronized(lock) {
-            if (connectedService !== service) return
-            interrupted = true
+            if (!lifecycle.isCurrentService(service)) return
+            mutableStatus.value = lifecycle.onServiceInterrupted(service)
         }
         refreshStatus()
     }
@@ -88,8 +72,8 @@ class AccessibilityGateway(context: Context) {
      */
     internal fun onServiceSignal(service: AndroidePyAccessibilityService) {
         synchronized(lock) {
-            if (connectedService !== service || !interrupted) return
-            interrupted = false
+            if (!lifecycle.isInterruptedService(service)) return
+            mutableStatus.value = lifecycle.onServiceSignal(service)
         }
         refreshStatus()
     }
@@ -97,19 +81,12 @@ class AccessibilityGateway(context: Context) {
     internal fun onServiceDisconnected(service: AndroidePyAccessibilityService) {
         synchronized(lock) {
             // A late teardown callback from an older instance must not clear a newer bind.
-            if (connectedService !== service) return
-            connectedService = null
-            interrupted = false
+            if (!lifecycle.isCurrentService(service)) return
+            mutableStatus.value = lifecycle.onServiceDisconnected(service)
         }
         refreshStatus()
     }
 
     internal fun connectedServiceOrNull(): AndroidePyAccessibilityService? =
-        if (mutableStatus.value == AccessibilityStatus.CONNECTED) connectedService else null
-}
-
-enum class AccessibilityStatus(val wireValue: String) {
-    NOT_ENABLED("not_enabled"),
-    DISCONNECTED("disconnected"),
-    CONNECTED("connected")
+        synchronized(lock) { lifecycle.connectedServiceOrNull() }
 }
