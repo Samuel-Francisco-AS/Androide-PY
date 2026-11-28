@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 teve sua implementação publicada em 2026-11-28; revisão estática remota concluída, testes JVM adicionados mas ainda não executados e build local pendente. B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug. **B2 concluída no escopo de implementação, revisão estática, 63 testes JVM da suíte (16 específicos B2) e build debug**, com evidências locais de Sam em 2026-11-28. A validação física do overlay e do fluxo integrado, assim como a verificação da FK/cascata em SQLite real, permanecem reservadas à bateria final da B3. B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -467,7 +467,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 ### B2 — Sessão de captura e overlay
 
-**Estado:** implementação publicada; revisão estática remota concluída; 16 testes JVM adicionados, mas ainda não executados; build local pendente. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+**Estado:** implementação publicada e revisada estaticamente; verificação local concluída em 2026-11-28: 63 testes JVM passaram (16 específicos B2), sem falhas/erros/ignorados, e `assembleDebug` concluiu com sucesso. Validação física não realizada e reservada à bateria integrada final da B3. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
 **Implementado:**
 - `CoordinateCaptureController`: máquina de estados, exclusividade, validação de 15–300 s (padrão 120 s), timer monotônico, expiração, cancelamento, callbacks tardios e retry de cleanup.
@@ -480,7 +480,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Commits de implementação:** `8e7600f`, `674e2ff`, `fc009d6`, `f2218d0`, `60456fd`, `119b550` (6 de 7 commits permitidos). O registro documental foi publicado separadamente. Correções que surgirem durante a fase de testes ficam fora do teto, conforme autorização de Sam.
 
-**Pendências:** executar `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` no Fedora, revisar os resultados e corrigir falhas. Nenhum teste/build foi executado pela integração GitHub. A validação física segue adiada para a bateria integrada final da B3.
+**Verificação local — 2026-11-28:** Sam executou em `android/` `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`; resultado `BUILD SUCCESSFUL` em 34 s (55 tarefas: 11 executadas, 44 atualizadas). Os XMLs JUnit registraram 11 suítes, 63 testes, 0 ignorados, 0 falhas e 0 erros; `CoordinateCaptureControllerTest` passou 14/14 e `CoordinateCaptureTargetTrackerTest` 2/2. APK debug gerado em `android/app/build/outputs/apk/debug/app-debug.apk` (32 MB). Permaneceram dois avisos não fatais de depreciação para `recycle()` nas linhas 423–424 de `AndroidePyAccessibilityService.kt`; decisão de manter as chamadas registrada no contrato/arquitetura. Nenhum APK foi instalado e nenhuma validação física foi realizada. A validação física segue adiada para a bateria integrada final da B3.
 
 ### B3 — Seleção, nomeação e conclusão do mapa
 - [ ] Implementar seleção de múltiplos pontos, nomeação, correção/refazer, conclusão e cancelamento.
@@ -489,7 +489,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; implementação B2 publicada em seis commits, com testes JVM adicionados ainda pendentes de execução e build local pendente; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 e B2 concluídas nos respectivos escopos de implementação/revisão/testes/build. B2: 63/63 testes JVM da suíte aprovados, incluindo 16/16 testes específicos, e build debug aprovado; nenhum APK instalado. B3 permanece pendente. A validação física integrada e a verificação da FK/cascata em SQLite real serão realizadas na bateria final da B3, por decisão de Sam. Nenhuma alteração foi feita na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção
@@ -582,3 +582,14 @@ A aprovação de um bloco não aprova automaticamente os demais.
 ### Registro de definição B2 — 2026-11-28
 
 Sam aprovou os limites de duração de 15–300 segundos, com padrão de 120 segundos, e confirmou que a troca do aplicativo em primeiro plano **não** deve encerrar a sessão. O pacote inicial permanece como fotografia imutável; a sessão continua até cancelamento explícito, expiração ou encerramento de segurança por interrupção/desconexão/falha do serviço. A especificação completa e os critérios B2-01 a B2-16 estão em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md). Registro documental apenas: nenhuma implementação, teste, build ou validação física B2 foi realizada.
+
+
+### Registro de verificação local e fechamento B2 — 2026-11-28
+
+- **Checkout:** branch `feat/p2-accessibility-automation`, HEAD `27154e77cab2c18df0fdb7193f17b9a9f75d175c`, igual a `origin/feat/p2-accessibility-automation`; `git status --short --branch` sem alterações pendentes.
+- **Comando executado por Sam no Fedora**, a partir de `android/`: `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`.
+- **Resultado:** `BUILD SUCCESSFUL` em 34 s; 55 tarefas (11 executadas, 44 atualizadas). XMLs: 11 suítes, 63 testes, 0 skipped, 0 failures, 0 errors. B2: `CoordinateCaptureControllerTest` 14/14 e `CoordinateCaptureTargetTrackerTest` 2/2.
+- **Artefato:** `android/app/build/outputs/apk/debug/app-debug.apk`, 32 MB. Geração confirmada; instalação não realizada.
+- **Avisos:** duas chamadas `recycle()` deprecated, linhas 423–424 de `AndroidePyAccessibilityService.kt`; não impediram compilação/testes. Permanecem intencionalmente sem alteração, conforme decisão de Sam; ver nota de manutenção em `docs/ARCHITECTURE.md` e no contrato B2.
+- **Limites:** revisão estática remota e verificação JVM/build concluídas. Comportamento real do overlay/serviço não foi testado em dispositivo; validação física fica para a bateria integrada final da B3. Nenhum APK será instalado antes de nova comunicação e decisão explícita de Sam sobre o risco Room schema 2 → 3, que pode apagar `androide_py.db`.
+- **Conclusão:** B2 fechada para implementação, revisão estática, testes JVM e build debug. B3 não foi iniciada nem autorizada por este registro.
