@@ -185,7 +185,8 @@ class AndroidBridgeAdapter(context: Context) {
             .toString()
     }
 
-    fun startCoordinateCaptureJson(requestJson: String): String = try {
+    fun startCoordinateCaptureJson(requestJson: String): String {
+        return try {
         if (Looper.myLooper() == Looper.getMainLooper()) return bridgeError("INTERNAL_ERROR", "A captura não pode iniciar na main thread.")
         val request = JSONObject(requestJson)
         val requestId = request.optString("request_id")
@@ -209,7 +210,8 @@ class AndroidBridgeAdapter(context: Context) {
         }
         JSONObject().put("ok", true).put("request_id", requestId)
             .put("result", JSONObject().put("capture_id", captureId).put("state", "scheduled")).toString()
-    } catch (_: Exception) { bridgeError("INVALID_REQUEST", "A solicitação de captura é inválida.") }
+        } catch (_: Exception) { bridgeError("INVALID_REQUEST", "A solicitação de captura é inválida.") }
+    }
 
     fun getCoordinateCaptureStatusJson(captureId: String): String {
         val app = appContext as? AndroidePyApplication
@@ -267,9 +269,11 @@ class AndroidBridgeAdapter(context: Context) {
         return try {
             if (Looper.myLooper() == Looper.getMainLooper()) return bridgeError("INTERNAL_ERROR", "O toque não pode aguardar na main thread.")
             val request = JSONObject(requestJson)
-            requestId = request.optString("request_id")
-            UUID.fromString(requestId)
-            val app = appContext as? AndroidePyApplication ?: return bridgeError("BRIDGE_NOT_CONFIGURED", "A Bridge não está configurada.", requestId)
+            val parsedRequestId = request.optString("request_id").takeIf { it.isNotBlank() }
+                ?: return bridgeError("INVALID_REQUEST", "Identificador ausente.")
+            requestId = parsedRequestId
+            UUID.fromString(parsedRequestId)
+            val app = appContext as? AndroidePyApplication ?: return bridgeError("BRIDGE_NOT_CONFIGURED", "A Bridge não está configurada.", parsedRequestId)
             val map = runBlocking { app.coordinateMapRepository.get(request.optString("map_name")) }
             val point = map.points.firstOrNull { it.name.equals(request.optString("point_name"), ignoreCase = true) }
                 ?: return bridgeError("MAP_POINT_NOT_FOUND", "Ponto não encontrado no mapa.", requestId)
@@ -280,8 +284,11 @@ class AndroidBridgeAdapter(context: Context) {
                 return bridgeError("MAP_CONTEXT_MISMATCH", "A orientação do display não corresponde ao mapa.", requestId)
             val timeout = request.optLong("timeout_ms", 10_000L)
             if (timeout !in 1L..120_000L) return bridgeError("INVALID_PAYLOAD", "Timeout inválido.", requestId)
-            val operation = AccessibilityOperationRequest(requestId, "screen.tap",
-                JSONObject().put("x", point.xNormalized).put("y", point.yNormalized).put("coordinate_space", "normalized"), timeout)
+            val metrics = appContext.resources.displayMetrics
+            val x = (point.xNormalized * metrics.widthPixels).toInt().coerceIn(0, metrics.widthPixels - 1)
+            val y = (point.yNormalized * metrics.heightPixels).toInt().coerceIn(0, metrics.heightPixels - 1)
+            val operation = AccessibilityOperationRequest(parsedRequestId, "screen.tap",
+                JSONObject().put("x", x).put("y", y).put("coordinate_space", "pixels"), timeout)
             val result = app.accessibilityGateway.executeOperation(operation)
             JSONObject().put("ok", true).put("request_id", requestId).put("result", result).toString()
         } catch (_: CoordinateMapNotFoundException) { bridgeError("MAP_NOT_FOUND", "Mapa de coordenadas não encontrado.", requestId) }

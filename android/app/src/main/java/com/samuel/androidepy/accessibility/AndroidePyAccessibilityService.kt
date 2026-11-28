@@ -83,7 +83,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
     /** Starts a non-queued capture session and returns immediately after scheduling. */
     internal fun startCoordinateMapCapture(captureId: String, delayMs: Long, timeoutMs: Long) {
-        mainHandler.post {
+        val accepted = mainHandler.post {
             val registry = (application as? AndroidePyApplication)?.coordinateCaptureRegistry
             if (!serviceOperational || registry == null) {
                 registry?.fail(captureId, "failed", "SERVICE_DISCONNECTED", "O serviço não está operacional.")
@@ -104,7 +104,11 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                     }
                 }
             }
-            mainHandler.postDelayed(captureTimeoutTask!!, timeoutMs)
+            if (!mainHandler.postDelayed(captureTimeoutTask!!, timeoutMs)) {
+                registry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível agendar o timeout.")
+                clearCaptureTasks(captureId)
+                return@post
+            }
             captureDelayTask = Runnable {
                 if (activeCaptureId != captureId) return@Runnable
                 val target = captureTargetTracker.snapshot()
@@ -126,7 +130,15 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                     clearCaptureTasks(captureId)
                 }
             }
-            mainHandler.postDelayed(captureDelayTask!!, delayMs)
+            if (!mainHandler.postDelayed(captureDelayTask!!, delayMs)) {
+                registry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível agendar o início da captura.")
+                clearCaptureTasks(captureId)
+            }
+        }
+        if (!accepted) {
+            (application as? AndroidePyApplication)?.coordinateCaptureRegistry?.fail(
+                captureId, "failed", "SERVICE_DISCONNECTED", "A thread principal não aceitou a solicitação."
+            )
         }
     }
 
@@ -170,8 +182,12 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                                     .put("x_normalized", p.xNormalized).put("y_normalized", p.yNormalized))
                             } })
                         app.coordinateCaptureRegistry.complete(captureId, result)
+                    } catch (_: android.database.sqlite.SQLiteConstraintException) {
+                        app.coordinateCaptureRegistry.fail(captureId, "failed", "MAP_ALREADY_EXISTS", "Já existe um mapa com esse nome.")
+                    } catch (_: IllegalArgumentException) {
+                        app.coordinateCaptureRegistry.fail(captureId, "failed", "INVALID_MAP", "Os dados do mapa não passaram pela validação.")
                     } catch (_: Exception) {
-                        app.coordinateCaptureRegistry.fail(captureId, "failed", "MAP_ALREADY_EXISTS", "Não foi possível persistir o mapa; verifique nome duplicado.")
+                        app.coordinateCaptureRegistry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível persistir o mapa.")
                     }
                 }
             }
