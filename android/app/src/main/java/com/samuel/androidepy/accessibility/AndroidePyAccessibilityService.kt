@@ -113,6 +113,11 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             captureDelayTask = Runnable {
                 if (activeCaptureId != captureId) return@Runnable
                 val target = captureTargetTracker.snapshot()
+                if (target == null) {
+                    registry.fail(captureId, "failed", "INVALID_TARGET", "Nenhum aplicativo alvo válido foi identificado.")
+                    clearCaptureTasks(captureId)
+                    return@Runnable
+                }
                 if (!registry.activate(captureId)) {
                     registry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível ativar a captura.")
                     clearCaptureTasks(captureId)
