@@ -15,7 +15,7 @@ ADRs preservam o contexto de uma escolha, alternativas consideradas, consequênc
 | [ADR-0005](0005-p0-toolchain-baseline.md) | Baseline de ferramentas e dependências da P0 | Validado |
 | [ADR-0006](0006-script-library-versioning-and-execution-history.md) | Versionamento, parâmetros e histórico P1 | Implementado na P1; escopo acordado validado; itens diferidos documentados |
 | [ADR-0007](0007-local-data-preservation-policy.md) | Preservação de dados locais durante o desenvolvimento | Aceito |
-| [ADR-0008](0008-accessibility-service-bridge-and-lifecycle.md) | AccessibilityService, gateway e fronteira da Android Bridge | Aceito; fundação/autorização P2.1 validadas; implementação P2.2-A publicada, com testes/build/validação física pendentes |
+| [ADR-0008](0008-accessibility-service-bridge-and-lifecycle.md) | AccessibilityService, gateway e fronteira da Android Bridge | Aceito; P2.1 validada; P2.2-A e B1/B2 implementadas; 63 testes JVM e build debug aprovados; validação física integrada pendente para B3 |
 | [ADR-0009](0009-sensitive-data-consent-and-retention.md) | Consentimento para dados sensíveis e retenção de saídas | Aceito para P2; implementação pendente |
 
 ## Modelo
