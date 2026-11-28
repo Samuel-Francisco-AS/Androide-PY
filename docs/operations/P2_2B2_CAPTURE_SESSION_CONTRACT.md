@@ -132,4 +132,4 @@ Todos são critérios planejados; nenhum está marcado como implementado/testado
 
 ## 11. Estado e limites
 
-Contrato definido e aceito em 2026-11-28. Implementação publicada em cinco commits; revisão estática remota concluída. Os 15 testes JVM foram adicionados, mas ainda não executados; build local pendente. B3 permanece pendente. A validação física foi adiada para a bateria integrada final da B3. O início da implementação foi autorizado separadamente por Sam em 2026-11-28.
+Contrato definido e aceito em 2026-11-28. Implementação publicada em seis commits; revisão estática remota concluída. Os 16 testes JVM foram adicionados, mas ainda não executados; build local pendente. B3 permanece pendente. A validação física foi adiada para a bateria integrada final da B3. O início da implementação foi autorizado separadamente por Sam em 2026-11-28.

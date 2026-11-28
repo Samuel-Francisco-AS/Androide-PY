@@ -467,7 +467,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 ### B2 — Sessão de captura e overlay
 
-**Estado:** implementação publicada; revisão estática remota concluída; 15 testes JVM adicionados, mas ainda não executados; build local pendente. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+**Estado:** implementação publicada; revisão estática remota concluída; 16 testes JVM adicionados, mas ainda não executados; build local pendente. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
 **Implementado:**
 - `CoordinateCaptureController`: máquina de estados, exclusividade, validação de 15–300 s (padrão 120 s), timer monotônico, expiração, cancelamento, callbacks tardios e retry de cleanup.
@@ -478,7 +478,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Limites preservados:** a mudança de aplicativo em primeiro plano não encerra a sessão; pacote-alvo permanece como fotografia inicial. B2 não seleciona/nomeia pontos, não persiste dados parciais, não adiciona screenshots/OCR, API pública ou anúncio `screen.*`. Manifesto e XML de acessibilidade não precisaram de permissões/capabilities adicionais; nenhum `SYSTEM_ALERT_WINDOW`.
 
-**Commits de implementação:** `8e7600f`, `674e2ff`, `fc009d6`, `f2218d0`, `60456fd` (5 de 7 commits permitidos). Este registro documental é o sexto commit do trabalho B2. Correções que surgirem durante a fase de testes ficam fora do teto, conforme autorização de Sam.
+**Commits de implementação:** `8e7600f`, `674e2ff`, `fc009d6`, `f2218d0`, `60456fd`, `119b550` (6 de 7 commits permitidos). O registro documental foi publicado separadamente. Correções que surgirem durante a fase de testes ficam fora do teto, conforme autorização de Sam.
 
 **Pendências:** executar `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` no Fedora, revisar os resultados e corrigir falhas. Nenhum teste/build foi executado pela integração GitHub. A validação física segue adiada para a bateria integrada final da B3.
 
@@ -489,7 +489,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; implementação B2 publicada em cinco commits, com testes JVM adicionados ainda pendentes de execução e build local pendente; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; implementação B2 publicada em seis commits, com testes JVM adicionados ainda pendentes de execução e build local pendente; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção
