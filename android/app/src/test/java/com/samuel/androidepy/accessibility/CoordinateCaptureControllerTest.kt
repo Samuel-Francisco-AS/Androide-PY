@@ -225,6 +225,23 @@ class CoordinateCaptureControllerTest {
         assertEquals(1, fixture.overlay.removeCount)
     }
 
+    @Test
+    fun cancelButtonCanRetryTransientOverlayRemovalFailure() {
+        val fixture = Fixture()
+        fixture.controller.start("com.example.target", 120)
+        fixture.overlay.failRemoveCount = 1
+        val cancel = fixture.overlay.cancelAction
+
+        cancel?.invoke()
+        assertEquals(CoordinateCaptureState.FAILED, fixture.controller.snapshot.state)
+
+        // The same visible button remains available while the overlay is still attached.
+        cancel?.invoke()
+        assertEquals(CoordinateCaptureState.IDLE, fixture.controller.snapshot.state)
+        assertEquals(CoordinateCaptureFailure.OVERLAY_REMOVAL_FAILED, fixture.controller.snapshot.lastFailure)
+        assertEquals(2, fixture.overlay.removeCount)
+    }
+
     private class Fixture {
         val scheduler = FakeScheduler()
         val overlay = FakeOverlay()

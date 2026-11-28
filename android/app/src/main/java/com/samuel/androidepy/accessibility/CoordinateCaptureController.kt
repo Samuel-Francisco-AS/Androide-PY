@@ -146,8 +146,11 @@ internal class CoordinateCaptureController(
     }
 
     fun cancel() {
-        if (state == CoordinateCaptureState.ACTIVE) {
-            finish(CoordinateCaptureOutcome.CANCELLED, null)
+        when (state) {
+            CoordinateCaptureState.ACTIVE ->
+                finish(CoordinateCaptureOutcome.CANCELLED, null)
+            CoordinateCaptureState.FAILED -> retryOverlayRemoval()
+            else -> Unit
         }
     }
 
@@ -174,8 +177,10 @@ internal class CoordinateCaptureController(
     }
 
     private fun cancel(sessionGeneration: Long) {
-        if (sessionGeneration == generation && state == CoordinateCaptureState.ACTIVE) {
-            finish(CoordinateCaptureOutcome.CANCELLED, null)
+        when {
+            sessionGeneration == generation && state == CoordinateCaptureState.ACTIVE ->
+                finish(CoordinateCaptureOutcome.CANCELLED, null)
+            state == CoordinateCaptureState.FAILED -> retryOverlayRemoval()
         }
     }
 
