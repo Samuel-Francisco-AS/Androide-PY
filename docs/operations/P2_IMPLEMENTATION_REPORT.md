@@ -691,3 +691,26 @@ Sam sincronizou a branch no Fedora e confirmou o checkout `27154e77cab2c18df0fdb
 A compilação apresentou dois avisos não fatais de depreciação para `recycle()` nas linhas 423–424 de `AndroidePyAccessibilityService.kt`. Por decisão de Sam, as chamadas permanecem sem alteração; a justificativa e o comportamento por API estão registrados em [ARCHITECTURE.md](../ARCHITECTURE.md) e no [contrato B2](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
 **Fechamento:** B2 aprovada no escopo de implementação, revisão estática, testes JVM e build debug. Não houve instalação do APK nem validação física do overlay/serviço. A validação física integrada permanece reservada à bateria final da B3. Antes de qualquer instalação, Sam deverá receber nova comunicação e decidir explicitamente sobre o risco Room schema 2 → 3, que pode apagar `androide_py.db`. B3 não foi iniciada/autorizada por este fechamento.
+
+
+## 3.20 P2.2-B3 — Plano operacional e decisões de execução — 2026-11-28
+
+Sam autorizou a implementação B3 diretamente na branch remota `feat/p2-accessibility-automation`, com limite de até 8 commits para a execução de implementação. O limite não se aplica a correções posteriores da fase de testes. O checkout Fedora está desatualizado; por decisão de Sam, a sincronização ocorrerá após a implementação remota.
+
+A B3 será uma única execução contínua, organizada por quatro checkpoints internos, sem aprovação/fechamento independente:
+1. B3.1 — Núcleo de captura: seleção de múltiplos pontos, nomeação, validação, correção/refazer, conclusão e cancelamento.
+2. B3.2 — Persistência e gerenciamento: Room, gravação atômica apenas de mapas completos, listagem, consulta, exclusão e metadados de calibração.
+3. B3.3 — Integração: Android Bridge, protocolo assíncrono e API Python pública.
+4. B3.4 — Verificação integrada: revisão estática, testes JVM/Python, build, documentação e bateria física autorizada.
+
+Decisões aprovadas:
+- A sessão de captura não ocupa a fila de operações pontuais e não bloqueia a thread principal Android.
+- O serviço Android mantém o ciclo de vida da sessão; a conclusão/cancelamento/timeout é entregue por mecanismo de resultado próprio, correlacionado à solicitação.
+- Preservar o pacote-alvo imutável capturado no início da sessão e o ciclo de vida B2.
+- Separar `delay_ms` (espera inicial), duração da sessão B2 (15–300 s, padrão 120 s) e `timeout_ms` (prazo total). Não tratar esses parâmetros como equivalentes.
+- Persistir exclusivamente por Kotlin/Room e somente após conclusão válida; cancelamento/falha descarta estado parcial; duplicidade não sobrescreve mapas.
+- Não instalar APK durante esta execução. A migração Room schema 2 → 3 ainda usa `fallbackToDestructiveMigration(true)` e pode recriar `androide_py.db`; qualquer instalação requer comunicação prévia e autorização explícita.
+- Validação física do overlay/fluxo e verificação da FK/cascata em SQLite real ficam reservadas à bateria integrada final da B3.
+- A sincronização do Fedora será feita após a implementação remota, conforme decisão do usuário.
+
+A implementação seguirá CONFERE → IMPLEMENTA → VERIFICA → CONFIRMA. Publicação/revisão estática, testes automatizados executados, build e validação física serão registrados como evidências distintas. Este registro documenta a autorização e as decisões; não declara qualquer item B3 implementado/testado.

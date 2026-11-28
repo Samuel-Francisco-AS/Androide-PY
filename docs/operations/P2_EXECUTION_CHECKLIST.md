@@ -482,14 +482,32 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Verificação local — 2026-11-28:** Sam executou em `android/` `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`; resultado `BUILD SUCCESSFUL` em 34 s (55 tarefas: 11 executadas, 44 atualizadas). Os XMLs JUnit registraram 11 suítes, 63 testes, 0 ignorados, 0 falhas e 0 erros; `CoordinateCaptureControllerTest` passou 14/14 e `CoordinateCaptureTargetTrackerTest` 2/2. APK debug gerado em `android/app/build/outputs/apk/debug/app-debug.apk` (32 MB). Permaneceram dois avisos não fatais de depreciação para `recycle()` nas linhas 423–424 de `AndroidePyAccessibilityService.kt`; decisão de manter as chamadas registrada no contrato/arquitetura. Nenhum APK foi instalado e nenhuma validação física foi realizada. A validação física segue adiada para a bateria integrada final da B3.
 
-### B3 — Seleção, nomeação e conclusão do mapa
-- [ ] Implementar seleção de múltiplos pontos, nomeação, correção/refazer, conclusão e cancelamento.
-- [ ] Persistir somente mapas completos e válidos; nenhum dado parcial em cancelamento/falha.
-- [ ] Integrar os contratos Python documentados e validar captura, consulta, exclusão e reutilização ponta a ponta no Moto G06.
+### B3 — Seleção, nomeação, conclusão e gerenciamento do mapa
 
-**Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
+**Estado:** autorizada em 2026-11-28; implementação contínua em andamento. Os checkpoints abaixo são pontos internos de acompanhamento de uma única execução B3, não subetapas com gates ou aprovações independentes.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 e B2 concluídas nos respectivos escopos de implementação/revisão/testes/build. B2: 63/63 testes JVM da suíte aprovados, incluindo 16/16 testes específicos, e build debug aprovado; nenhum APK instalado. B3 permanece pendente. A validação física integrada e a verificação da FK/cascata em SQLite real serão realizadas na bateria final da B3, por decisão de Sam. Nenhuma alteração foi feita na `main`.
+**Decomposição operacional aprovada por Sam:**
+
+1. **B3.1 — Núcleo de captura:** seleção de múltiplos pontos no overlay, nomeação individual, validação de nomes, correção/refazer pontos, conclusão e cancelamento.
+2. **B3.2 — Persistência e gerenciamento:** integração com Room; persistir apenas mapas completos e válidos em transação; listar, consultar e excluir mapas; preservar metadados de calibração.
+3. **B3.3 — Android Bridge e API Python:** integrar a sessão B2 à Bridge, ao protocolo assíncrono e à API pública `mobile.screen`; manter resultados serializáveis e erros estáveis.
+4. **B3.4 — Verificação integrada e fechamento:** revisão estática integrada, testes JVM/Python, build debug, atualização documental e bateria física no Moto G06 somente após autorização explícita de Sam.
+
+**Decisões arquiteturais aprovadas:**
+- A sessão de captura tem ciclo de vida independente da fila serial de operações pontuais; o tempo de seleção não reserva uma posição nessa fila.
+- A thread principal Android nunca aguarda o worker Python nem uma conclusão de captura. Início, seleção, timeout, cancelamento e conclusão são dirigidos por callbacks/eventos.
+- A fotografia imutável do pacote-alvo, a propriedade do serviço, o overlay `TYPE_ACCESSIBILITY_OVERLAY`, a duração B2 (15–300 s, padrão 120 s) e o relógio monotônico são preservados.
+- `delay_ms` representa somente a espera antes de ativar a seleção; a duração da sessão B2 e `timeout_ms` (prazo total da chamada/captura) são responsabilidades distintas. Não converter um parâmetro no outro.
+- Persistência é feita exclusivamente pelo repositório Kotlin/Room. Mapas parciais não são persistidos; nomes duplicados não sobrescrevem dados.
+- O contrato público existente deve ser preservado quando compatível com essas decisões; qualquer ajuste necessário para não bloquear a fila/worker deve ser documentado sem expor objetos Android ao Python.
+- Não instalar APK durante a implementação. A migração Room schema 2 → 3 usa fallback destrutivo e pode apagar `androide_py.db`; qualquer instalação exige aviso e autorização explícita de Sam.
+- A validação física do overlay/fluxo e a verificação de FK/cascata em SQLite real ficam reservadas à bateria integrada final B3.
+
+**Orçamento:** máximo de 8 commits para a execução de implementação B3, incluindo documentação. O limite não se aplica a correções posteriores identificadas na fase de testes. Commits devem agrupar responsabilidades coerentes, sem fragmentação por arquivo.
+
+**Método:** CONFERE → IMPLEMENTA → VERIFICA → CONFIRMA. A execução avança sequencialmente pelos checkpoints, sem encerramentos ou aprovações independentes. Nenhum teste, build ou comportamento físico será declarado aprovado sem evidência de execução.
+
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 e B2 concluídas nos respectivos escopos de implementação/revisão/testes/build. B2: 63/63 testes JVM da suíte aprovados, incluindo 16/16 específicos, e build debug aprovado; nenhum APK instalado. B3 autorizada e iniciada nesta branch. Nenhuma alteração na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção
