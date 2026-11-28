@@ -611,7 +611,7 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - Proteção contra interrupção/desconexão e ajuste de teardown: `7f36551919de5fb17efb519aaecec0f26da4f4aa`, `c8cecb584e52313a5680b1c701b343742f17e439`.
 - Validação estrita de payload nativo, semântica de rolagem, traço mínimo do toque e classificação de falhas: `a0bcf6c03c48609dd68bc5d8d66bcc14b6530fb9`, `01e186c2ac3e0f358f2268b3d2946f03e3620ce8`, `6c506c8acf14c80f95fc7a89d3ee40d3555339fb`.
 
-**Estado atualizado em 2026-11-28:** P2.2-A fechada administrativamente com ressalvas: testes automatizados e build aprovados, validação física parcial (4 PASS) e `type_text()` adiado. P2.2-B1 concluída; implementação B2 publicada em seis commits, testes JVM adicionados mas não executados e build local pendente; B3 pendente. A verificação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas permanecem para a bateria final da B3.
+**Estado atualizado em 2026-11-28:** P2.2-A fechada administrativamente com ressalvas: testes automatizados e build aprovados, validação física parcial (4 PASS) e `type_text()` adiado. P2.2-B1 e B2 concluídas no escopo de implementação, revisão estática, testes JVM e build debug. B2 passou nos 63 testes JVM da suíte (16 específicos B2) e no build debug local. B3 permanece pendente; a verificação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas/overlay ficam para a bateria final da B3.
 
 ## 3.16 P2.2-B1 — Modelo de dados e persistência Room: fechamento — 2026-11-28
 
@@ -661,10 +661,10 @@ Por decisão explícita de Sam em 2026-11-28, a validação física do fluxo do 
 
 Sam aprovou o contrato registrado em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md). Decisões: overlay `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer e botão cancelar; duração configurável de 15 a 300 segundos, padrão 120; contexto inicial obtido somente de `event.packageName`, congelado antes da criação do overlay e ignorando o próprio app. A mudança do aplicativo em primeiro plano **não encerra a sessão**, não atualiza o pacote e não reinicia o timer. Encerramento normal por cancelamento explícito ou expiração; interrupção/desconexão e falhas operacionais são encerramentos de segurança.
 
-Os controladores pertencem à instância conectada do AccessibilityService. A sessão não mantém ocupada a fila de operações pontuais nem o worker Python. B2 não inclui seleção/nomeação de pontos, persistência parcial, screenshots, leitura de conteúdo de tela, API pública Python ou anúncio `screen.*`. O contrato define estados, exclusividade, cleanup idempotente, causas de falha, 16 critérios de aceite e plano de verificação. **A implementação B2 está publicada**; 16 testes JVM foram adicionados, mas ainda não executados, e o build local permanece pendente. Nenhuma validação física B2 foi realizada, por decisão de Sam; ela segue adiada para a bateria integrada final da B3. O risco Room schema 2 → 3 deverá ser comunicado antes de qualquer instalação de APK.
+Os controladores pertencem à instância conectada do AccessibilityService. A sessão não mantém ocupada a fila de operações pontuais nem o worker Python. B2 não inclui seleção/nomeação de pontos, persistência parcial, screenshots, leitura de conteúdo de tela, API pública Python ou anúncio `screen.*`. O contrato define estados, exclusividade, cleanup idempotente, causas de falha, 16 critérios de aceite e plano de verificação. **A implementação B2 está publicada e foi verificada localmente:** 16 testes JVM específicos passaram; a suíte completa registrou 63 testes, sem falhas, erros ou ignorados, e o build debug foi aprovado. Nenhuma validação física B2 foi realizada, por decisão de Sam; ela segue adiada para a bateria integrada final da B3. O risco Room schema 2 → 3 deverá ser comunicado antes de qualquer instalação de APK.
 
 
-## 3.18 P2.2-B2 — Sessão de captura e overlay: implementação publicada — 2026-11-28
+## 3.18 P2.2-B2 — Sessão de captura e overlay: implementação e revisão estática — 2026-11-28
 
 **Arquivos de produção:**
 - `CoordinateCaptureController.kt`: estados `IDLE/STARTING/ACTIVE/STOPPING/FAILED`, resultados terminais, exclusividade, limites/default de duração, relógio monotônico, timer, cancelamento, expiração, invalidação de callbacks tardios e retry de remoção.
@@ -679,21 +679,6 @@ Os controladores pertencem à instância conectada do AccessibilityService. A se
 **Commits de implementação:** `8e7600fb9bf27623c8e6c9ce242004dd86adc435`, `674e2ff7138e046a34367c4602e7df38f7123900`, `fc009d6b999e8fa7e33ccebce0f93989cb32200a`, `f2218d01415a3ae5f2c448719a8c66fabaa2658e`, `60456fd0cf7ffb014316c61963ee896b018231c5`, `119b550b411094656bbb584414b5d95d24c70830`. Total: 6/7 commits permitidos para implementação.
 
 undefined
-
-
-## 3.19 P2.2-B2 — Verificação local e fechamento — 2026-11-28
-
-Sam sincronizou a branch no Fedora e confirmou o checkout `27154e77cab2c18df0fdb7193f17b9a9f75d175c`, igual à referência remota, com worktree limpa. Executou a partir de `android/`:
-
-```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2
-```
-
-**Resultado observado:** `BUILD SUCCESSFUL` em 34 s; 55 tarefas (11 executadas, 44 atualizadas). Os XMLs JUnit apresentados por Sam registram 11 suítes, 63 testes, 0 ignorados, 0 falhas e 0 erros. Os testes específicos B2 foram `CoordinateCaptureControllerTest` (14/14) e `CoordinateCaptureTargetTrackerTest` (2/2), totalizando 16/16. O APK debug foi gerado em `android/app/build/outputs/apk/debug/app-debug.apk` com 32 MB.
-
-A compilação apresentou dois avisos não fatais de depreciação para `recycle()` nas linhas 423–424 de `AndroidePyAccessibilityService.kt`. Por decisão de Sam, as chamadas permanecem sem alteração; a justificativa e o comportamento por API estão registrados em [ARCHITECTURE.md](../ARCHITECTURE.md) e no [contrato B2](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
-
-**Fechamento:** B2 aprovada no escopo de implementação, revisão estática, testes JVM e build debug. Não houve instalação do APK nem validação física do overlay/serviço. A validação física integrada permanece reservada à bateria final da B3. Antes de qualquer instalação, Sam deverá receber nova comunicação e decidir explicitamente sobre o risco Room schema 2 → 3, que pode apagar `androide_py.db`. B3 não foi iniciada/autorizada por este fechamento.
 
 
 ## 3.19 P2.2-B2 — Verificação local e fechamento — 2026-11-28
