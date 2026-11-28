@@ -45,7 +45,8 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Relatório da implementação P2](docs/operations/P2_IMPLEMENTATION_REPORT.md) | Estado, decisões, riscos e validações da P2 |
 | [Contrato Python P2](docs/operations/P2_PYTHON_API.md) | API planejada `mobile.screen` e Mapas de Coordenadas |
 | [Protocolo assíncrono P2](docs/operations/P2_ASYNC_PROTOCOL.md) | Comunicação interna Python/Kotlin/AccessibilityService |
-| [Revisão de segurança P2](docs/operations/P2_SECURITY_REVIEW.md) | Consentimento, minimização, retenção e riscos P2 |\n| [Contrato da sessão B2](docs/operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md) | Sessão de captura, overlay, timer, lifecycle e critérios de aceite |
+| [Revisão de segurança P2](docs/operations/P2_SECURITY_REVIEW.md) | Consentimento, minimização, retenção e riscos P2 |
+| [Contrato da sessão B2](docs/operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md) | Sessão de captura, overlay, timer, lifecycle e critérios de aceite |
 
 ## Estado atual
 
