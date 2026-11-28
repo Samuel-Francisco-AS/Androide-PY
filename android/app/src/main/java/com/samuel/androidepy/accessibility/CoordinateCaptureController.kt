@@ -27,9 +27,12 @@ internal enum class CoordinateCaptureFailure {
 
 internal enum class CoordinateCaptureStartResult {
     STARTED,
+    SERVICE_UNAVAILABLE,
     ALREADY_RUNNING,
     INVALID_DURATION,
-    INVALID_TARGET
+    INVALID_TARGET,
+    OVERLAY_CREATION_FAILED,
+    INTERNAL_ERROR
 }
 
 internal data class CoordinateCaptureSnapshot(
@@ -129,8 +132,7 @@ internal class CoordinateCaptureController(
                 CoordinateCaptureOutcome.FAILED,
                 CoordinateCaptureFailure.OVERLAY_CREATION_FAILED
             )
-            return CoordinateCaptureStartResult.INVALID_TARGET.takeIf { false }
-                ?: CoordinateCaptureStartResult.ALREADY_RUNNING
+            return CoordinateCaptureStartResult.OVERLAY_CREATION_FAILED
         }
 
         // The monotonic deadline starts only after WindowManager.addView succeeds.
@@ -138,7 +140,7 @@ internal class CoordinateCaptureController(
         deadlineElapsedRealtime = scheduler.elapsedRealtime() + durationMs
         state = CoordinateCaptureState.ACTIVE
         if (!updateTimerAndSchedule(sessionGeneration)) {
-            return CoordinateCaptureStartResult.ALREADY_RUNNING
+            return CoordinateCaptureStartResult.INTERNAL_ERROR
         }
         return CoordinateCaptureStartResult.STARTED
     }

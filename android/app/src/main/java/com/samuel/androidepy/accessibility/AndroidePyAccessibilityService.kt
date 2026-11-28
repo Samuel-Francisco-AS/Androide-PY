@@ -25,19 +25,59 @@ class AndroidePyAccessibilityService : AccessibilityService() {
         get() = (application as? AndroidePyApplication)?.accessibilityGateway
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val captureTargetTracker by lazy {
+        CoordinateCaptureTargetTracker(packageName)
+    }
+
+    private var captureController: CoordinateCaptureController? = null
 
     @Volatile
     private var serviceOperational = false
 
+    private fun ensureCaptureController() {
+        if (captureController == null) {
+            captureController = CoordinateCaptureController(
+                overlay = CaptureOverlayController(this),
+                scheduler = HandlerCoordinateCaptureScheduler(mainHandler)
+            )
+        }
+    }
+
+    /**
+     * Internal native entry point reserved for the later B3 Bridge integration.
+     * B2 intentionally does not expose a public Python screen.* operation.
+     */
+    internal fun startCoordinateCaptureSession(
+        durationSeconds: Int = CoordinateCaptureController.DEFAULT_DURATION_SECONDS,
+        completion: (CoordinateCaptureStartResult) -> Unit
+    ) {
+        val accepted = mainHandler.post {
+            if (!serviceOperational) {
+                completion(CoordinateCaptureStartResult.SERVICE_UNAVAILABLE)
+                return@post
+            }
+            ensureCaptureController()
+            val targetPackage = captureTargetTracker.snapshot()
+            completion(
+                captureController?.start(targetPackage, durationSeconds)
+                    ?: CoordinateCaptureStartResult.SERVICE_UNAVAILABLE
+            )
+        }
+        if (!accepted) completion(CoordinateCaptureStartResult.SERVICE_UNAVAILABLE)
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         serviceOperational = true
+        ensureCaptureController()
         accessibilityGateway?.onServiceConnected(this)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         // Read only the configured window-state signal; never inspect its payload.
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            // The package name is the only event field retained for the B2 target snapshot.
+            captureTargetTracker.record(event.packageName?.toString())
             serviceOperational = true
             accessibilityGateway?.onServiceSignal(this)
         }
@@ -45,17 +85,23 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() {
         serviceOperational = false
+        captureController?.onServiceInterrupted()
         accessibilityGateway?.onServiceInterrupted(this)
     }
 
     override fun onUnbind(intent: Intent): Boolean {
         serviceOperational = false
+        captureController?.onServiceDisconnected()
+        captureController?.shutdown()
         accessibilityGateway?.onServiceDisconnected(this)
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
         serviceOperational = false
+        captureController?.onServiceDisconnected()
+        captureController?.shutdown()
+        captureController = null
         accessibilityGateway?.onServiceDisconnected(this)
         super.onDestroy()
     }
