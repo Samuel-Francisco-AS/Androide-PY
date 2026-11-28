@@ -6,13 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [ScriptEntity::class, ScriptVersionEntity::class, ScriptExecutionEntity::class],
-    version = 2,
+    entities = [
+        ScriptEntity::class,
+        ScriptVersionEntity::class,
+        ScriptExecutionEntity::class,
+        CoordinateMapEntity::class,
+        CoordinateMapPointEntity::class
+    ],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scriptDao(): ScriptDao
     abstract fun scriptExecutionDao(): ScriptExecutionDao
+    abstract fun coordinateMapDao(): CoordinateMapDao
 
     companion object {
         const val DATABASE_NAME = "androide_py.db"
