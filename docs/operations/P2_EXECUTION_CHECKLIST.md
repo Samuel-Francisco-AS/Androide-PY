@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada por Sam; decomposição registrada e B1 em andamento. P2.2-C não iniciada. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada por Sam; decomposição registrada. B1 implementada e revisada estaticamente; testes JVM adicionados, execução e build pendentes. B2 e B3 não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -440,14 +440,25 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A decomposição abaixo foi registrada antes de qualquer implementação da B1. O processo obrigatório para cada subetapa permanece CONFERE → DEFINE → IMPLEMENTA → CONFERE → TESTA → MARCA → CONFERE, com conferência do planejamento entre passos.
 
 ### B1 — Modelo de dados e persistência Room
-- [ ] Definir e implementar entidades Room separadas para mapas e pontos nomeados, com relação referencial e exclusão em cascata.
-- [ ] Persistir somente dados mínimos: nome/identidade, timestamps, pacote de destino opcional, dimensões do display, densidade, rotação/insets e coordenadas em pixels e normalizadas.
-- [ ] Criar DAO e repositório Kotlin com operações transacionais para criar/consultar/listar/excluir mapas e pontos; impedir nomes duplicados dentro do mapa.
-- [ ] Integrar as novas entidades/DAO à instância Room existente, sem banco separado e sem acesso Python direto.
-- [ ] Adicionar testes JVM de validação, integridade relacional, atomicidade, exclusão e conversão/limites de coordenadas.
-- [ ] Documentar mudança de schema e risco de descarte local antes de qualquer instalação de APK. A política ADR-0007 permite migração destrutiva durante desenvolvimento, mas exige comunicação prévia.
+- [x] Definir e implementar entidades Room separadas para mapas e pontos nomeados, com relação referencial e exclusão em cascata (`CoordinateMapEntity`, `CoordinateMapPointEntity`; FK com `ON DELETE CASCADE`).
+- [x] Persistir somente dados mínimos: nome/identidade, timestamps, pacote de destino opcional, dimensões do display, densidade, rotação/insets e coordenadas em pixels e normalizadas. Não há campos para screenshots, texto de tela ou valores de campos.
+- [x] Criar DAO e repositório Kotlin com operações transacionais para criar/consultar/listar/excluir mapas e pontos; impedir nomes duplicados dentro do mapa. Criação de mapa e pontos é uma única transação.
+- [x] Integrar as novas entidades/DAO à instância Room existente, sem banco separado e sem acesso Python direto. `AppDatabase` passa a schema v3 e expõe `coordinateMapDao()`.
+- [x] Adicionar testes JVM de validação, atomicidade no contrato do DAO, exclusão e conversão/limites de coordenadas. Testes adicionados em `CoordinateMapRepositoryTest.kt`; execução ainda pendente. A cascata física do SQLite depende de confirmação em teste/build.
+- [x] Documentar mudança de schema e risco de descarte local antes de qualquer instalação de APK. A política ADR-0007 permite migração destrutiva durante desenvolvimento, mas exige comunicação prévia.
 
 **Limites B1:** não implementar overlay, sessão de captura, timer, seleção de pontos na tela, Bridge/API Python, mobile.capabilities ou tap_point. Não armazenar screenshots, texto de tela, valores de campos ou credenciais. Não declarar a captura funcional.
+
+
+
+**Registro B1 — implementação publicada e revisão estática — 2026-11-28**
+
+- Arquivos: `CoordinateMapPersistence.kt` (entidades, relação, DAO, modelos de entrada e repositório); `AppDatabase.kt` (schema 3 e DAO); `CoordinateMapRepositoryTest.kt` (testes JVM com DAO fake).
+- Commits: `088159a` (modelo/DAO/repositório), `2ab4f15` (integração Room), `bcd0ced` (testes).
+- Revisão estática remota: PASS para relação FK com cascata, índices únicos, criação transacional, normalização x/width e y/height, metadados mínimos e ausência de overlay/Bridge/API pública nesta subetapa.
+- Testes JVM: adicionados, ainda não executados. Build: pendente. Validação física: não aplicável/não executada.
+- **Risco antes de instalar APK:** Room schema 2 → 3 e `fallbackToDestructiveMigration(true)` permanecem ativos. Uma atualização que acione a migração destrutiva poderá apagar todo o banco `androide_py.db`, incluindo scripts, versões e histórico. Não instalar sem decisão consciente sobre preservação dos dados.
+- Limite B1 preservado: sem overlay, sessão de captura, timer, Bridge, API Python ou anúncio de capacidades `screen.*`.
 
 ### B2 — Sessão de captura e overlay
 - [ ] Implementar sessão explícita e temporária, timer configurável e overlay TYPE_ACCESSIBILITY_OVERLAY pertencente ao AccessibilityService conectado.
