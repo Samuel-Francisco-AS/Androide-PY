@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** P0 e P1 concluídas e integradas em `main`; itens diferidos da P1 permanecem documentados. P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, 15 testes JVM adicionados mas ainda não executados e build local pendente. B3 pendente. Nenhuma capacidade `screen.*` é anunciada no catálogo.
+> **Status:** P0 e P1 concluídas e integradas em `main`; itens diferidos da P1 permanecem documentados. P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, 16 testes JVM adicionados mas ainda não executados e build local pendente. B3 pendente. Nenhuma capacidade `screen.*` é anunciada no catálogo.
 
 ## Objetivos
 
@@ -22,7 +22,7 @@ O projeto adota uma arquitetura *Python-first* com integração Android nativa: 
 - **Android:** Kotlin e Jetpack Compose.
 - **Runtime Python:** Chaquopy 17.2.0 configurado para CPython 3.13; execução validada no Moto G06 durante P0.
 - **Persistência:** Room 2.8.5 sobre SQLite, com repositórios Kotlin para scripts, versões e execuções; schema P1 versão 2; fallback destrutivo de desenvolvimento pode descartar dados locais, conforme ADR-0007; nenhum acesso Python direto ao banco.
-- **Integração:** Android Bridge atualmente implementa `mobile.device.get_info()` e `mobile.apps.launch(package_name)`; `mobile.screen` está especificada para a P2, mas ainda não implementada. Shizuku/ADB/root permanecem opcionais e fora do núcleo.
+- **Integração:** Android Bridge atualmente implementa `mobile.device.get_info()` e `mobile.apps.launch(package_name)`; a fachada `mobile.screen` está implementada na branch P2, mas o catálogo ainda não anuncia capacidades `screen.*` até a aprovação dos testes correspondentes; a sessão de captura B2 possui somente ponto de entrada nativo interno, sem API pública nesta etapa. Shizuku/ADB/root permanecem opcionais e fora do núcleo.
 - **Execução:** executor Python serial, parâmetros via `params`, console por execução e histórico persistido; execução em segundo plano permanece em fase posterior.
 
 A arquitetura completa, suas fronteiras e suas limitações estão documentadas em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
