@@ -1,6 +1,6 @@
 # ADR-0008: AccessibilityService, gateway e fronteira da Android Bridge
 
-- **Status:** Aceito; fundação e autorização P2.1-A/B/C concluídas e validadas no escopo acordado. A P2.2-A tem implementação, testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, com testes JVM adicionados ainda não executados e build local pendente. B3 permanece pendente.
+- **Status:** Aceito; fundação e autorização P2.1-A/B/C concluídas e validadas no escopo acordado. A P2.2-A tem implementação, testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 e B2 implementadas e revisadas; B2 passou em 63 testes JVM (16 específicos) e build debug local. Validação física integrada permanece para B3.
 - **Data:** 2026-11-25
 - **Escopo:** P2 — automação de interfaces Android.
 
@@ -42,7 +42,7 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - A integração exige tratamento rigoroso de desconexão, timeout, callback tardio e cancelamento lógico.
 - Ações Android não garantem o efeito semântico esperado no aplicativo de destino.
 - Alguns aplicativos não expõem conteúdo ou recusam ações; nenhuma garantia de controle universal é feita.
-- A fundação do serviço e a autorização foram validadas no Moto G06. A P2.2-A foi implementada e testada no escopo registrado. A sessão B2 usa um controlador pertencente à instância do AccessibilityService e um overlay `TYPE_ACCESSIBILITY_OVERLAY`; seus testes foram adicionados, mas aguardam execução local. A seleção e conclusão dos mapas permanecem para B3.
+- A fundação do serviço e a autorização foram validadas no Moto G06. A P2.2-A foi implementada e testada no escopo registrado. A sessão B2 usa controladores pertencentes à instância do AccessibilityService e um overlay `TYPE_ACCESSIBILITY_OVERLAY`; os 16 testes específicos B2 passaram na execução JVM local, dentro de uma suíte de 63 testes, e o build debug foi aprovado. A validação física do overlay, seleção e conclusão dos mapas permanece para B3.
 
 ## Contratos relacionados
 
@@ -59,4 +59,4 @@ Os contratos P2.0.6 e P2.0.7 definem, respectivamente, o protocolo assíncrono i
 - Testes de overlay concluído/cancelado/timeout/desconectado e ausência de permissões não aprovadas.
 - Build APK e validação física no Moto G06, conforme checklist P2.
 
-**Estado da evidência:** decisão arquitetural aceita. P2.1-A/B/C concluídas no escopo acordado: revisão estática, testes JVM, testes Python host 13/13, build debug e validação física no Moto G06 (habilitação/revogação e reinicialização normal PASS). Force stop foi classificado como comportamento esperado do Android, sem auto-habilitação. P2.2-A tem código de gestos, digitação comum e fachada `mobile.screen` publicado, testado/build concluído e validação física parcial documentada. A B2 adicionou sessão/overlay e testes JVM (ainda não executados); build local pendente. Nenhuma capacidade `screen.*` nova foi anunciada no catálogo. Seleção/nomeação/conclusão do mapa permanece para B3.
+**Estado da evidência:** decisão arquitetural aceita. P2.1-A/B/C concluídas no escopo acordado: revisão estática, testes JVM, testes Python host 13/13, build debug e validação física no Moto G06 (habilitação/revogação e reinicialização normal PASS). Force stop foi classificado como comportamento esperado do Android, sem auto-habilitação. P2.2-A tem código de gestos, digitação comum e fachada `mobile.screen` publicado, testado/build concluído e validação física parcial documentada. B2 adicionou sessão/overlay; os 63 testes JVM da suíte (16 específicos B2) e o build debug foram aprovados localmente em 2026-11-28. Nenhuma capacidade `screen.*` nova foi anunciada no catálogo. Seleção/nomeação/conclusão do mapa e validação física integrada permanecem para B3.
