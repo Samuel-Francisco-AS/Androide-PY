@@ -223,6 +223,9 @@ class AndroidBridgeAdapter(context: Context) {
         val app = appContext as? AndroidePyApplication
             ?: return bridgeError("BRIDGE_NOT_CONFIGURED", "A Bridge não está configurada.")
         if (!app.coordinateCaptureRegistry.isKnown(captureId)) return bridgeError("CAPTURE_NOT_FOUND", "A captura não existe.", captureId)
+        if (app.coordinateCaptureRegistry.state(captureId) == "saving") {
+            return bridgeError("CAPTURE_ALREADY_COMPLETED", "A captura já foi concluída e está sendo persistida.", captureId)
+        }
         if (!app.accessibilityGateway.cancelCoordinateMapCapture(captureId)) app.coordinateCaptureRegistry.cancelLocally(captureId)
         return JSONObject().put("ok", true).put("result", JSONObject().put("capture_id", captureId).put("cancelled", true)).toString()
     }
@@ -249,7 +252,9 @@ class AndroidBridgeAdapter(context: Context) {
             val result = JSONObject().put("schema_version", 1).put("name", map.map.name)
                 .put("created_at_epoch_ms", map.map.createdAtEpochMs).put("target_package", map.map.targetPackage ?: JSONObject.NULL)
                 .put("display", JSONObject().put("width_px", map.map.displayWidthPx).put("height_px", map.map.displayHeightPx)
-                    .put("density_dpi", map.map.densityDpi).put("rotation", map.map.rotation)).put("points", points)
+                    .put("density_dpi", map.map.densityDpi).put("rotation", map.map.rotation)
+                    .put("insets", JSONObject().put("left", map.map.insetLeftPx).put("top", map.map.insetTopPx)
+                        .put("right", map.map.insetRightPx).put("bottom", map.map.insetBottomPx))).put("points", points)
             JSONObject().put("ok", true).put("result", result).toString()
         } catch (_: CoordinateMapNotFoundException) { bridgeError("MAP_NOT_FOUND", "Mapa de coordenadas não encontrado.") }
         catch (_: Exception) { bridgeError("INTERNAL_ERROR", "Não foi possível consultar o mapa.") }

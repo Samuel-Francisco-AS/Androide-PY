@@ -11,6 +11,7 @@ import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.WindowManager
+import android.view.WindowInsets
 import com.samuel.androidepy.data.CoordinateMapDisplayContext
 import com.samuel.androidepy.data.CoordinateMapPointInput
 import kotlinx.coroutines.CoroutineScope
@@ -147,25 +148,28 @@ class AndroidePyAccessibilityService : AccessibilityService() {
             if (activeCaptureId != captureId) return@post
             if (captureController?.snapshot?.state == CoordinateCaptureState.ACTIVE) captureController?.cancel()
             else {
-                (application as? AndroidePyApplication)?.coordinateCaptureRegistry?.cancelLocally(captureId)
-                clearCaptureTasks(captureId)
+                val cancelled = (application as? AndroidePyApplication)
+                    ?.coordinateCaptureRegistry?.cancelLocally(captureId) == true
+                if (cancelled) clearCaptureTasks(captureId)
             }
         }
     }
 
     private fun onCoordinateCaptureTerminal(captureId: String, target: String, outcome: CoordinateCaptureOutcome, failure: CoordinateCaptureFailure?) {
         val app = application as? AndroidePyApplication ?: return
-        clearCaptureTasks(captureId)
-        when (outcome) {
-            CoordinateCaptureOutcome.COMPLETED -> {
-                val points = app.coordinateCaptureRegistry.points(captureId)
-                if (points.isEmpty()) {
-                    app.coordinateCaptureRegistry.fail(captureId, "failed", "INVALID_MAP", "O mapa precisa conter pontos.")
-                    return
-                }
-                val metrics = resources.displayMetrics
-                val wm = getSystemService(WINDOW_SERVICE) as? WindowManager
-                val context = CoordinateMapDisplayContext(target, metrics.widthPixels, metrics.heightPixels, metrics.densityDpi, wm?.defaultDisplay?.rotation ?: 0)
+        if (outcome == CoordinateCaptureOutcome.COMPLETED) {
+            clearCaptureTasks(captureId, releaseActive = false)
+            if (!app.coordinateCaptureRegistry.markSaving(captureId)) {
+                releaseCapture(captureId)
+                return
+            }
+            val points = app.coordinateCaptureRegistry.points(captureId)
+            if (points.isEmpty()) {
+                app.coordinateCaptureRegistry.fail(captureId, "failed", "INVALID_MAP", "O mapa precisa conter pontos.")
+                releaseCapture(captureId)
+                return
+            }
+                val context = captureDisplayContext(target)
                 val inputs = points.map { CoordinateMapPointInput(it.name, it.xPx, it.yPx) }
                 val mapName = app.coordinateCaptureRegistry.name(captureId) ?: "Mapa"
                 captureIoScope.launch {
@@ -188,29 +192,74 @@ class AndroidePyAccessibilityService : AccessibilityService() {
                         app.coordinateCaptureRegistry.fail(captureId, "failed", "INVALID_MAP", "Os dados do mapa não passaram pela validação.")
                     } catch (_: Exception) {
                         app.coordinateCaptureRegistry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível persistir o mapa.")
+                    } finally {
+                        releaseCapture(captureId)
                     }
                 }
+        } else {
+            clearCaptureTasks(captureId)
+            when (outcome) {
+                CoordinateCaptureOutcome.CANCELLED -> app.coordinateCaptureRegistry.fail(captureId, "cancelled", "CANCELLED", "A captura foi cancelada.")
+                CoordinateCaptureOutcome.EXPIRED -> app.coordinateCaptureRegistry.fail(captureId, "expired", "TIMEOUT", "O prazo da captura expirou.")
+                CoordinateCaptureOutcome.FAILED -> app.coordinateCaptureRegistry.fail(captureId, "failed",
+                    if (failure == CoordinateCaptureFailure.SERVICE_INTERRUPTED) "SERVICE_INTERRUPTED" else if (failure == CoordinateCaptureFailure.SERVICE_DISCONNECTED) "SERVICE_DISCONNECTED" else "INTERNAL_ERROR",
+                    "A sessão de captura foi encerrada por uma falha.")
+                CoordinateCaptureOutcome.COMPLETED -> Unit
             }
-            CoordinateCaptureOutcome.CANCELLED -> app.coordinateCaptureRegistry.fail(captureId, "cancelled", "CANCELLED", "A captura foi cancelada.")
-            CoordinateCaptureOutcome.EXPIRED -> app.coordinateCaptureRegistry.fail(captureId, "expired", "TIMEOUT", "O prazo da captura expirou.")
-            CoordinateCaptureOutcome.FAILED -> app.coordinateCaptureRegistry.fail(captureId, "failed",
-                if (failure == CoordinateCaptureFailure.SERVICE_INTERRUPTED) "SERVICE_INTERRUPTED" else if (failure == CoordinateCaptureFailure.SERVICE_DISCONNECTED) "SERVICE_DISCONNECTED" else "INTERNAL_ERROR",
-                "A sessão de captura foi encerrada por uma falha.")
         }
     }
 
-    private fun clearCaptureTasks(id: String) {
+
+    private fun captureDisplayContext(targetPackage: String): CoordinateMapDisplayContext {
+        val metrics = resources.displayMetrics
+        val manager = getSystemService(WINDOW_SERVICE) as? WindowManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && manager != null) {
+            val current = manager.currentWindowMetrics
+            val bounds = current.bounds
+            val insets = current.windowInsets.getInsets(
+                WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+            )
+            return CoordinateMapDisplayContext(
+                targetPackage = targetPackage,
+                widthPx = bounds.width(),
+                heightPx = bounds.height(),
+                densityDpi = metrics.densityDpi,
+                rotation = manager.defaultDisplay.rotation,
+                insetLeftPx = insets.left,
+                insetTopPx = insets.top,
+                insetRightPx = insets.right,
+                insetBottomPx = insets.bottom
+            )
+        }
+        return CoordinateMapDisplayContext(
+            targetPackage = targetPackage,
+            widthPx = metrics.widthPixels,
+            heightPx = metrics.heightPixels,
+            densityDpi = metrics.densityDpi,
+            rotation = manager?.defaultDisplay?.rotation ?: 0
+        )
+    }
+
+    private fun releaseCapture(captureId: String) {
+        mainHandler.post {
+            if (activeCaptureId == captureId) activeCaptureId = null
+        }
+    }
+
+    private fun clearCaptureTasks(id: String, releaseActive: Boolean = true) {
         if (activeCaptureId != id) return
         captureDelayTask?.let(mainHandler::removeCallbacks)
         captureTimeoutTask?.let(mainHandler::removeCallbacks)
         captureDelayTask = null
         captureTimeoutTask = null
-        activeCaptureId = null
+        if (releaseActive) activeCaptureId = null
     }
 
     private fun failScheduledCapture(code: String, message: String) {
         val id = activeCaptureId ?: return
-        (application as? AndroidePyApplication)?.coordinateCaptureRegistry?.fail(id, "failed", code, message)
+        val registry = (application as? AndroidePyApplication)?.coordinateCaptureRegistry
+        if (registry?.state(id) == "saving") return
+        registry?.fail(id, "failed", code, message)
         clearCaptureTasks(id)
     }
 

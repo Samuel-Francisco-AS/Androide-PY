@@ -12,6 +12,7 @@ internal class CoordinateCaptureTargetTracker(
 ) {
     private var lastExternalPackage: String? = null
 
+    @Synchronized
     fun record(packageName: String?) {
         val candidate = packageName?.trim()?.takeIf { PACKAGE_NAME.matches(it) }
             ?: return
@@ -20,8 +21,10 @@ internal class CoordinateCaptureTargetTracker(
         }
     }
 
+    @Synchronized
     fun snapshot(): String? = lastExternalPackage
 
+    @Synchronized
     fun reset() {
         lastExternalPackage = null
     }

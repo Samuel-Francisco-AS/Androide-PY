@@ -1,4 +1,4 @@
-"""Synchronous public API for Android screen interaction."""
+"""Python API for Android screen interaction and asynchronous coordinate maps."""
 
 from __future__ import annotations
 

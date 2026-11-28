@@ -61,4 +61,18 @@ class CoordinateCaptureRegistryTest {
         assertEquals("cancelled", JSONObject(registry.statusJson(id))
             .getJSONObject("result").getString("state"))
     }
+
+    @Test
+    fun savingStateCannotBeCancelledAndCompletesOnlyAfterPersistence() {
+        val registry = CoordinateCaptureRegistry()
+        val id = registry.create("Principal")
+        registry.activate(id)
+        registry.addPoint(id, "home", 10, 20)
+
+        assertTrue(registry.markSaving(id))
+        assertEquals("saving", registry.state(id))
+        assertFalse(registry.cancelLocally(id))
+        registry.complete(id, JSONObject().put("name", "Principal"))
+        assertEquals("completed", registry.state(id))
+    }
 }

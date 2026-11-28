@@ -62,19 +62,28 @@ class CoordinateCaptureRegistry {
 
     internal fun name(id: String): String? = synchronized(lock) { entries[id]?.name }
 
+    internal fun markSaving(id: String): Boolean = synchronized(lock) {
+        val entry = entries[id] ?: return false
+        if (entry.state != "active") return false
+        entry.state = "saving"
+        true
+    }
+
     internal fun complete(id: String, result: JSONObject) = synchronized(lock) {
         entries[id]?.let {
-            if (it.state == "active") {
+            if (it.state == "saving") {
                 it.state = "completed"
                 it.result = JSONObject(result.toString())
             }
         }
     }
 
+    internal fun state(id: String): String? = synchronized(lock) { entries[id]?.state }
+
     internal fun fail(id: String, state: String, code: String, message: String) =
         synchronized(lock) {
             entries[id]?.let {
-                if (it.state == "scheduled" || it.state == "active") {
+                if (it.state == "scheduled" || it.state == "active" || it.state == "saving") {
                     it.state = state
                     it.errorCode = code
                     it.message = message
@@ -102,6 +111,7 @@ class CoordinateCaptureRegistry {
 
     internal fun cancelLocally(id: String): Boolean = synchronized(lock) {
         val entry = entries[id] ?: return false
+        if (entry.state == "saving") return false
         if (entry.state == "completed" || entry.state == "cancelled" ||
             entry.state == "expired" || entry.state == "failed"
         ) return true
