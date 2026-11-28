@@ -49,7 +49,7 @@ internal interface CoordinateCaptureOverlay {
     fun show(durationSeconds: Int, onCancel: () -> Unit)
     fun showSelection(
         durationSeconds: Int,
-        onPoint: (String, Int, Int) -> Unit,
+        onPoint: (String, Int, Int) -> Boolean,
         onRemoveLast: () -> Unit,
         onFinish: () -> Unit,
         onCancel: () -> Unit

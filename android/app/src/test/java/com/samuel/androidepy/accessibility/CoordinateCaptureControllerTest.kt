@@ -242,6 +242,32 @@ class CoordinateCaptureControllerTest {
         assertEquals(2, fixture.overlay.removeCount)
     }
 
+
+    @Test
+    fun explicitCompletionRemovesOverlayAndReportsCompletedOutcome() {
+        val fixture = Fixture()
+        var terminal: Pair<CoordinateCaptureOutcome, CoordinateCaptureFailure?>? = null
+        assertEquals(
+            CoordinateCaptureStartResult.STARTED,
+            fixture.controller.start(
+                "com.example.target",
+                60,
+                onPoint = { _, _, _ -> true },
+                onRemoveLast = {},
+                onFinish = {},
+                onTerminal = { outcome, failure -> terminal = outcome to failure }
+            )
+        )
+
+        fixture.controller.complete()
+
+        assertEquals(CoordinateCaptureState.IDLE, fixture.controller.snapshot.state)
+        assertEquals(CoordinateCaptureOutcome.COMPLETED, terminal?.first)
+        assertNull(terminal?.second)
+        assertEquals(1, fixture.overlay.removeCount)
+        assertFalse(fixture.scheduler.hasPendingTasks())
+    }
+
     private class Fixture {
         val scheduler = FakeScheduler()
         val overlay = FakeOverlay()

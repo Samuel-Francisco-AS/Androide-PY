@@ -33,7 +33,6 @@ internal class CaptureOverlayController(
 
     private var overlayView: View? = null
     private var countdownView: TextView? = null
-    private var selectionPointCount = 0
 
     override fun show(durationSeconds: Int, onCancel: () -> Unit) {
         check(overlayView == null) { "A captura já possui um overlay associado." }
@@ -116,7 +115,7 @@ internal class CaptureOverlayController(
 
     override fun showSelection(
         durationSeconds: Int,
-        onPoint: (String, Int, Int) -> Unit,
+        onPoint: (String, Int, Int) -> Boolean,
         onRemoveLast: () -> Unit,
         onFinish: () -> Unit,
         onCancel: () -> Unit
@@ -162,11 +161,14 @@ internal class CaptureOverlayController(
                 val coordinate = pending ?: return@setOnClickListener
                 val name = pointName.text?.toString()?.trim().orEmpty()
                 if (name.isNotEmpty() && name.length <= 80) {
-                    onPoint(name, coordinate.first, coordinate.second)
-                    pointCount += 1
-                    coordinates.text = "Pontos selecionados: $pointCount"
-                    pointName.text?.clear()
-                    pending = null
+                    if (onPoint(name, coordinate.first, coordinate.second)) {
+                        pointCount += 1
+                        coordinates.text = "Pontos selecionados: $pointCount"
+                        pointName.text?.clear()
+                        pending = null
+                    } else {
+                        pointName.error = "Nome duplicado ou ponto inválido."
+                    }
                 } else {
                     pointName.error = "Informe um nome de até 80 caracteres."
                 }
@@ -235,10 +237,17 @@ internal class CaptureOverlayController(
             gravity = Gravity.TOP or Gravity.START
             setTitle("Androide PY — Seleção de coordenadas")
         }
-        windowManager.addView(root, params)
-        overlayView = root
-        countdownView = timer
-        selectionPointCount = 0
+        try {
+            windowManager.addView(root, params)
+            overlayView = root
+            countdownView = timer
+        } catch (error: Exception) {
+            if (root.isAttachedToWindow) {
+                overlayView = root
+                countdownView = timer
+            }
+            throw error
+        }
     }
 
     override fun updateRemainingSeconds(remainingSeconds: Int) {
