@@ -678,9 +678,6 @@ Os controladores pertencem à instância conectada do AccessibilityService. A se
 
 **Commits de implementação:** `8e7600fb9bf27623c8e6c9ce242004dd86adc435`, `674e2ff7138e046a34367c4602e7df38f7123900`, `fc009d6b999e8fa7e33ccebce0f93989cb32200a`, `f2218d01415a3ae5f2c448719a8c66fabaa2658e`, `60456fd0cf7ffb014316c61963ee896b018231c5`, `119b550b411094656bbb584414b5d95d24c70830`. Total: 6/7 commits permitidos para implementação.
 
-undefined
-
-
 ## 3.19 P2.2-B2 — Verificação local e fechamento — 2026-11-28
 
 Sam sincronizou a branch no Fedora e confirmou o checkout `27154e77cab2c18df0fdb7193f17b9a9f75d175c`, igual à referência remota, com worktree limpa. Executou a partir de `android/`:
