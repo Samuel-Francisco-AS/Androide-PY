@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 também concluída no escopo de implementação, revisão estática, 63 testes JVM (16 específicos B2) e build debug, com evidências locais de Sam em 2026-11-28. B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 também concluída no escopo de implementação, revisão estática, 63 testes JVM (16 específicos B2) e build debug, com evidências locais de Sam em 2026-11-28. B3 teve implementação, testes automatizados JVM/Python e build debug aprovados; a validação física integrada foi iniciada e está bloqueada após 1 PASS e 1 FAIL nos testes 1–2/15. A causa raiz do FAIL ainda está em investigação. A validação integrada da FK/cascata em SQLite real permanece pendente. O relatório físico está em P2_2B3_PHYSICAL_VALIDATION_REPORT.md.
 
 ## 1. Objetivo
 
@@ -840,3 +840,23 @@ Em 2026-11-28, Sam concedeu autorização explícita para a instalação do APK 
 ### Resultado
 
 **B3 aprovada quanto à implementação publicada, testes automatizados JVM/Python e empacotamento debug final. Validação física integrada pendente no Moto G06.** Não houve instalação de APK, migração do banco, validação física ou merge em `main`.
+
+
+## 3.24 P2.2-B3 — Validação física inicial e análise da falha — 2026-11-28
+
+A validação física foi iniciada no Moto G06/Android 15 (API 35), com o APK do commit `163b890cd2185538e82776647fc66359c6897257`, SHA-256 `ec7b0b155a5c09372ac2471c48108a5de0e9ccd46155184c9170072b997275d4`.
+
+**Resultados reportados por Sam:**
+- Teste 1/15 — inicialização e conexão da Acessibilidade: PASS.
+- Teste 2/15 — início da captura/overlay: FAIL. O script iniciou sem erro, o overlay/painel apareceram e os toques foram mapeados. O timer permaneceu em 2 minutos; os controles não concluíram as ações esperadas; Cancelar não removeu o overlay; a sessão permaneceu por aproximadamente dez minutos e exigiu reinicialização forçada.
+- Recuperação: após reboot, overlay removido, aparelho operacional e estado do serviço novamente `Conectado`.
+- Estado da bateria: 1 PASS, 1 FAIL e 13 testes não executados. O teste 2 permanece FAIL; eventual repetição será reteste do mesmo caso, sem exceder 15 testes.
+
+A revisão estática dos arquivos `CaptureOverlayController.kt`, `CoordinateCaptureController.kt`, `AndroidePyAccessibilityService.kt`, `CoordinateCaptureRegistry.kt`, `AndroidBridgeAdapter.kt`, `mobile/screen.py` e testes associados identificou:
+1. A janela full-screen interceptar toques fora do painel é comportamento previsto pelo contrato de seleção, não defeito isolado.
+2. Os listeners dos controles estão conectados; Adicionar, Desfazer e Concluir possuem pré-condições. O callback de Cancelar também está presente, portanto sua falha física ainda não tem explicação conclusiva.
+3. O timer do controller e o timeout global dependem da main Looper. Um bloqueio prolongado dessa thread é hipótese compatível com o conjunto de sintomas, mas não foi comprovado nem localizado na revisão atual.
+4. Há divergência concreta de contrato: `timeout_ms` aceita até 300.000 ms, mas a integração sempre inicia o controller com a duração padrão de 120 segundos.
+5. Os testes JVM usam overlay falso e não exercitam Views, WindowManager ou dispatch de toque real.
+
+Nenhuma alteração de código foi feita nesta etapa. A causa raiz continua aberta; a validação física está bloqueada e os testes 3–15 não devem ser executados até correção e reteste controlado. Os detalhes, limitações de evidência e próximos passos estão em [P2_2B3_PHYSICAL_VALIDATION_REPORT.md](P2_2B3_PHYSICAL_VALIDATION_REPORT.md).
