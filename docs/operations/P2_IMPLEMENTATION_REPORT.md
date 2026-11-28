@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 teve implementação publicada em 2026-11-28; revisão estática remota concluída, testes JVM adicionados mas ainda não executados e build local pendente; B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 também concluída no escopo de implementação, revisão estática, 63 testes JVM (16 específicos B2) e build debug, com evidências locais de Sam em 2026-11-28. B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada.
 
 ## 1. Objetivo
 
@@ -678,4 +678,19 @@ Os controladores pertencem à instância conectada do AccessibilityService. A se
 
 **Commits de implementação:** `8e7600fb9bf27623c8e6c9ce242004dd86adc435`, `674e2ff7138e046a34367c4602e7df38f7123900`, `fc009d6b999e8fa7e33ccebce0f93989cb32200a`, `f2218d01415a3ae5f2c448719a8c66fabaa2658e`, `60456fd0cf7ffb014316c61963ee896b018231c5`, `119b550b411094656bbb584414b5d95d24c70830`. Total: 6/7 commits permitidos para implementação.
 
-**Estado da verificação:** os testes foram escritos/publicados, mas não executados. A integração GitHub não fornece neste fluxo um ambiente Gradle/Android para executar a suíte ou compilar o APK. Sam deve sincronizar no Fedora e executar `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`; correções necessárias durante a fase de testes estão autorizadas fora do teto de commits. Nenhuma validação física foi realizada ou solicitada; permanece reservada à bateria integrada final da B3. Nenhum APK deve ser instalado antes de nova comunicação e decisão sobre o risco Room schema 2 → 3.
+undefined
+
+
+## 3.19 P2.2-B2 — Verificação local e fechamento — 2026-11-28
+
+Sam sincronizou a branch no Fedora e confirmou o checkout `27154e77cab2c18df0fdb7193f17b9a9f75d175c`, igual à referência remota, com worktree limpa. Executou a partir de `android/`:
+
+```bash
+./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2
+```
+
+**Resultado observado:** `BUILD SUCCESSFUL` em 34 s; 55 tarefas (11 executadas, 44 atualizadas). Os XMLs JUnit apresentados por Sam registram 11 suítes, 63 testes, 0 ignorados, 0 falhas e 0 erros. Os testes específicos B2 foram `CoordinateCaptureControllerTest` (14/14) e `CoordinateCaptureTargetTrackerTest` (2/2), totalizando 16/16. O APK debug foi gerado em `android/app/build/outputs/apk/debug/app-debug.apk` com 32 MB.
+
+A compilação apresentou dois avisos não fatais de depreciação para `recycle()` nas linhas 423–424 de `AndroidePyAccessibilityService.kt`. Por decisão de Sam, as chamadas permanecem sem alteração; a justificativa e o comportamento por API estão registrados em [ARCHITECTURE.md](../ARCHITECTURE.md) e no [contrato B2](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+
+**Fechamento:** B2 aprovada no escopo de implementação, revisão estática, testes JVM e build debug. Não houve instalação do APK nem validação física do overlay/serviço. A validação física integrada permanece reservada à bateria final da B3. Antes de qualquer instalação, Sam deverá receber nova comunicação e decidir explicitamente sobre o risco Room schema 2 → 3, que pode apagar `androide_py.db`. B3 não foi iniciada/autorizada por este fechamento.
