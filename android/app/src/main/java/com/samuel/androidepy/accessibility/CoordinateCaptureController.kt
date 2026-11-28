@@ -112,7 +112,7 @@ internal class CoordinateCaptureController(
     fun start(
         targetPackage: String?,
         durationSeconds: Int = DEFAULT_DURATION_SECONDS,
-        onPoint: ((String, Int, Int) -> Unit)? = null,
+        onPoint: ((String, Int, Int) -> Boolean)? = null,
         onRemoveLast: (() -> Unit)? = null,
         onFinish: (() -> Unit)? = null,
         onTerminal: ((CoordinateCaptureOutcome, CoordinateCaptureFailure?) -> Unit)? = null
