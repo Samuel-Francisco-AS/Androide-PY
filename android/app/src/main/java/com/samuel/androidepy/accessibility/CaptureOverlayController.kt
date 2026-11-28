@@ -148,7 +148,7 @@ internal class CaptureOverlayController(
         }
         val pointName = EditText(service).apply {
             hint = "Nome do ponto"
-            singleLine = true
+            isSingleLine = true
             setTextColor(Color.WHITE)
             setHintTextColor(0xFFBBBBBB.toInt())
         }
