@@ -30,6 +30,8 @@ class CoordinateCaptureRegistryTest {
 
         assertTrue(registry.removeLastPoint(id))
         assertEquals("home", registry.points(id).single().name)
+        assertTrue(registry.removeLastPoint(id))
+        assertTrue(registry.points(id).isEmpty())
         assertFalse(registry.removeLastPoint(id))
     }
 
