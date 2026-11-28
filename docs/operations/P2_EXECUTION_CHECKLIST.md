@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** 🟡 P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A em andamento: implementação Kotlin/Python publicada na branch e revisada estaticamente; testes específicos foram adicionados, mas ainda não foram executados na branch; build e validação física pendentes. P2.2-B/C não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada por Sam; decomposição registrada e B1 em andamento. P2.2-C não iniciada. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -435,6 +435,35 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 - Execução em background irrestrita ou contorno de políticas Android.
 - Coleta indiscriminada de conteúdo de tela.
 
+## 9.1 P2.2-B — Decomposição autorizada e execução incremental — 2026-11-28
+
+Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A decomposição abaixo foi registrada antes de qualquer implementação da B1. O processo obrigatório para cada subetapa permanece CONFERE → DEFINE → IMPLEMENTA → CONFERE → TESTA → MARCA → CONFERE, com conferência do planejamento entre passos.
+
+### B1 — Modelo de dados e persistência Room
+- [ ] Definir e implementar entidades Room separadas para mapas e pontos nomeados, com relação referencial e exclusão em cascata.
+- [ ] Persistir somente dados mínimos: nome/identidade, timestamps, pacote de destino opcional, dimensões do display, densidade, rotação/insets e coordenadas em pixels e normalizadas.
+- [ ] Criar DAO e repositório Kotlin com operações transacionais para criar/consultar/listar/excluir mapas e pontos; impedir nomes duplicados dentro do mapa.
+- [ ] Integrar as novas entidades/DAO à instância Room existente, sem banco separado e sem acesso Python direto.
+- [ ] Adicionar testes JVM de validação, integridade relacional, atomicidade, exclusão e conversão/limites de coordenadas.
+- [ ] Documentar mudança de schema e risco de descarte local antes de qualquer instalação de APK. A política ADR-0007 permite migração destrutiva durante desenvolvimento, mas exige comunicação prévia.
+
+**Limites B1:** não implementar overlay, sessão de captura, timer, seleção de pontos na tela, Bridge/API Python, mobile.capabilities ou tap_point. Não armazenar screenshots, texto de tela, valores de campos ou credenciais. Não declarar a captura funcional.
+
+### B2 — Sessão de captura e overlay
+- [ ] Implementar sessão explícita e temporária, timer configurável e overlay TYPE_ACCESSIBILITY_OVERLAY pertencente ao AccessibilityService conectado.
+- [ ] Capturar contexto de destino antes do overlay; tratar lifecycle, cancelamento, timeout, interrupção e desconexão com remoção garantida do overlay.
+- [ ] Testar estados e teardown antes da integração com seleção de pontos.
+
+### B3 — Seleção, nomeação e conclusão do mapa
+- [ ] Implementar seleção de múltiplos pontos, nomeação, correção/refazer, conclusão e cancelamento.
+- [ ] Persistir somente mapas completos e válidos; nenhum dado parcial em cancelamento/falha.
+- [ ] Integrar os contratos Python documentados e validar captura, consulta, exclusão e reutilização ponta a ponta no Moto G06.
+
+**Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
+
+**Estado inicial da P2.2-B:** B1 autorizada/em andamento; B2 e B3 pendentes. Nenhuma alteração de código foi feita no momento do registro desta decomposição.
+
+---
 ## 10. Riscos e pontos de atenção
 
 1. **Autorização especial:** AccessibilityService é sensível; finalidade e capacidades solicitadas devem ser transparentes e mínimas.
