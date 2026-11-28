@@ -45,7 +45,7 @@ class CoordinateMapRepositoryTest {
     }
 
     @Test
-    fun mapNamesAreUniqueIgnoringCase() = runBlocking {
+    fun mapNamesAreUniqueIgnoringCase(): Unit = runBlocking {
         val dao = FakeCoordinateMapDao()
         val repository = CoordinateMapRepository(dao)
         repository.create("Principal", context, listOf(CoordinateMapPointInput("home", 1, 1)))
