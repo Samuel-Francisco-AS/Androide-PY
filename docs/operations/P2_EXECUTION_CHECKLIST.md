@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug. **B2 concluída no escopo de implementação, revisão estática, 63 testes JVM da suíte (16 específicos B2) e build debug**, com evidências locais de Sam em 2026-11-28. A validação física do overlay e do fluxo integrado, assim como a verificação da FK/cascata em SQLite real, permanecem reservadas à bateria final da B3. B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug. **B2 concluída no escopo de implementação, revisão estática, 63 testes JVM da suíte (16 específicos B2) e build debug**, com evidências locais de Sam em 2026-11-28. A validação física do overlay e do fluxo integrado, assim como a verificação da FK/cascata em SQLite real, permanecem reservadas à bateria final da B3. B3 teve implementação, testes automatizados JVM/Python e build debug final aprovados; a validação física integrada permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -622,3 +622,36 @@ Sam aprovou os limites de duração de 15–300 segundos, com padrão de 120 seg
 - **Avisos:** duas chamadas `recycle()` deprecated, linhas 423–424 de `AndroidePyAccessibilityService.kt`; não impediram compilação/testes. Permanecem intencionalmente sem alteração, conforme decisão de Sam; ver nota de manutenção em `docs/ARCHITECTURE.md` e no contrato B2.
 - **Limites:** revisão estática remota e verificação JVM/build concluídas. Comportamento real do overlay/serviço não foi testado em dispositivo; validação física fica para a bateria integrada final da B3. Nenhum APK será instalado antes de nova comunicação e decisão explícita de Sam sobre o risco Room schema 2 → 3, que pode apagar `androide_py.db`.
 - **Conclusão:** B2 fechada para implementação, revisão estática, testes JVM e build debug. B3 não foi iniciada nem autorizada por este registro.
+
+
+## 3.23 P2.2-B3 — Verificação automatizada e empacotamento — 2026-11-28
+
+### Resultados confirmados por Sam no Fedora
+
+Branch: `feat/p2-accessibility-automation`. Após sincronização, o checkout local recebeu os commits de correção e de alinhamento do catálogo; a referência remota antes deste fechamento documental era `b87f92dec946ed4ca4c5c76bf6bebb86a45b2b67`.
+
+- **Compilação Kotlin/JVM e testes unitários:** `./gradlew :app:testDebugUnitTest --no-daemon` — `BUILD SUCCESSFUL`. A saída final reportada apresentou 31 tarefas acionáveis (4 executadas, 27 atualizadas); não foi preservada nesta evidência a contagem total de testes JUnit, portanto não se atribui aqui um total numérico.
+- **Testes Python:** `PYTHONPATH=app/src/main/python python3.13 -m unittest discover -s app/src/test/python -p 'test_*.py' -v` — 28 testes executados, 28 aprovados, 0 falhas (`Ran 28 tests`; `OK`). Esta execução ocorreu após o alinhamento do catálogo de capacidades.
+- **Build Android final:** `./gradlew :app:assembleDebug --no-daemon` — `BUILD SUCCESSFUL in 14s`; 48 tarefas acionáveis (8 executadas, 40 atualizadas). Este é o build repetido após a alteração final de `mobile.capabilities`.
+- O APK debug foi empacotado em `android/app/build/outputs/apk/debug/app-debug.apk`. O APK **não foi instalado** nesta etapa.
+
+### Correções e alinhamentos realizados durante a verificação
+
+- `db5a3a9`: rejeitar alvo de captura ausente antes de executar callbacks.
+- `c97fdf2`: usar a propriedade Kotlin correta `EditText.isSingleLine`.
+- `15a708b`: preservar o retorno booleano de aceitação do ponto no callback.
+- `77ff610`: corrigir o teste de remoção repetida do último ponto. A regra de produção permite remover todos os pontos e só recusa uma remoção quando a lista já está vazia.
+- `9f7be0e`: anunciar as capacidades `screen.*` implementadas no catálogo.
+- `b87f92d`: testar o catálogo completo de capacidades de tela.
+
+O catálogo `mobile.capabilities` agora anuncia dez capacidades `screen.*`: `get_status`, `tap`, `type_text`, `swipe`, `scroll`, `capture_coordinates`, `list_coordinate_maps`, `get_coordinate_map`, `delete_coordinate_map` e `tap_point`. `screen.get_status` não exige autorização do usuário; as operações de interação e gerenciamento de mapas exigem. Todas estão marcadas como implementadas e dependentes da Android Bridge.
+
+### Limites e pendências físicas
+
+Os resultados automatizados não comprovam integração real com Room/SQLite, execução da FK e `ON DELETE CASCADE`, rollback/transações no banco real, funcionamento do overlay, captura por toque, nomeação/undo/conclusão/cancelamento, lifecycle do AccessibilityService, gestos no dispositivo, reprojeção e execução física de `tap_point`, nem o contrato assíncrono ponta a ponta no Moto G06. Os testes de repositório usam DAO fake; portanto, não substituem a verificação de persistência real. Esses itens permanecem reservados à bateria integrada física da B3.
+
+### Migração Room e autorização registrada
+
+Em 2026-11-28, Sam concedeu autorização explícita para prosseguir, na próxima etapa física, com a instalação que poderá acionar a migração destrutiva do Room schema 2 → 3. A implementação mantém `fallbackToDestructiveMigration(true)`; a migração pode recriar `androide_py.db` e apagar scripts, versões, histórico de execução e demais registros locais. A autorização foi concedida, mas **nenhuma instalação ou migração ocorreu durante esta etapa**. Antes da operação física, o risco deve ser comunicado novamente e a operação identificada como aquela já autorizada por Sam.
+
+**Resultado B3 nesta etapa:** implementação publicada, testes automatizados JVM/Python e build final aprovados; APK gerado. Validação física integrada ainda pendente. Não houve instalação, merge em `main` ou validação física.
