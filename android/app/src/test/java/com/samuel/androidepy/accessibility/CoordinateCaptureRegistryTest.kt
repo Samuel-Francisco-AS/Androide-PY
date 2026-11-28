@@ -39,6 +39,7 @@ class CoordinateCaptureRegistryTest {
         val id = registry.create("Principal")
         registry.activate(id)
         registry.addPoint(id, "home", 10, 20)
+        assertTrue(registry.markSaving(id))
         registry.complete(id, JSONObject().put("name", "Principal"))
 
         val envelope = JSONObject(registry.statusJson(id))
