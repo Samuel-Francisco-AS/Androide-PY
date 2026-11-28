@@ -182,3 +182,140 @@ def scroll(
         {"direction": direction, "distance": distance_value, "duration_ms": duration},
         timeout,
     )
+
+
+_CAPTURE_MAX_DELAY_MS = 120_000
+_CAPTURE_MIN_TIMEOUT_MS = 1_000
+_CAPTURE_MAX_TIMEOUT_MS = 300_000
+
+
+class CaptureHandle:
+    """Opaque Python handle for a native coordinate-capture session."""
+
+    def __init__(self, bridge, capture_id: str) -> None:
+        self._bridge = bridge
+        self.capture_id = capture_id
+
+    def status(self) -> dict:
+        """Return the current capture state without waiting."""
+        try:
+            response = json.loads(
+                self._bridge.getCoordinateCaptureStatusJson(self.capture_id)
+            )
+        except AttributeError as error:
+            raise ScreenError(
+                "BRIDGE_NOT_CONFIGURED",
+                "A Bridge não oferece suporte à consulta de capturas.",
+            ) from error
+        if not isinstance(response, dict) or not response.get("ok"):
+            error = (response.get("error") or {}) if isinstance(response, dict) else {}
+            raise ScreenError(
+                str(error.get("code", "INTERNAL_ERROR")),
+                str(error.get("message", "Não foi possível consultar a captura.")),
+                bool(error.get("retryable", False)),
+                self.capture_id,
+            )
+        result = response.get("result")
+        if not isinstance(result, dict):
+            raise ScreenError("INTERNAL_ERROR", "Estado de captura inválido.", request_id=self.capture_id)
+        return result
+
+    def result(self, *, timeout_ms: int | None = None) -> dict:
+        """Wait explicitly for a terminal result on the Python worker."""
+        timeout = None if timeout_ms is None else _integer(
+            timeout_ms, "timeout_ms", _MIN_TIMEOUT_MS, _CAPTURE_MAX_TIMEOUT_MS
+        )
+        deadline = None if timeout is None else time.monotonic() + timeout / 1000
+        while True:
+            state = self.status()
+            status = state.get("state")
+            if status == "completed":
+                result = state.get("result")
+                if not isinstance(result, dict):
+                    raise ScreenError("INTERNAL_ERROR", "A captura terminou sem mapa.", request_id=self.capture_id)
+                return result
+            if status in ("cancelled", "expired", "failed"):
+                raise ScreenError(
+                    str(state.get("error_code") or ("CANCELLED" if status == "cancelled" else "TIMEOUT" if status == "expired" else "INTERNAL_ERROR")),
+                    str(state.get("message") or "A captura não foi concluída."),
+                    request_id=self.capture_id,
+                )
+            if deadline is not None and time.monotonic() >= deadline:
+                raise ScreenError("TIMEOUT", "O prazo local de espera pelo resultado expirou.", True, self.capture_id)
+            time.sleep(0.1)
+
+    def cancel(self) -> dict:
+        """Request native cancellation; terminal handles remain idempotent."""
+        try:
+            response = json.loads(
+                self._bridge.cancelCoordinateCaptureJson(self.capture_id)
+            )
+        except AttributeError as error:
+            raise ScreenError(
+                "BRIDGE_NOT_CONFIGURED",
+                "A Bridge não oferece suporte ao cancelamento de capturas.",
+            ) from error
+        if not isinstance(response, dict) or not response.get("ok"):
+            error = (response.get("error") or {}) if isinstance(response, dict) else {}
+            raise ScreenError(
+                str(error.get("code", "INTERNAL_ERROR")),
+                str(error.get("message", "Não foi possível cancelar a captura.")),
+                bool(error.get("retryable", False)),
+                self.capture_id,
+            )
+        return response.get("result") or {"capture_id": self.capture_id, "cancelled": True}
+
+
+def capture_coordinates(
+    name: str,
+    *,
+    delay_ms: int = 30_000,
+    timeout_ms: int = 120_000,
+) -> CaptureHandle:
+    """Start a native capture and return immediately with an asynchronous handle."""
+    if not isinstance(name, str):
+        raise TypeError("name must be a string.")
+    normalized_name = name.strip()
+    if not normalized_name:
+        raise ValueError("name cannot be empty.")
+    if len(normalized_name) > 80:
+        raise ValueError("name cannot exceed 80 characters.")
+    delay = _integer(delay_ms, "delay_ms", 0, _CAPTURE_MAX_DELAY_MS)
+    timeout = _integer(
+        timeout_ms, "timeout_ms", _CAPTURE_MIN_TIMEOUT_MS, _CAPTURE_MAX_TIMEOUT_MS
+    )
+    if delay >= timeout:
+        raise ValueError("delay_ms must be shorter than timeout_ms.")
+    bridge = _get_bridge()
+    request_id = str(uuid.uuid4())
+    request = {
+        "schema_version": 1,
+        "request_id": request_id,
+        "name": normalized_name,
+        "delay_ms": delay,
+        "timeout_ms": timeout,
+    }
+    try:
+        response = json.loads(
+            bridge.startCoordinateCaptureJson(
+                json.dumps(request, ensure_ascii=False, separators=(",", ":"))
+            )
+        )
+    except AttributeError as error:
+        raise ScreenError(
+            "BRIDGE_NOT_CONFIGURED",
+            "A Bridge não oferece suporte à captura de coordenadas.",
+        ) from error
+    if not isinstance(response, dict) or not response.get("ok"):
+        error = (response.get("error") or {}) if isinstance(response, dict) else {}
+        raise ScreenError(
+            str(error.get("code", "INTERNAL_ERROR")),
+            str(error.get("message", "Não foi possível iniciar a captura.")),
+            bool(error.get("retryable", False)),
+            response.get("request_id", request_id) if isinstance(response, dict) else request_id,
+        )
+    result = response.get("result") or {}
+    capture_id = result.get("capture_id")
+    if not isinstance(capture_id, str) or not capture_id:
+        raise ScreenError("INTERNAL_ERROR", "A Bridge não retornou um identificador de captura.", request_id=request_id)
+    return CaptureHandle(bridge, capture_id)

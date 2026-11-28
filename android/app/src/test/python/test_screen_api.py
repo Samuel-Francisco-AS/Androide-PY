@@ -4,7 +4,7 @@ import json
 import unittest
 
 from mobile import configure
-from mobile.screen import ScreenError, get_status, scroll, swipe, tap, type_text
+from mobile.screen import (CaptureHandle, ScreenError, capture_coordinates, get_status, scroll, swipe, tap, type_text)
 
 
 class FakeBridge:
@@ -18,9 +18,27 @@ class FakeBridge:
             "state": "connected",
         }
         self.response = None
+        self.capture_status = {"state": "active", "capture_id": "capture-1"}
+        self.capture_start_request = None
+        self.capture_cancelled = False
 
     def getAccessibilityStatusJson(self):
         return json.dumps(self.status)
+
+    def startCoordinateCaptureJson(self, request_json):
+        self.capture_start_request = json.loads(request_json)
+        return json.dumps({
+            "ok": True,
+            "request_id": self.capture_start_request["request_id"],
+            "result": {"capture_id": "capture-1", "state": "scheduled"},
+        })
+
+    def getCoordinateCaptureStatusJson(self, capture_id):
+        return json.dumps({"ok": True, "result": dict(self.capture_status)})
+
+    def cancelCoordinateCaptureJson(self, capture_id):
+        self.capture_cancelled = True
+        return json.dumps({"ok": True, "result": {"capture_id": capture_id, "cancelled": True}})
 
     def executeAccessibilityOperationJson(self, request_json):
         request = json.loads(request_json)
@@ -133,6 +151,39 @@ class ScreenApiTests(unittest.TestCase):
         configure(None)
         with self.assertRaisesRegex(RuntimeError, "Android Bridge is not initialized"):
             get_status()
+
+
+    def test_capture_coordinates_returns_handle_without_waiting(self):
+        handle = capture_coordinates("  Principal  ", delay_ms=0, timeout_ms=5_000)
+        self.assertIsInstance(handle, CaptureHandle)
+        self.assertEqual(handle.capture_id, "capture-1")
+        self.assertEqual(self.bridge.capture_start_request["name"], "Principal")
+        self.assertEqual(self.bridge.capture_start_request["delay_ms"], 0)
+        self.assertEqual(handle.status()["state"], "active")
+
+    def test_capture_handle_result_returns_completed_map(self):
+        self.bridge.capture_status = {
+            "state": "completed",
+            "capture_id": "capture-1",
+            "result": {"name": "Principal", "points": [{"name": "home"}]},
+        }
+        handle = capture_coordinates("Principal", delay_ms=0)
+        self.assertEqual(handle.result(timeout_ms=1_000)["name"], "Principal")
+
+    def test_capture_handle_cancel_requests_native_cancellation(self):
+        handle = capture_coordinates("Principal", delay_ms=0)
+        result = handle.cancel()
+        self.assertTrue(self.bridge.capture_cancelled)
+        self.assertTrue(result["cancelled"])
+
+    def test_capture_arguments_are_validated_before_bridge(self):
+        with self.assertRaises(ValueError):
+            capture_coordinates("  ")
+        with self.assertRaises(ValueError):
+            capture_coordinates("x", delay_ms=5_000, timeout_ms=5_000)
+        with self.assertRaises(TypeError):
+            capture_coordinates(42)
+        self.assertIsNone(self.bridge.capture_start_request)
 
 
 if __name__ == "__main__":
