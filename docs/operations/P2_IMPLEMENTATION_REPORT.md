@@ -768,3 +768,75 @@ A implementação remota foi publicada na branch `feat/p2-accessibility-automati
 - `81f57c1` — testes de controller/registry.
 - `86bb726` — correções de integração e timeout.
 - `5838a26` — estado saving, cancelamento seguro, insets e tracker thread-safe.
+
+## 3.23 P2.2-B3 — Resultados de verificação automatizada e empacotamento — 2026-11-28
+
+A implementação B3 publicada na seção 3.22 foi sincronizada por Sam no Fedora e submetida à verificação automatizada. Esta seção atualiza o estado de verificação; a seção 3.22 permanece como registro histórico do estado existente no momento da publicação, quando os testes ainda estavam pendentes.
+
+### Resultados reportados por Sam
+
+**Testes Kotlin/JVM**
+
+Comando executado em `android/`:
+
+```bash
+./gradlew :app:testDebugUnitTest --no-daemon
+```
+
+Resultado final: `BUILD SUCCESSFUL`; 31 tarefas acionáveis (4 executadas, 27 atualizadas). A saída compartilhada não incluiu a contagem total JUnit, por isso este relatório registra o resultado do Gradle sem inferir um número total de testes.
+
+**Testes Python**
+
+Comando executado em `android/`:
+
+```bash
+PYTHONPATH=app/src/main/python \
+python3.13 -m unittest discover \
+  -s app/src/test/python \
+  -p 'test_*.py' \
+  -v
+```
+
+Resultado após a atualização do catálogo: 28 testes executados, todos aprovados (`Ran 28 tests`; `OK`). A saída detalhada confirmou, entre outros, os testes da API de tela, do runner, da API mobile e do catálogo de capacidades.
+
+**Build Android final**
+
+Após a atualização de `mobile.capabilities.py`, Sam repetiu o build:
+
+```bash
+./gradlew :app:assembleDebug --no-daemon
+```
+
+Resultado: `BUILD SUCCESSFUL in 14s`; 48 tarefas acionáveis (8 executadas, 40 atualizadas). O APK debug resultante está em `android/app/build/outputs/apk/debug/app-debug.apk`. O APK foi gerado, mas não instalado.
+
+### Correções feitas durante a fase de testes
+
+As falhas iniciais de compilação foram corrigidas em commits separados:
+- `db5a3a9` — rejeição de alvo ausente antes dos callbacks.
+- `c97fdf2` — propriedade `EditText.isSingleLine`.
+- `15a708b` — callback de aceitação do ponto com retorno booleano.
+
+Uma falha em `CoordinateCaptureRegistryTest.removeLastPointSupportsCorrectionBeforeCompletion` foi atribuída a uma expectativa incorreta do teste, não à regra de produção: a implementação permite remover pontos até a lista ficar vazia e só rejeita a remoção seguinte. O teste foi ajustado e publicado em `77ff610`.
+
+A revisão final encontrou divergência no catálogo: `mobile.screen` já estava implementada e testada, mas o catálogo ainda não anunciava as operações. O catálogo foi atualizado em `9f7be0e` e a cobertura correspondente foi acrescentada em `b87f92d`. As dez capacidades anunciadas são `screen.get_status`, `screen.tap`, `screen.type_text`, `screen.swipe`, `screen.scroll`, `screen.capture_coordinates`, `screen.list_coordinate_maps`, `screen.get_coordinate_map`, `screen.delete_coordinate_map` e `screen.tap_point`. Todas estão marcadas como implementadas e dependentes da Android Bridge; `get_status` não exige autorização do usuário, enquanto as operações de interação e mapas exigem.
+
+### Separação entre implementação e correções de teste
+
+Os sete commits de implementação B3 e o commit documental, registrados na seção 3.22, respeitaram o limite de oito commits autorizado para aquela execução. As correções de compilação, o ajuste do teste e o alinhamento do catálogo ocorreram posteriormente na fase de verificação e não foram contabilizados como commits da implementação original.
+
+### Limites da evidência
+
+A aprovação dos testes JVM/Python e do build comprova a compilação e os comportamentos cobertos pelos testes automatizados, mas não comprova o comportamento integrado no aparelho. Em particular:
+
+- Os testes de `CoordinateMapRepository` usam DAO fake; não demonstram Room/SQLite real, aplicação da FK `ON DELETE CASCADE` ou rollback real.
+- Overlay, seleção por toque, nomeação, undo, conclusão, cancelamento, persistência real, exclusão/cascata, lifecycle, gestos e `tap_point` ainda exigem validação física.
+- O contrato `CaptureHandle` e a integração Bridge/Python precisam ser exercitados no Moto G06 como fluxo integrado.
+- Nenhum APK foi instalado e nenhuma validação física foi realizada nesta etapa.
+
+### Autorização de migração Room schema 2 → 3
+
+Em 2026-11-28, Sam concedeu autorização explícita para a instalação do APK na etapa física seguinte, ciente de que o banco do aparelho está no schema 2 e a branch utiliza schema 3 com `fallbackToDestructiveMigration(true)`. Se acionada, a migração destrutiva poderá recriar `androide_py.db`, apagando scripts, versões, histórico de execução e demais registros locais. A autorização está registrada para essa operação; ela não significa que a instalação ou migração já tenha ocorrido. O risco deverá ser comunicado novamente imediatamente antes da instalação.
+
+### Resultado
+
+**B3 aprovada quanto à implementação publicada, testes automatizados JVM/Python e empacotamento debug final. Validação física integrada pendente no Moto G06.** Não houve instalação de APK, migração do banco, validação física ou merge em `main`.
