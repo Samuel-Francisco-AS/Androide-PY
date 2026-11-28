@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug. **B2 concluída no escopo de implementação, revisão estática, 63 testes JVM da suíte (16 específicos B2) e build debug**, com evidências locais de Sam em 2026-11-28. A validação física do overlay e do fluxo integrado, assim como a verificação da FK/cascata em SQLite real, permanecem reservadas à bateria final da B3. B3 teve implementação, testes automatizados JVM/Python e build debug final aprovados; a validação física integrada permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug. **B2 concluída no escopo de implementação, revisão estática, 63 testes JVM da suíte (16 específicos B2) e build debug**, com evidências locais de Sam em 2026-11-28. A validação física do overlay e do fluxo integrado, assim como a verificação da FK/cascata em SQLite real, permanecem reservadas à bateria final da B3. B3 teve implementação, testes automatizados JVM/Python e build debug final aprovados. A validação física integrada foi iniciada: teste 1/15 PASS e teste 2/15 FAIL; testes 3–15 bloqueados até correção e reteste seguro. O relatório detalhado está em [P2_2B3_PHYSICAL_VALIDATION_REPORT.md](P2_2B3_PHYSICAL_VALIDATION_REPORT.md). Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -655,3 +655,18 @@ Os resultados automatizados não comprovam integração real com Room/SQLite, ex
 Em 2026-11-28, Sam concedeu autorização explícita para prosseguir, na próxima etapa física, com a instalação que poderá acionar a migração destrutiva do Room schema 2 → 3. A implementação mantém `fallbackToDestructiveMigration(true)`; a migração pode recriar `androide_py.db` e apagar scripts, versões, histórico de execução e demais registros locais. A autorização foi concedida, mas **nenhuma instalação ou migração ocorreu durante esta etapa**. Antes da operação física, o risco deve ser comunicado novamente e a operação identificada como aquela já autorizada por Sam.
 
 **Resultado B3 nesta etapa:** implementação publicada, testes automatizados JVM/Python e build final aprovados; APK gerado. Validação física integrada ainda pendente. Não houve instalação, merge em `main` ou validação física.
+
+
+## 3.24 P2.2-B3 — Validação física inicial e bloqueio após falha — 2026-11-28
+
+A validação integrada foi iniciada no Moto G06 (Android 15/API 35), usando o APK debug gerado a partir do commit `163b890cd2185538e82776647fc66359c6897257`. Sam confirmou a instalação/atualização pelo My-CT.
+
+- **Teste 1/15 — Inicialização e conexão da Acessibilidade: PASS.** O app abriu normalmente após fechamento pela tela de recentes; a interface carregou e o estado permaneceu `Conectado`.
+- **Teste 2/15 — Início da captura e overlay: FAIL.** O script `capture_coordinates(..., delay_ms=0, timeout_ms=120000)` iniciou sem erro; overlay/painel apareceram e os toques foram mapeados. O timer permaneceu visualmente em 2 minutos, os controles não produziram o encerramento/ações esperados, Cancelar não removeu o overlay e a sessão persistiu por aproximadamente dez minutos. Sam precisou reiniciar forçadamente o aparelho.
+- **Recuperação:** após reboot, Sam confirmou que o overlay desapareceu, o aparelho voltou ao funcionamento normal e o Androide PY continuou indicando `Conectado`.
+- **Contagem:** 1 PASS, 1 FAIL, 13 não executados. O teste 2 permanece FAIL; futuro reteste será identificado como repetição do mesmo teste e não aumentará o teto de 15.
+- **Bloqueio:** não executar os testes 3–15 nem repetir a captura com o APK atual até a revisão/correção e aprovação de um reteste controlado.
+
+A revisão estática inicial está registrada em [P2_2B3_PHYSICAL_VALIDATION_REPORT.md](P2_2B3_PHYSICAL_VALIDATION_REPORT.md). Um esclarecimento importante: a janela full-screen consumir toques fora do painel é o comportamento previsto pelo contrato de seleção; a falha a investigar é a falta de resposta/encerramento do próprio painel, além do timer e timeout sem efeito. A revisão também identificou divergência concreta: a API aceita `timeout_ms` até 300 s, mas a sessão interna usa duração fixa padrão de 120 s. A causa raiz do congelamento ainda não foi determinada.
+
+**Estado:** B3 fisicamente bloqueada; sem alterações de código nesta etapa; sem merge em `main`.
