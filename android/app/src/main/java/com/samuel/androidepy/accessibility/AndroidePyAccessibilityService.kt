@@ -10,6 +10,14 @@ import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.WindowManager
+import com.samuel.androidepy.data.CoordinateMapDisplayContext
+import com.samuel.androidepy.data.CoordinateMapPointInput
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.json.JSONArray
 import com.samuel.androidepy.AndroidePyApplication
 import org.json.JSONObject
 
@@ -31,9 +39,15 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     }
 
     private var captureController: CoordinateCaptureController? = null
+    private var activeCaptureId: String? = null
+    private var captureDelayTask: Runnable? = null
+    private var captureTimeoutTask: Runnable? = null
+    private val captureIoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile
     private var serviceOperational = false
+
+    internal fun currentCaptureTargetPackage(): String? = captureTargetTracker.snapshot()
 
     private fun ensureCaptureController() {
         if (captureController == null) {
@@ -67,6 +81,123 @@ class AndroidePyAccessibilityService : AccessibilityService() {
         if (!accepted) completion(CoordinateCaptureStartResult.SERVICE_UNAVAILABLE)
     }
 
+    /** Starts a non-queued capture session and returns immediately after scheduling. */
+    internal fun startCoordinateMapCapture(captureId: String, delayMs: Long, timeoutMs: Long) {
+        mainHandler.post {
+            val registry = (application as? AndroidePyApplication)?.coordinateCaptureRegistry
+            if (!serviceOperational || registry == null) {
+                registry?.fail(captureId, "failed", "SERVICE_DISCONNECTED", "O serviço não está operacional.")
+                return@post
+            }
+            if (activeCaptureId != null) {
+                registry.fail(captureId, "failed", "CAPTURE_ALREADY_ACTIVE", "Já existe uma captura ativa.")
+                return@post
+            }
+            activeCaptureId = captureId
+            ensureCaptureController()
+            captureTimeoutTask = Runnable {
+                if (activeCaptureId == captureId) {
+                    if (captureController?.snapshot?.state == CoordinateCaptureState.ACTIVE) captureController?.expire()
+                    else {
+                        registry.fail(captureId, "expired", "TIMEOUT", "O prazo total da captura expirou.")
+                        clearCaptureTasks(captureId)
+                    }
+                }
+            }
+            mainHandler.postDelayed(captureTimeoutTask!!, timeoutMs)
+            captureDelayTask = Runnable {
+                if (activeCaptureId != captureId) return@Runnable
+                val target = captureTargetTracker.snapshot()
+                if (!registry.activate(captureId)) {
+                    registry.fail(captureId, "failed", "INTERNAL_ERROR", "Não foi possível ativar a captura.")
+                    clearCaptureTasks(captureId)
+                    return@Runnable
+                }
+                val start = captureController?.start(
+                    targetPackage = target,
+                    durationSeconds = CoordinateCaptureController.DEFAULT_DURATION_SECONDS,
+                    onPoint = { name, x, y -> registry.addPoint(captureId, name, x, y) },
+                    onRemoveLast = { registry.removeLastPoint(captureId) },
+                    onFinish = {},
+                    onTerminal = { outcome, failure -> onCoordinateCaptureTerminal(captureId, target, outcome, failure) }
+                ) ?: CoordinateCaptureStartResult.SERVICE_UNAVAILABLE
+                if (start != CoordinateCaptureStartResult.STARTED) {
+                    registry.fail(captureId, "failed", start.name, "Não foi possível iniciar a seleção.")
+                    clearCaptureTasks(captureId)
+                }
+            }
+            mainHandler.postDelayed(captureDelayTask!!, delayMs)
+        }
+    }
+
+    internal fun cancelCoordinateMapCapture(captureId: String) {
+        mainHandler.post {
+            if (activeCaptureId != captureId) return@post
+            if (captureController?.snapshot?.state == CoordinateCaptureState.ACTIVE) captureController?.cancel()
+            else {
+                (application as? AndroidePyApplication)?.coordinateCaptureRegistry?.cancelLocally(captureId)
+                clearCaptureTasks(captureId)
+            }
+        }
+    }
+
+    private fun onCoordinateCaptureTerminal(captureId: String, target: String, outcome: CoordinateCaptureOutcome, failure: CoordinateCaptureFailure?) {
+        val app = application as? AndroidePyApplication ?: return
+        clearCaptureTasks(captureId)
+        when (outcome) {
+            CoordinateCaptureOutcome.COMPLETED -> {
+                val points = app.coordinateCaptureRegistry.points(captureId)
+                if (points.isEmpty()) {
+                    app.coordinateCaptureRegistry.fail(captureId, "failed", "INVALID_MAP", "O mapa precisa conter pontos.")
+                    return
+                }
+                val metrics = resources.displayMetrics
+                val wm = getSystemService(WINDOW_SERVICE) as? WindowManager
+                val context = CoordinateMapDisplayContext(target, metrics.widthPixels, metrics.heightPixels, metrics.densityDpi, wm?.defaultDisplay?.rotation ?: 0)
+                val inputs = points.map { CoordinateMapPointInput(it.name, it.xPx, it.yPx) }
+                val mapName = app.coordinateCaptureRegistry.name(captureId) ?: "Mapa"
+                captureIoScope.launch {
+                    try {
+                        val created = app.coordinateMapRepository.create(mapName, context, inputs)
+                        val result = JSONObject().put("schema_version", 1).put("name", created.map.name)
+                            .put("created_at_epoch_ms", created.map.createdAtEpochMs)
+                            .put("target_package", created.map.targetPackage ?: JSONObject.NULL)
+                            .put("display", JSONObject().put("width_px", created.map.displayWidthPx)
+                                .put("height_px", created.map.displayHeightPx).put("density_dpi", created.map.densityDpi)
+                                .put("rotation", created.map.rotation))
+                            .put("points", JSONArray().apply { created.points.forEach { p ->
+                                put(JSONObject().put("name", p.name).put("x_px", p.xPx).put("y_px", p.yPx)
+                                    .put("x_normalized", p.xNormalized).put("y_normalized", p.yNormalized))
+                            } })
+                        app.coordinateCaptureRegistry.complete(captureId, result)
+                    } catch (_: Exception) {
+                        app.coordinateCaptureRegistry.fail(captureId, "failed", "MAP_ALREADY_EXISTS", "Não foi possível persistir o mapa; verifique nome duplicado.")
+                    }
+                }
+            }
+            CoordinateCaptureOutcome.CANCELLED -> app.coordinateCaptureRegistry.fail(captureId, "cancelled", "CANCELLED", "A captura foi cancelada.")
+            CoordinateCaptureOutcome.EXPIRED -> app.coordinateCaptureRegistry.fail(captureId, "expired", "TIMEOUT", "O prazo da captura expirou.")
+            CoordinateCaptureOutcome.FAILED -> app.coordinateCaptureRegistry.fail(captureId, "failed",
+                if (failure == CoordinateCaptureFailure.SERVICE_INTERRUPTED) "SERVICE_INTERRUPTED" else if (failure == CoordinateCaptureFailure.SERVICE_DISCONNECTED) "SERVICE_DISCONNECTED" else "INTERNAL_ERROR",
+                "A sessão de captura foi encerrada por uma falha.")
+        }
+    }
+
+    private fun clearCaptureTasks(id: String) {
+        if (activeCaptureId != id) return
+        captureDelayTask?.let(mainHandler::removeCallbacks)
+        captureTimeoutTask?.let(mainHandler::removeCallbacks)
+        captureDelayTask = null
+        captureTimeoutTask = null
+        activeCaptureId = null
+    }
+
+    private fun failScheduledCapture(code: String, message: String) {
+        val id = activeCaptureId ?: return
+        (application as? AndroidePyApplication)?.coordinateCaptureRegistry?.fail(id, "failed", code, message)
+        clearCaptureTasks(id)
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         serviceOperational = true
@@ -87,6 +218,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {
         serviceOperational = false
         captureController?.onServiceInterrupted()
+        failScheduledCapture("SERVICE_INTERRUPTED", "O serviço foi interrompido.")
         captureTargetTracker.reset()
         accessibilityGateway?.onServiceInterrupted(this)
     }
@@ -94,6 +226,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     override fun onUnbind(intent: Intent): Boolean {
         serviceOperational = false
         captureController?.shutdown()
+        failScheduledCapture("SERVICE_DISCONNECTED", "O serviço foi desconectado.")
         captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
         return super.onUnbind(intent)
@@ -102,6 +235,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         serviceOperational = false
         captureController?.shutdown()
+        failScheduledCapture("SERVICE_DISCONNECTED", "O serviço foi destruído.")
         captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
         super.onDestroy()

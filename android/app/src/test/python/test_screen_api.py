@@ -4,7 +4,7 @@ import json
 import unittest
 
 from mobile import configure
-from mobile.screen import (CaptureHandle, ScreenError, capture_coordinates, get_status, scroll, swipe, tap, type_text)
+from mobile.screen import (CaptureHandle, ScreenError, capture_coordinates, delete_coordinate_map, get_coordinate_map, get_status, list_coordinate_maps, scroll, swipe, tap, tap_point, type_text)
 
 
 class FakeBridge:
@@ -21,9 +21,29 @@ class FakeBridge:
         self.capture_status = {"state": "active", "capture_id": "capture-1"}
         self.capture_start_request = None
         self.capture_cancelled = False
+        self.maps = [{"name": "Principal", "point_count": 1}]
+        self.map_value = {"name": "Principal", "points": [{"name": "home"}]}
+        self.tap_point_request = None
 
     def getAccessibilityStatusJson(self):
         return json.dumps(self.status)
+
+    def listCoordinateMapsJson(self):
+        return json.dumps({"ok": True, "result": self.maps})
+
+    def getCoordinateMapJson(self, name):
+        if name != self.map_value["name"]:
+            return json.dumps({"ok": False, "error": {"code": "MAP_NOT_FOUND", "message": "missing"}})
+        return json.dumps({"ok": True, "result": self.map_value})
+
+    def deleteCoordinateMapJson(self, name):
+        if name != self.map_value["name"]:
+            return json.dumps({"ok": False, "error": {"code": "MAP_NOT_FOUND", "message": "missing"}})
+        return json.dumps({"ok": True, "result": {"name": name, "deleted": True}})
+
+    def tapCoordinatePointJson(self, request_json):
+        self.tap_point_request = json.loads(request_json)
+        return json.dumps({"ok": True, "result": {"completed": True}})
 
     def startCoordinateCaptureJson(self, request_json):
         self.capture_start_request = json.loads(request_json)
@@ -184,6 +204,19 @@ class ScreenApiTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             capture_coordinates(42)
         self.assertIsNone(self.bridge.capture_start_request)
+
+
+    def test_coordinate_map_management_and_tap_point(self):
+        self.assertEqual(list_coordinate_maps()[0]["name"], "Principal")
+        self.assertEqual(get_coordinate_map("Principal")["points"][0]["name"], "home")
+        self.assertTrue(delete_coordinate_map("Principal")["deleted"])
+        self.assertTrue(tap_point("Principal", "home")["completed"])
+        self.assertEqual(self.bridge.tap_point_request["point_name"], "home")
+
+    def test_missing_map_raises_stable_error(self):
+        with self.assertRaises(ScreenError) as raised:
+            get_coordinate_map("missing")
+        self.assertEqual(raised.exception.code, "MAP_NOT_FOUND")
 
 
 if __name__ == "__main__":

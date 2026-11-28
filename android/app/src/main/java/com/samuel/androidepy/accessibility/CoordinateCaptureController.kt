@@ -12,6 +12,7 @@ internal enum class CoordinateCaptureState {
 }
 
 internal enum class CoordinateCaptureOutcome {
+    COMPLETED,
     CANCELLED,
     EXPIRED,
     FAILED
@@ -46,6 +47,13 @@ internal data class CoordinateCaptureSnapshot(
 
 internal interface CoordinateCaptureOverlay {
     fun show(durationSeconds: Int, onCancel: () -> Unit)
+    fun showSelection(
+        durationSeconds: Int,
+        onPoint: (String, Int, Int) -> Unit,
+        onRemoveLast: () -> Unit,
+        onFinish: () -> Unit,
+        onCancel: () -> Unit
+    ) = show(durationSeconds, onCancel)
     fun updateRemainingSeconds(remainingSeconds: Int)
     fun remove()
 }
@@ -89,6 +97,7 @@ internal class CoordinateCaptureController(
     private var tickTask: Runnable? = null
     private var lastOutcome: CoordinateCaptureOutcome? = null
     private var lastFailure: CoordinateCaptureFailure? = null
+    private var terminalCallback: ((CoordinateCaptureOutcome, CoordinateCaptureFailure?) -> Unit)? = null
 
     val snapshot: CoordinateCaptureSnapshot
         get() = CoordinateCaptureSnapshot(
@@ -102,7 +111,11 @@ internal class CoordinateCaptureController(
 
     fun start(
         targetPackage: String?,
-        durationSeconds: Int = DEFAULT_DURATION_SECONDS
+        durationSeconds: Int = DEFAULT_DURATION_SECONDS,
+        onPoint: ((String, Int, Int) -> Unit)? = null,
+        onRemoveLast: (() -> Unit)? = null,
+        onFinish: (() -> Unit)? = null,
+        onTerminal: ((CoordinateCaptureOutcome, CoordinateCaptureFailure?) -> Unit)? = null
     ): CoordinateCaptureStartResult {
         if (state != CoordinateCaptureState.IDLE) {
             return CoordinateCaptureStartResult.ALREADY_RUNNING
@@ -121,11 +134,19 @@ internal class CoordinateCaptureController(
         remainingSeconds = durationSeconds
         lastOutcome = null
         lastFailure = null
+        terminalCallback = onTerminal
         val sessionGeneration = ++generation
 
         try {
-            overlay.show(durationSeconds) {
-                cancel(sessionGeneration)
+            if (onPoint != null && onRemoveLast != null && onFinish != null) {
+                overlay.showSelection(
+                    durationSeconds,
+                    onPoint,
+                    onRemoveLast,
+                    { onFinish.invoke() ; complete() }
+                ) { cancel(sessionGeneration) }
+            } else {
+                overlay.show(durationSeconds) { cancel(sessionGeneration) }
             }
         } catch (_: Exception) {
             finish(
@@ -143,6 +164,18 @@ internal class CoordinateCaptureController(
             return CoordinateCaptureStartResult.INTERNAL_ERROR
         }
         return CoordinateCaptureStartResult.STARTED
+    }
+
+    fun complete() {
+        if (state == CoordinateCaptureState.ACTIVE) {
+            finish(CoordinateCaptureOutcome.COMPLETED, null)
+        }
+    }
+
+    fun expire() {
+        if (state == CoordinateCaptureState.ACTIVE || state == CoordinateCaptureState.STARTING) {
+            finish(CoordinateCaptureOutcome.EXPIRED, null)
+        }
     }
 
     fun cancel() {
@@ -269,10 +302,14 @@ internal class CoordinateCaptureController(
             state = CoordinateCaptureState.IDLE
             targetPackage = null
             durationSeconds = null
+            terminalCallback?.invoke(lastOutcome ?: CoordinateCaptureOutcome.FAILED, lastFailure)
+            terminalCallback = null
         } catch (_: Exception) {
             state = CoordinateCaptureState.FAILED
             lastOutcome = CoordinateCaptureOutcome.FAILED
             lastFailure = CoordinateCaptureFailure.OVERLAY_REMOVAL_FAILED
+            terminalCallback?.invoke(CoordinateCaptureOutcome.FAILED, lastFailure)
+            terminalCallback = null
         }
     }
 

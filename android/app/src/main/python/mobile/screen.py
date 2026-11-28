@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import time
 import uuid
 
 from mobile import _get_bridge
@@ -319,3 +320,72 @@ def capture_coordinates(
     if not isinstance(capture_id, str) or not capture_id:
         raise ScreenError("INTERNAL_ERROR", "A Bridge não retornou um identificador de captura.", request_id=request_id)
     return CaptureHandle(bridge, capture_id)
+
+
+def _simple_bridge_result(method_name: str, *args):
+    method = getattr(_get_bridge(), method_name, None)
+    if method is None:
+        raise ScreenError("BRIDGE_NOT_CONFIGURED", "A Bridge não oferece suporte a esta operação.")
+    response = json.loads(method(*args))
+    if not isinstance(response, dict) or not response.get("ok"):
+        error = (response.get("error") or {}) if isinstance(response, dict) else {}
+        raise ScreenError(str(error.get("code", "INTERNAL_ERROR")),
+                          str(error.get("message", "A operação de mapa falhou.")),
+                          bool(error.get("retryable", False)))
+    return response.get("result")
+
+
+def list_coordinate_maps() -> list[dict]:
+    result = _simple_bridge_result("listCoordinateMapsJson")
+    if not isinstance(result, list):
+        raise ScreenError("INTERNAL_ERROR", "A Bridge retornou uma lista inválida.")
+    return result
+
+
+def get_coordinate_map(name: str) -> dict:
+    if not isinstance(name, str):
+        raise TypeError("name must be a string.")
+    if not name.strip():
+        raise ValueError("name cannot be empty.")
+    result = _simple_bridge_result("getCoordinateMapJson", name.strip())
+    if not isinstance(result, dict):
+        raise ScreenError("INTERNAL_ERROR", "A Bridge retornou um mapa inválido.")
+    return result
+
+
+def delete_coordinate_map(name: str) -> dict:
+    if not isinstance(name, str):
+        raise TypeError("name must be a string.")
+    if not name.strip():
+        raise ValueError("name cannot be empty.")
+    result = _simple_bridge_result("deleteCoordinateMapJson", name.strip())
+    if not isinstance(result, dict):
+        raise ScreenError("INTERNAL_ERROR", "A Bridge retornou uma confirmação inválida.")
+    return result
+
+
+def tap_point(map_name: str, point_name: str, *, timeout_ms: int = _DEFAULT_TIMEOUT_MS) -> dict:
+    timeout = _timeout(timeout_ms)
+    if not isinstance(map_name, str) or not map_name.strip():
+        raise ValueError("map_name must be a non-empty string.")
+    if not isinstance(point_name, str) or not point_name.strip():
+        raise ValueError("point_name must be a non-empty string.")
+    bridge = _get_bridge()
+    method = getattr(bridge, "tapCoordinatePointJson", None)
+    if method is None:
+        raise ScreenError("BRIDGE_NOT_CONFIGURED", "A Bridge não oferece suporte a mapas.")
+    request_id = str(uuid.uuid4())
+    request = {"schema_version": 1, "request_id": request_id,
+               "map_name": map_name.strip(), "point_name": point_name.strip(),
+               "timeout_ms": timeout}
+    response = json.loads(method(json.dumps(request, separators=(",", ":"))))
+    if not isinstance(response, dict) or not response.get("ok"):
+        error = (response.get("error") or {}) if isinstance(response, dict) else {}
+        raise ScreenError(str(error.get("code", "INTERNAL_ERROR")),
+                          str(error.get("message", "Não foi possível tocar no ponto salvo.")),
+                          bool(error.get("retryable", False)),
+                          response.get("request_id", request_id) if isinstance(response, dict) else request_id)
+    result = response.get("result")
+    if not isinstance(result, dict):
+        raise ScreenError("INTERNAL_ERROR", "A Bridge retornou um resultado inválido.", request_id=request_id)
+    return result

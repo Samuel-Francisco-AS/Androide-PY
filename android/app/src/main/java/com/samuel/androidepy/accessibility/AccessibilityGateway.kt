@@ -102,6 +102,21 @@ class AccessibilityGateway(context: Context) {
     internal fun connectedServiceOrNull(): AndroidePyAccessibilityService? =
         synchronized(lock) { lifecycle.connectedServiceOrNull() }
 
+    internal fun startCoordinateMapCapture(captureId: String, delayMs: Long, timeoutMs: Long): Boolean {
+        val service = connectedServiceOrNull() ?: return false
+        service.startCoordinateMapCapture(captureId, delayMs, timeoutMs)
+        return true
+    }
+
+    internal fun cancelCoordinateMapCapture(captureId: String): Boolean {
+        val service = connectedServiceOrNull() ?: return false
+        service.cancelCoordinateMapCapture(captureId)
+        return true
+    }
+
+    internal fun currentTargetPackage(): String? =
+        connectedServiceOrNull()?.currentCaptureTargetPackage()
+
     internal fun executeOperation(request: AccessibilityOperationRequest): JSONObject {
         val currentStatus = refreshStatus()
         if (currentStatus == AccessibilityStatus.NOT_ENABLED) {
