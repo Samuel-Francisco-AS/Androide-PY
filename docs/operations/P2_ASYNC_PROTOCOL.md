@@ -165,3 +165,12 @@ P2.1-A/B/C concluídas no escopo acordado, com validação física de autorizaç
 - Android — `CompletableFuture`, disponível desde API 24; `get(timeout, unit)`: https://developer.android.com/reference/java/util/concurrent/CompletableFuture
 - Android — `AccessibilityService`: https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
 - Android — `AccessibilityServiceInfo`: https://developer.android.com/reference/android/accessibilityservice/AccessibilityServiceInfo
+
+
+## 12. Sessões temporárias de captura — contrato B2
+
+A sessão de captura é um ciclo de vida prolongado e independente das operações pontuais. Ela **não** reserva posição na fila limitada do `AccessibilityOperationCoordinator`, mantém chamada Python síncrona aguardando por toda a duração ou bloqueia a main thread. Os controladores de sessão e overlay pertencem à instância conectada do `AndroidePyAccessibilityService`; o gateway application-scoped acompanha disponibilidade, sem reter Activity nem controlar a janela.
+
+O início é curto: valida serviço, duração e contexto, cria o overlay e ativa o timer após anexar a janela. Timer, cancelamento, expiração e teardown são conduzidos pelo lifecycle nativo, com callbacks na main thread e relógio monotônico. Contrato aprovado: 15–300 segundos, padrão 120; contexto inicial somente por `event.packageName`, congelado antes do overlay; mudança posterior de aplicativo não encerra a sessão nem altera esse contexto. Encerramento normal por cancelamento ou expiração; interrupção/desconexão e falhas encerram por segurança. Detalhes em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+
+Nenhuma API Python pública `screen.*`, payload de sessão ou anúncio de capacidade é introduzido por este registro. A seleção/conclusão do mapa continua fora de B2. Este adendo é contratual, não comprova implementação ou testes.

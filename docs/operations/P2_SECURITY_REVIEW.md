@@ -140,3 +140,16 @@ P2.0.8 concluiu a revisão de segurança; P2.0.9 formalizou as decisões nos ADR
 A implementação futura deverá testar, no mínimo: bloqueio sensível sem concessão; leitura e escrita separadas; escopo da concessão por execução/aplicativo; revogação em cancelamento/desconexão; classificação conservadora; ausência de conteúdo em logs do adaptador; descarte de snapshots; overlay removido em todos os caminhos terminais; persistência/exclusão dos mapas; comportamento de backup/exportação.
 
 **Nenhum serviço, overlay, controle de autorização, API ou teste P2 foi implementado ou executado nesta subetapa.**
+
+
+## 11. Segurança da sessão de captura B2 — contrato aceito em 2026-11-28
+
+A sessão é explícita, temporária, visualmente indicada e cancelável. O overlay usa exclusivamente `TYPE_ACCESSIBILITY_OVERLAY`; não adicionar `SYSTEM_ALERT_WINDOW`. A interface B2 contém somente indicador, timer e botão cancelar.
+
+Para identificar o contexto inicial, o serviço lê somente `event.packageName` do evento `TYPE_WINDOW_STATE_CHANGED` já configurado. O pacote externo é registrado antes de adicionar o overlay e permanece imutável. Eventos do próprio Androide PY são ignorados. A mudança posterior do aplicativo em primeiro plano **não** cancela a sessão, não atualiza o pacote e não reinicia o timer.
+
+Não ler payload de evento, texto, nós, árvore, `rootInActiveWindow`, screenshots ou conteúdo da janela. Não persistir sessão parcial, navegação ou conteúdo de tela; não registrar payloads. Cancelamento, expiração, interrupção/desconexão ou falha operacional encerram e acionam cleanup idempotente. Não declarar remoção bem-sucedida sem confirmação.
+
+Duração configurável de 15–300 segundos, padrão 120; timer iniciado após anexar o overlay e baseado em relógio monotônico. Contrato completo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+
+**Estado:** decisões aceitas; implementação e verificação permanecem pendentes. Este registro não comprova que os controles estejam implementados.

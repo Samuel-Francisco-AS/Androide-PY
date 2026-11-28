@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 é a próxima subetapa e B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 teve seu contrato definido e aceito em 2026-11-28, mas sua implementação ainda não foi iniciada; B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -466,9 +466,18 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 **Gate B1:** aprovado para avançar à B2 no escopo de modelo, repositório, revisão estática, testes JVM e build debug. A verificação da FK/cascata no SQLite real e a validação física integrada permanecem como critérios explícitos da bateria de encerramento da B3.
 
 ### B2 — Sessão de captura e overlay
-- [ ] Implementar sessão explícita e temporária, timer configurável e overlay TYPE_ACCESSIBILITY_OVERLAY pertencente ao AccessibilityService conectado.
-- [ ] Capturar contexto de destino antes do overlay; tratar lifecycle, cancelamento, timeout, interrupção e desconexão com remoção garantida do overlay.
-- [ ] Testar estados e teardown antes da integração com seleção de pontos.
+
+**Estado:** contrato definido e aceito em 2026-11-28; implementação ainda não iniciada. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+
+Decisões aceitas:
+- Overlay `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer regressivo e botão de cancelar.
+- Duração configurável entre **15 s e 300 s**, padrão **120 s**.
+- Identificar o contexto inicial lendo somente `event.packageName`; registrar fotografia imutável antes de adicionar o overlay e ignorar o pacote do próprio Androide PY.
+- **A mudança de aplicativo em primeiro plano não encerra a sessão.** A sessão permanece ativa até cancelamento explícito do usuário, expiração do timer ou encerramento de segurança por interrupção/desconexão/falha do serviço.
+- Controladores pertencem à instância do AccessibilityService; timer monotônico; a sessão não ocupa a fila de operações pontuais.
+- Sem seleção/nomeação de pontos, persistência parcial, screenshots, conteúdo de tela, API pública ou anúncio `screen.*` em B2.
+
+Critérios de aceite e plano de testes estão detalhados no contrato. Todos permanecem pendentes até implementação e evidência correspondente. A validação física segue adiada para a bateria integrada final da B3.
 
 ### B3 — Seleção, nomeação e conclusão do mapa
 - [ ] Implementar seleção de múltiplos pontos, nomeação, correção/refazer, conclusão e cancelamento.
@@ -477,7 +486,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; B2 é a próxima subetapa, ainda pendente de definição/autorização específica; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; B2 teve contrato definido e aceito por Sam, mas ainda não foi implementada; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção
@@ -565,3 +574,8 @@ A aprovação de um bloco não aprova automaticamente os demais.
 **Escopo do resultado:** este teste valida a preservação da autorização e a disponibilidade após reinicialização normal. Não valida reconexão após Force stop (que foi classificado separadamente como comportamento esperado do Android), nem gestos, leitura de conteúdo, digitação, captura de tela, overlay ou API pública `mobile.screen`.
 
 **Estado da P2.1-C:** testes JVM, testes Python host, build debug e validações físicas combinadas da fundação/autorização concluídos conforme evidências registradas. Nenhuma alteração de código foi necessária nesta validação. Não houve merge ou alteração na `main`.
+
+
+### Registro de definição B2 — 2026-11-28
+
+Sam aprovou os limites de duração de 15–300 segundos, com padrão de 120 segundos, e confirmou que a troca do aplicativo em primeiro plano **não** deve encerrar a sessão. O pacote inicial permanece como fotografia imutável; a sessão continua até cancelamento explícito, expiração ou encerramento de segurança por interrupção/desconexão/falha do serviço. A especificação completa e os critérios B2-01 a B2-16 estão em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md). Registro documental apenas: nenhuma implementação, teste, build ou validação física B2 foi realizada.

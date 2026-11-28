@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 é a próxima subetapa e B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 teve seu contrato definido e aceito em 2026-11-28, mas sua implementação ainda não foi iniciada; B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
 
 ## 1. Objetivo
 
@@ -655,3 +655,10 @@ Por decisão explícita de Sam em 2026-11-28, a validação física do fluxo do 
 ### Resultado
 
 **B1 concluída no escopo aprovado:** implementação, revisão estática, 47 testes JVM aprovados e build debug aprovado. A verificação de FK/cascata no SQLite real e a validação física integrada permanecem explicitamente atribuídas à bateria final de B3. B2 ainda não foi iniciada; não houve alteração em `main`, merge, instalação de APK ou anúncio de capacidades `screen.*`.
+
+
+## 3.17 P2.2-B2 — Definição do contrato da sessão de captura — 2026-11-28
+
+Sam aprovou o contrato registrado em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md). Decisões: overlay `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer e botão cancelar; duração configurável de 15 a 300 segundos, padrão 120; contexto inicial obtido somente de `event.packageName`, congelado antes da criação do overlay e ignorando o próprio app. A mudança do aplicativo em primeiro plano **não encerra a sessão**, não atualiza o pacote e não reinicia o timer. Encerramento normal por cancelamento explícito ou expiração; interrupção/desconexão e falhas operacionais são encerramentos de segurança.
+
+Os controladores pertencem à instância conectada do AccessibilityService. A sessão não mantém ocupada a fila de operações pontuais nem o worker Python. B2 não inclui seleção/nomeação de pontos, persistência parcial, screenshots, leitura de conteúdo de tela, API pública Python ou anúncio `screen.*`. O contrato define estados, exclusividade, cleanup idempotente, causas de falha, 16 critérios de aceite e plano de verificação. **B2 permanece não iniciada**: nenhum teste, build ou validação física B2 foi executado. A validação física continua adiada para a bateria integrada final da B3; o risco Room schema 2 → 3 deverá ser comunicado antes de qualquer instalação de APK.

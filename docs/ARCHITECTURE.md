@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente na branch dedicada; testes específicos, build e validação física pendentes. P2.2-B/C não iniciadas; o catálogo não anuncia operações `screen.*`.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente na branch dedicada; testes específicos, build e validação física pendentes. P2.2-B1 concluída; B2 teve contrato definido e aceito em 2026-11-28, mas ainda não foi implementada; B3 permanece pendente. O catálogo não anuncia operações `screen.*`.
 
 ## 1. Visão geral
 
@@ -314,3 +314,14 @@ A execução em outro processo com o mesmo UID não isola o script das permissõ
 - Registro de versão do Android, fabricante e permissões nos relatórios de validação.
 
 A implementação P2 deverá ser validada em etapas, distinguindo revisão documental, testes automatizados, build e validação física. Nenhuma capacidade P2 descrita acima deve ser apresentada como pronta antes dessas evidências. Consulte [ROADMAP.md](ROADMAP.md), [ADR-0008](adr/0008-accessibility-service-bridge-and-lifecycle.md) e [ADR-0009](adr/0009-sensitive-data-consent-and-retention.md).
+
+
+### 3.7 Sessão de captura do Mapa de Coordenadas — contrato B2
+
+A B2 prevê sessão temporária pertencente à instância conectada do `AndroidePyAccessibilityService`, com controladores separados para estado/timer e apresentação/remoção do overlay. O `AccessibilityGateway` permanece application-scoped e não retém Activity nem controla a propriedade da janela.
+
+O overlay será `TYPE_ACCESSIBILITY_OVERLAY`, com indicador, contagem regressiva e botão cancelar. Duração configurável: 15–300 segundos, padrão 120. O timer usa `SystemClock.elapsedRealtime()` e só começa após a janela ser anexada. A sessão não ocupa a fila de operações pontuais nem mantém o worker Python bloqueado.
+
+O contexto inicial é obtido somente de `event.packageName`, ignorando o próprio app, e congelado antes da criação do overlay. Uma mudança posterior do aplicativo em primeiro plano **não** encerra a sessão nem atualiza o contexto inicial. Encerramento normal por cancelamento ou expiração; interrupção/desconexão e falhas operacionais acionam encerramento de segurança e limpeza idempotente.
+
+B2 não seleciona/nomeia pontos, não persiste captura parcial e não expõe API Python pública `screen.*`. Implementação pendente; ver [contrato B2](operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md).
