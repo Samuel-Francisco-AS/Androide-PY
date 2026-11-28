@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente na branch dedicada; testes específicos, build e validação física pendentes. P2.2-B1 concluída; B2 teve contrato definido e aceito em 2026-11-28, mas ainda não foi implementada; B3 permanece pendente. O catálogo não anuncia operações `screen.*`.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; B2 definida e aceita, ainda sem implementação. P2.2-B1 concluída; B2 teve contrato definido e aceito em 2026-11-28, mas ainda não foi implementada; B3 permanece pendente. O catálogo não anuncia operações `screen.*`.
 
 ## 1. Visão geral
 

@@ -293,7 +293,7 @@ Nenhum teste P2 foi executado na abertura deste relatório.
 | Autorização/revogação no Moto G06 | PASS — card e estado do Android acompanharam habilitação/revogação |
 | Force stop | Comportamento esperado do Android: autorização desabilitada pelo sistema; não é teste de reconexão com autorização preservada |
 | Reinicialização normal | PASS — autorização preservada e card `Conectado` após reboot no Moto G06/Android 15 (API 35) |
-| P2.2-A — núcleo de interação | Implementação publicada e revisada estaticamente; testes específicos adicionados, mas pendentes de execução; build e validação física pendentes |
+| P2.2-A — núcleo de interação | Implementação, testes automatizados e build concluídos; validação física parcial (4 PASS), com `type_text()` adiado conforme registro de fechamento |
 | P2.3/P2.4/P2.5 | Não iniciadas |
 
 Os resultados históricos da P0/P1 não são evidência de funcionamento da P2.
@@ -611,7 +611,7 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - Proteção contra interrupção/desconexão e ajuste de teardown: `7f36551919de5fb17efb519aaecec0f26da4f4aa`, `c8cecb584e52313a5680b1c701b343742f17e439`.
 - Validação estrita de payload nativo, semântica de rolagem, traço mínimo do toque e classificação de falhas: `a0bcf6c03c48609dd68bc5d8d66bcc14b6530fb9`, `01e186c2ac3e0f358f2268b3d2946f03e3620ce8`, `6c506c8acf14c80f95fc7a89d3ee40d3555339fb`.
 
-**Estado:** P2.2-A permanece em andamento até que os testes oficiais, build debug e validação física sejam executados e aprovados. P2.2-B/C permanecem não iniciadas.
+**Estado atualizado em 2026-11-28:** P2.2-A fechada administrativamente com ressalvas: testes automatizados e build aprovados, validação física parcial (4 PASS) e `type_text()` adiado. P2.2-B1 concluída; B2 definida e aceita, ainda não implementada; B3 pendente. A verificação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas permanecem para a bateria final da B3.
 
 ## 3.16 P2.2-B1 — Modelo de dados e persistência Room: fechamento — 2026-11-28
 

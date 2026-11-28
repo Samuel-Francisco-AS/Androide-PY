@@ -4,7 +4,7 @@
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Escopo:** P2 — AccessibilityService, consulta de interface, interação e Mapas de Coordenadas.  
-**Natureza:** análise de riscos e contratos de segurança. Atualização de estado em 2026-11-26: AccessibilityService/autorização P2.1 validados; P2.2-A tem implementação publicada de gestos e preenchimento comum, ainda sem testes/build/validação física nesta branch. Overlay, persistência de mapas e consentimentos sensíveis permanecem não implementados.
+**Natureza:** análise de riscos e contratos de segurança. Atualização de estado em 2026-11-28: AccessibilityService/autorização P2.1 validados; P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado); P2.2-B1 implementada/testada/build concluído. O contrato B2 foi aceito, mas sessão e overlay ainda não foram implementados. Consentimentos sensíveis permanecem não implementados.
 
 ## 1. Resultado da revisão do estado real
 
@@ -14,8 +14,8 @@ Foram conferidos `AGENTS.md`, checklist P2, contratos P2.0.6/P2.0.7, visão, arq
 
 Constatações relevantes:
 
-- O AccessibilityService, a configuração XML e o gateway foram implementados na P2.1 e validados no escopo acordado. Na P2.2-A foram publicados coordenador/fila, operações de gesto, `type_text()` restrito e módulo Python `mobile.screen`; testes específicos foram adicionados, mas ainda não executados na branch.
-- Não existe overlay nem persistência de Mapas de Coordenadas; esses itens pertencem à P2.2-B/C.
+- O AccessibilityService, a configuração XML e o gateway foram implementados na P2.1 e validados no escopo acordado. Na P2.2-A foram publicados coordenador/fila, operações de gesto, `type_text()` restrito e módulo Python `mobile.screen`; testes JVM/Python host e build debug foram concluídos, com validação física parcial registrada separadamente.
+- A persistência dos Mapas de Coordenadas foi implementada na B1; a suíte de repositório passou com DAO fake, sem comprovar ainda FK/cascata em SQLite real. Overlay e sessão de captura permanecem não implementados; contrato B2 aceito. Seleção/nomeação/conclusão do mapa pertence à B3.
 - O manifesto declara `android:allowBackup="false"`; não há declaração de serviço de acessibilidade nem permissões de overlay.
 - O catálogo Python continua anunciando somente `device.get_info` e `apps.launch`; operações `screen.*` permanecem deliberadamente não anunciadas até aprovação dos testes correspondentes.
 - A aplicação já possui Room privado ao aplicativo, com entidades de scripts, versões e execuções. A política vigente usa `fallbackToDestructiveMigration()`; mudanças de schema podem descartar dados locais.

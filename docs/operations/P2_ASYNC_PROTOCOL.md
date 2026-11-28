@@ -1,6 +1,6 @@
 # P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService
 
-**Estado:** contrato v1 implementado parcialmente na P2.2-A. A fundação do serviço, gateway e estado foram validados na P2.1; a P2.2-A adicionou coordenador/fila, despacho de gestos, timeout/cancelamento lógico, Bridge e fachada Python para as operações geométricas e digitação comum. Revisão estática concluída; testes específicos, build e validação física ainda pendentes.
+**Estado:** contrato v1 implementado parcialmente na P2.2-A. A fundação do serviço, gateway e estado foram validados na P2.1; a P2.2-A adicionou coordenador/fila, despacho de gestos, timeout/cancelamento lógico, Bridge e fachada Python para operações geométricas e digitação comum. Revisão estática, testes JVM/Python host e build debug foram concluídos; validação física parcial (4 PASS), com `type_text()` adiado. A P2.2-B1 foi concluída; o contrato B2 está definido/aceito, mas sua implementação ainda não começou.
 **Versão do protocolo:** 1  
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25
@@ -156,7 +156,7 @@ Um retorno positivo de `dispatchGesture()` significa apenas que o sistema aceito
 
 Este contrato não define ainda nomes/funções públicas finais de `mobile.screen`, parâmetros por operação, defaults de timeout por função, tipos de retorno específicos, política de exceções Python nem catálogo de capacidades. Esses pontos pertencem à P2.0.7.
 
-P2.1-A/B/C concluídas no escopo acordado, com validação física de autorização/reboot. P2.2-A agora possui implementação publicada de fila, despacho, serialização, timeout/cancelamento lógico e fachada Python; os testes da branch e build ainda não foram executados, portanto o comportamento operacional não está declarado como validado.
+P2.1-A/B/C concluídas no escopo acordado, com validação física de autorização/reboot. P2.2-A possui implementação publicada de fila, despacho, serialização, timeout/cancelamento lógico e fachada Python; testes JVM/Python host e build debug foram concluídos. A validação física foi parcial, com `type_text()` adiado; consulte o relatório de fechamento. A sessão de captura B2 permanece apenas especificada, sem implementação.
 
 ## 11. Referências oficiais
 
