@@ -1,7 +1,7 @@
 # Arquitetura do Sistema
 
 **Projeto:** Androide PY  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, com testes JVM adicionados ainda não executados e build local pendente. B3 permanece pendente. O catálogo não anuncia operações `screen.*`.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; B2 implementada, revisada estaticamente e verificada localmente com 63 testes JVM aprovados e build debug aprovado. A validação física integrada permanece para B3, que segue pendente. O catálogo não anuncia operações `screen.*`.
 
 ## 1. Visão geral
 
@@ -183,7 +183,9 @@ A fronteira pública permanece Python-first: scripts chamam funções síncronas
 
 A primeira API pública planejada inclui `get_status`, `tap`, `type_text`, `swipe`, `scroll`, `capture_coordinates`, `list_coordinate_maps`, `get_coordinate_map`, `delete_coordinate_map` e `tap_point`, com `mobile.screen.ScreenError` para falhas operacionais. Os estados públicos distinguem `not_enabled`, `disconnected` e `connected`. O contrato completo e os limites estão em [P2_PYTHON_API.md](operations/P2_PYTHON_API.md) e [P2_ASYNC_PROTOCOL.md](operations/P2_ASYNC_PROTOCOL.md). A P2.2-A publicou `get_status`, `tap`, `type_text`, `swipe` e `scroll` na fachada Python e na Bridge. Essas operações ainda não são anunciadas no catálogo até que os testes correspondentes sejam executados e aprovados. `type_text()` aceita somente campos focados, editáveis, habilitados e classificados como texto comum; bloqueia senhas, sinalização sensível e tipos numéricos/desconhecidos. A classificação é conservadora, mas depende dos sinais fornecidos pelo Android/aplicativo e não garante detectar todo dado sensível.
 
-TYPE_ACCESSIBILITY_OVERLAY será usado somente durante a captura explícita e cancelável do Mapa de Coordenadas; a camada intercepta intencionalmente toques nesse período. Não solicitar SYSTEM_ALERT_WINDOW para esse caso. Não haverá observação contínua, screenshots, OCR ou persistência de snapshots/árvores na P2 inicial. A consulta de conteúdo será pontual e sob demanda.
+TYPE_ACCESSIBILITY_OVERLAY é usado durante a sessão explícita e cancelável de captura do Mapa de Coordenadas B2; a camada intercepta intencionalmente toques nesse período. Não solicitar SYSTEM_ALERT_WINDOW para esse caso. Não haverá observação contínua, screenshots, OCR ou persistência de snapshots/árvores na P2 inicial. A consulta de conteúdo será pontual e sob demanda.
+
+No serviço, duas chamadas a `recycle()` (`node?.recycle()` e `root.recycle()`, linhas 423–424 de `AndroidePyAccessibilityService.kt` no build verificado em 2026-11-28) geram avisos de depreciação, mas não falham a compilação. Sam decidiu mantê-las nesta etapa. `AccessibilityNodeInfo.recycle()` e `AccessibilityEvent.recycle()` foram deprecated na API 33 porque o object pooling foi descontinuado; desde API 33 a chamada não produz efeito. Como o projeto mantém `minSdk = 24`, a chamada conserva o comportamento histórico em API 24–32. Não remover preventivamente: uma futura revisão deverá confirmar tipo, origem e propriedade de cada objeto antes de escolher remoção, guarda de versão ou supressão localizada. Referências: [AccessibilityNodeInfo.recycle()](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#recycle()) e [AccessibilityEvent.recycle()](https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent#recycle()).
 
 ## 4. Contratos entre Kotlin e Python
 
@@ -324,4 +326,4 @@ O overlay será `TYPE_ACCESSIBILITY_OVERLAY`, com indicador, contagem regressiva
 
 O contexto inicial é obtido somente de `event.packageName`, ignorando o próprio app, e congelado antes da criação do overlay. Uma mudança posterior do aplicativo em primeiro plano **não** encerra a sessão nem atualiza o contexto inicial. Encerramento normal por cancelamento ou expiração; interrupção/desconexão e falhas operacionais acionam encerramento de segurança e limpeza idempotente.
 
-B2 não seleciona/nomeia pontos, não persiste captura parcial e não expõe API Python pública `screen.*`. Implementação pendente; ver [contrato B2](operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+B2 não seleciona/nomeia pontos, não persiste captura parcial e não expõe API Python pública `screen.*`. Implementação, revisão estática, testes JVM (63/63 na suíte; 16/16 específicos B2) e build debug foram concluídos em 2026-11-28. A validação física do overlay/serviço permanece para a bateria integrada final da B3; ver [contrato B2](operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md) e [relatório P2](operations/P2_IMPLEMENTATION_REPORT.md).
