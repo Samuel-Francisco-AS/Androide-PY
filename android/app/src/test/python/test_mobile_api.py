@@ -59,14 +59,28 @@ class MobileApiTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Android Bridge is not initialized"):
             get_info()
 
-    def test_capability_catalog_only_lists_implemented_apis(self):
+    def test_capability_catalog_lists_implemented_apis(self):
         catalog = list_available()
         identifiers = {item["id"] for item in catalog["capabilities"]}
+        screen_capabilities = {
+            "screen.get_status",
+            "screen.tap",
+            "screen.type_text",
+            "screen.swipe",
+            "screen.scroll",
+            "screen.capture_coordinates",
+            "screen.list_coordinate_maps",
+            "screen.get_coordinate_map",
+            "screen.delete_coordinate_map",
+            "screen.tap_point",
+        }
         self.assertEqual(catalog["api_version"], API_VERSION)
         self.assertEqual(catalog["library_version"], __version__)
-        self.assertEqual(identifiers, {"device.get_info", "apps.launch"})
+        self.assertEqual(identifiers, {"device.get_info", "apps.launch"} | screen_capabilities)
         self.assertTrue(is_implemented("apps.launch"))
-        self.assertFalse(is_implemented("screen.tap"))
+        self.assertTrue(is_implemented("screen.tap"))
+        self.assertTrue(is_implemented("screen.capture_coordinates"))
+        self.assertTrue(is_implemented("screen.tap_point"))
         self.assertFalse(is_implemented(123))
 
 
