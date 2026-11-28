@@ -22,7 +22,10 @@ internal class CaptureOverlayController(
     private val service: AccessibilityService
 ) : CoordinateCaptureOverlay {
 
-    private val windowManager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val windowManager: WindowManager by lazy {
+        service.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+            ?: throw IllegalStateException("O WindowManager não está disponível para o serviço.")
+    }
 
     private var overlayView: View? = null
     private var countdownView: TextView? = null
