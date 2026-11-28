@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, testada/build concluído e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, testes JVM adicionados mas ainda não executados e build local pendente. B3 pendente. Branch de trabalho: `feat/p2-accessibility-automation`.
+**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, testada/build concluído e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 e B2 concluídas no escopo de implementação/revisão/testes JVM/build; B2 passou nos 63 testes JVM da suíte (16 específicos) e no build debug em 2026-11-28. B3 pendente, incluindo validação física integrada. Branch de trabalho: `feat/p2-accessibility-automation`.
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal. P2.2-A implementada, testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; B2 implementada e publicada, com 15 testes JVM adicionados mas ainda não executados e build local pendente. A validação física do mapa segue para a bateria integrada final da B3; o catálogo não anuncia `screen.*`. B3 pendente. Branch: `feat/p2-accessibility-automation`.
+**Estado atual:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal. P2.2-A implementada, testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 e B2 concluídas no escopo de implementação/revisão/testes JVM/build; B2 passou em 63 testes JVM (16 específicos) e no build debug. A validação física do mapa/overlay segue para a bateria integrada final da B3; o catálogo não anuncia `screen.*`. B3 pendente. Branch: `feat/p2-accessibility-automation`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.
@@ -99,7 +99,7 @@ A configuração inicial da P2.1 recebia somente `typeWindowStateChanged`. Na P2
 A execução foi aprovada em três subetapas:
 
 - **P2.2-A — Núcleo de interação:** habilitar somente as capabilities Android necessárias; implementar coordenador/fila e protocolo operacional; `get_status`, `tap`, `type_text`, `swipe` e `scroll`; serializar gestos; aplicar timeout/cancelamento lógico; expor fachada Python e anunciar individualmente somente operações implementadas e testadas. `type_text()` inicialmente atua apenas em campos comuns; campos sensíveis ou ambíguos são bloqueados. Exceções por consentimento explícito para preenchimento sensível ficam para fase futura.
-- **P2.2-B — Captura e persistência dos mapas:** implementar timer e overlay `TYPE_ACCESSIBILITY_OVERLAY` temporário/cancelável, seleção/nomeação/correção de múltiplos pontos, cancelamento sem persistência parcial, modelo mínimo e persistência por Room/repositórios Kotlin. Conforme ADR-0007 e aprovação de Sam, scripts e dados atuais são de teste e podem ser descartados: preferir fallback/migração destrutiva se for o caminho mais simples e confiável; avisar sobre o impacto antes do APK que altera o schema.
+- **P2.2-B — Captura e persistência dos mapas:** B1 (modelo/repositório Room) e B2 (sessão temporária/overlay) implementadas e aprovadas em revisão estática, testes JVM e build debug. B3 permanece responsável por seleção/nomeação/correção de múltiplos pontos, conclusão do mapa e integração com os contratos de reutilização. Conforme ADR-0007 e aprovação de Sam, scripts e dados atuais são de teste e podem ser descartados: a estratégia destrutiva foi mantida; comunicar novamente o impacto e obter decisão explícita antes de instalar APK que aplique o schema 3.
 - **P2.2-C — Reutilização e validação integrada:** implementar listar/obter/excluir mapas e `tap_point`, reprojeção de coordenadas, validação de pacote/orientação/contexto e integração ponta a ponta. Testar operações, persistência e limites em automação JVM/Python, build e Moto G06.
 
 **Restrições transversais:** não criar outro worker Python ou banco; não bloquear a main thread; não solicitar `SYSTEM_ALERT_WINDOW`; não implementar screenshot/OCR, monitoramento contínuo ou leitura semântica ampla nesta etapa. O overlay intercepta intencionalmente os toques somente durante a captura.
