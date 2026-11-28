@@ -223,11 +223,19 @@ class AndroidBridgeAdapter(context: Context) {
         val app = appContext as? AndroidePyApplication
             ?: return bridgeError("BRIDGE_NOT_CONFIGURED", "A Bridge não está configurada.")
         if (!app.coordinateCaptureRegistry.isKnown(captureId)) return bridgeError("CAPTURE_NOT_FOUND", "A captura não existe.", captureId)
-        if (app.coordinateCaptureRegistry.state(captureId) == "saving") {
+        val state = app.coordinateCaptureRegistry.state(captureId)
+        if (state == "saving") {
             return bridgeError("CAPTURE_ALREADY_COMPLETED", "A captura já foi concluída e está sendo persistida.", captureId)
         }
-        if (!app.accessibilityGateway.cancelCoordinateMapCapture(captureId)) app.coordinateCaptureRegistry.cancelLocally(captureId)
-        return JSONObject().put("ok", true).put("result", JSONObject().put("capture_id", captureId).put("cancelled", true)).toString()
+        if (state == "completed" || state == "cancelled" || state == "expired" || state == "failed") {
+            return JSONObject().put("ok", true).put("result", JSONObject()
+                .put("capture_id", captureId).put("state", state).put("cancelled", state == "cancelled")).toString()
+        }
+        if (!app.accessibilityGateway.cancelCoordinateMapCapture(captureId)) {
+            app.coordinateCaptureRegistry.cancelLocally(captureId)
+        }
+        return JSONObject().put("ok", true).put("result", JSONObject()
+            .put("capture_id", captureId).put("cancel_requested", true)).toString()
     }
 
     fun listCoordinateMapsJson(): String {

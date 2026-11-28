@@ -58,7 +58,7 @@ class FakeBridge:
 
     def cancelCoordinateCaptureJson(self, capture_id):
         self.capture_cancelled = True
-        return json.dumps({"ok": True, "result": {"capture_id": capture_id, "cancelled": True}})
+        return json.dumps({"ok": True, "result": {"capture_id": capture_id, "cancel_requested": True}})
 
     def executeAccessibilityOperationJson(self, request_json):
         request = json.loads(request_json)
@@ -194,7 +194,7 @@ class ScreenApiTests(unittest.TestCase):
         handle = capture_coordinates("Principal", delay_ms=0)
         result = handle.cancel()
         self.assertTrue(self.bridge.capture_cancelled)
-        self.assertTrue(result["cancelled"])
+        self.assertTrue(result["cancel_requested"])
 
     def test_capture_arguments_are_validated_before_bridge(self):
         with self.assertRaises(ValueError):

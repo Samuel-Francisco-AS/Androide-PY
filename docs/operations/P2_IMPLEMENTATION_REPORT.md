@@ -730,3 +730,41 @@ Contrato aprovado:
 - A documentação normativa foi alterada em `P2_PYTHON_API.md` e `P2_ASYNC_PROTOCOL.md`.
 
 Autorização registrada. A implementação nativa/Python e a verificação permanecem pendentes nesta fase; este registro não declara a API funcional.
+
+
+## 3.22 P2.2-B3 — Implementação publicada para verificação — 2026-11-28
+
+A implementação remota foi publicada na branch `feat/p2-accessibility-automation`, sem alterações na `main`. Foram usados 7 dos 8 commits autorizados para a execução de implementação; o oitavo é documental. A sincronização do Fedora continua adiada por decisão de Sam até a publicação da implementação.
+
+**B3.1 — Núcleo de captura (implementação publicada):**
+- O overlay B2 foi estendido para um painel de seleção em tela cheia, com toque para posicionar, campo de nome, adicionar ponto, desfazer último ponto, concluir e cancelar.
+- Nomes vazios, maiores que 80 caracteres e duplicados (case-insensitive) são recusados.
+- O registry mantém pontos somente em memória até a conclusão. O usuário pode desfazer o último ponto e selecionar novamente.
+- O controlador preserva o timer monotônico B2, a fotografia do pacote-alvo e o lifecycle do overlay. O terminal callback distingue conclusão, cancelamento, expiração e falha.
+- O teste JVM de controller ganhou caso de conclusão explícita; foi criado teste JVM do registry para estado ativo, validação de nomes, remoção do último ponto, serialização, cancelamento e estado de persistência.
+
+**B3.2 — Persistência e gerenciamento (implementação publicada):**
+- O `AndroidePyApplication` expõe o `CoordinateMapRepository` Room e o `CoordinateCaptureRegistry`.
+- A conclusão do overlay transita para estado `saving`; o repositório é chamado em dispatcher IO e usa a transação existente `insertMapWithPoints`.
+- Somente a transação completa publica o resultado terminal. Cancelamento antes de `saving` descarta pontos; depois que a persistência começa, o cancelamento é recusado para não prometer rollback de uma transação já iniciada.
+- Listagem, consulta, exclusão e serialização dos metadados de display foram conectadas à Bridge.
+- Contexto inclui dimensões, densidade, rotação e insets; em API 30+ usa `WindowMetrics/WindowInsets`, com fallback de insets zero em versões anteriores.
+- `tap_point` valida pacote-alvo e rotação e reprojeta coordenadas normalizadas para as dimensões atuais antes de despachar `screen.tap` pelo coordenador existente.
+
+**B3.3 — Android Bridge e API Python (implementação publicada):**
+- A chamada `capture_coordinates()` retorna imediatamente um `CaptureHandle` com UUID; a sessão não ocupa a fila de operações pontuais.
+- O handle fornece `status()`, `result(timeout_ms=None)` e `cancel()`. Somente `result()`, quando explicitamente chamado, aguarda no worker Python; a main thread nunca aguarda.
+- A Bridge fornece início, status e cancelamento do handle, além das operações de gerenciamento e `tap_point`.
+- `delay_ms`, prazo total `timeout_ms` e duração visual B2 (15–300 s, padrão 120 s) permanecem semânticas distintas.
+- O catálogo `mobile.capabilities` permanece sem novos `screen.*` até testes aprovados.
+
+**Limites de verificação:** publicação no GitHub e revisão estática não comprovam compilação nem execução. Nenhum Gradle/JVM/Python test foi executado nesta sessão; nenhum APK foi instalado; nenhuma validação física foi realizada. A implementação aguarda sincronização local e a fase integrada de testes/correções. A bateria física no Moto G06 continua reservada ao final e exige autorização explícita. Correções posteriores na fase de testes não consomem o teto de 8 commits da implementação.
+
+**Commits B3 (7 commits de implementação + 1 documental; 8/8 no total):**
+- `3d3fc8e` — checkpoints e decisões operacionais.
+- `2cdbbff` — contrato assíncrono do handle na API e protocolo.
+- `07e3c22` — fachada Python inicial e testes de contrato.
+- `3f9134b` — seleção, registry, persistência e Bridge.
+- `81f57c1` — testes de controller/registry.
+- `86bb726` — correções de integração e timeout.
+- `5838a26` — estado saving, cancelamento seguro, insets e tracker thread-safe.

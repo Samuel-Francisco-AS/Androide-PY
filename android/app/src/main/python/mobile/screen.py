@@ -264,7 +264,7 @@ class CaptureHandle:
                 bool(error.get("retryable", False)),
                 self.capture_id,
             )
-        return response.get("result") or {"capture_id": self.capture_id, "cancelled": True}
+        return response.get("result") or {"capture_id": self.capture_id, "cancel_requested": True}
 
 
 def capture_coordinates(

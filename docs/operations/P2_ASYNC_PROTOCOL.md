@@ -190,3 +190,8 @@ Em 2026-11-28, Sam autorizou formalmente a alteração do contrato público de `
 - A main thread Android nunca aguarda worker Python ou resultado de captura.
 
 Essa seção registra a decisão de contrato e o desenho esperado; não é evidência de que a implementação ou testes estejam concluídos.
+
+
+### 12.1 Estado de persistência e cancelamento do handle
+
+O handle reporta `saving` entre a conclusão da seleção e o commit da transação Room. Durante esse estado, `status()` continua não bloqueante; `result()` continua aguardando no worker Python. `cancel()` é recusado com `CAPTURE_ALREADY_COMPLETED`, pois a persistência já foi iniciada e não se promete cancelar uma transação em andamento. Após sucesso, o estado passa a `completed`; após falha, passa a `failed`. Cancelamento em `scheduled`/`active` solicita encerramento e o estado terminal deve ser confirmado por `status()`.

@@ -507,7 +507,18 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Método:** CONFERE → IMPLEMENTA → VERIFICA → CONFIRMA. A execução avança sequencialmente pelos checkpoints, sem encerramentos ou aprovações independentes. Nenhum teste, build ou comportamento físico será declarado aprovado sem evidência de execução.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 e B2 concluídas nos respectivos escopos de implementação/revisão/testes/build. B2: 63/63 testes JVM da suíte aprovados, incluindo 16/16 específicos, e build debug aprovado; nenhum APK instalado. B3 autorizada e iniciada nesta branch. Nenhuma alteração na `main`.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 e B2 concluídas nos respectivos escopos de implementação/revisão/testes/build. B2: 63/63 testes JVM da suíte aprovados, incluindo 16/16 específicos, e build debug aprovado; nenhum APK instalado. A implementação B3 foi publicada nos checkpoints B3.1–B3.3, com revisão estática em andamento; build/testes desta implementação ainda não executados. B3.4 permanece pendente, assim como a bateria física final autorizada. Nenhum APK foi instalado. Nenhuma alteração na `main`.
+
+**Implementação B3 publicada (7 commits de implementação e 1 commit documental; 8/8 no total):**
+- Núcleo de seleção com overlay em tela cheia, captura de múltiplos pontos, nomeação, validação, desfazer último ponto, conclusão e cancelamento.
+- Registry application-scoped com handle UUID e estados `scheduled`, `active`, `saving`, `completed`, `cancelled`, `expired` e `failed`; pontos ficam em memória até a conclusão.
+- Persistência Room em IO dispatcher após conclusão, via `CoordinateMapRepository.create()` transacional; falhas/cancelamento antes da persistência descartam pontos. Durante `saving`, cancelamento é recusado.
+- API Bridge para iniciar/status/cancelar captura, listar/consultar/excluir mapas e executar `tap_point`; Python `CaptureHandle` com `status()`, `result()` e `cancel()`.
+- `tap_point` reprojeta coordenadas normalizadas para o display atual e valida pacote-alvo e rotação.
+- Nenhuma capacidade `screen.*` foi adicionada ao catálogo; aguardará os testes correspondentes.
+- Metadados de display incluem dimensões, densidade, rotação e insets de system bars/display cutout quando disponíveis (API 30+; fallback sem insets em versões anteriores).
+
+**Commits de implementação/documentação até aqui:** `3d3fc8e`, `2cdbbff`, `07e3c22`, `3f9134b`, `81f57c1`, `86bb726`, `5838a26`. O oitavo commit corresponde ao fechamento documental desta execução.
 
 ---
 ## 10. Riscos e pontos de atenção

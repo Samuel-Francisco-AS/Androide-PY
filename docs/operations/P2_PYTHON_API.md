@@ -144,7 +144,7 @@ Valida e agenda a captura de um mapa novo, retornando um handle sem aguardar a s
 
 ### `CaptureHandle.status() -> dict`
 
-Consulta sem bloqueio o estado da captura: `scheduled`, `active`, `completed`, `cancelled`, `expired` ou `failed`. Quando concluída, inclui o mapa serializável em `result`; falhas incluem `error_code` estável.
+Consulta sem bloqueio o estado da captura: `scheduled`, `active`, `saving`, `completed`, `cancelled`, `expired` ou `failed`. `saving` indica que a seleção terminou e a transação Room está em andamento. Quando concluída, inclui o mapa serializável em `result`; falhas incluem `error_code` estável.
 
 ### `CaptureHandle.result(*, timeout_ms=None) -> dict`
 
@@ -152,7 +152,7 @@ Aguarda explicitamente a conclusão no worker Python e retorna o mapa completo. 
 
 ### `CaptureHandle.cancel() -> dict`
 
-Solicita cancelamento da sessão nativa. É idempotente para handles já terminais. Cancelar antes da persistência descarta todos os pontos em memória.
+Solicita cancelamento da sessão nativa e retorna `cancel_requested`; a confirmação terminal deve ser consultada por `status()`. Handles já terminais retornam seu estado sem alterá-lo. Durante `saving`, o cancelamento é recusado (`CAPTURE_ALREADY_COMPLETED`), pois a transação já foi iniciada. Cancelar antes da persistência descarta todos os pontos em memória.
 
 O handle é um objeto Python local, não um objeto Java/Android. O `capture_id` pode ser serializado para diagnóstico, mas o objeto não é persistido entre execuções de script nem após reinício do processo.
 
@@ -196,6 +196,10 @@ A fachada preserva os códigos do protocolo P2.0.6 e acrescenta os erros de dom�
 | `MAP_NOT_FOUND` | Mapa não encontrado |
 | `MAP_POINT_NOT_FOUND` | Ponto não encontrado no mapa |
 | `MAP_CONTEXT_MISMATCH` | Pacote/orientação não corresponde ao contexto capturado |
+| `CAPTURE_NOT_FOUND` | Handle não encontrado no processo atual |
+| `CAPTURE_ALREADY_ACTIVE` | Outra sessão de captura está ativa |
+| `CAPTURE_ALREADY_COMPLETED` | Persistência já começou e não pode mais ser cancelada |
+| `INVALID_MAP` | Dados do mapa não passaram pela validação |
 | `INTERNAL_ERROR` | Falha nativa inesperada |
 
 Erros de validação de argumentos ocorrem antes da solicitação e usam `TypeError`/`ValueError`, sem `request_id`.
