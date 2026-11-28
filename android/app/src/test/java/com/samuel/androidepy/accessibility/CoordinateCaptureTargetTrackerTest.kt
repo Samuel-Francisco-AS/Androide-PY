@@ -30,5 +30,8 @@ class CoordinateCaptureTargetTrackerTest {
 
         tracker.record("com.example.second")
         assertEquals("com.example.second", tracker.snapshot())
+
+        tracker.reset()
+        assertNull(tracker.snapshot())
     }
 }

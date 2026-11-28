@@ -10,8 +10,10 @@ class CoordinateCaptureControllerTest {
 
     @Test
     fun startsWithValidTargetAndKeepsTargetSnapshot() {
+        val tracker = CoordinateCaptureTargetTracker("com.samuel.androidepy")
+        tracker.record("com.example.target")
         val fixture = Fixture()
-        val result = fixture.controller.start("com.example.target", 30)
+        val result = fixture.controller.start(tracker.snapshot(), 30)
 
         assertEquals(CoordinateCaptureStartResult.STARTED, result)
         assertEquals(CoordinateCaptureState.ACTIVE, fixture.controller.snapshot.state)
@@ -19,7 +21,8 @@ class CoordinateCaptureControllerTest {
         assertEquals(30, fixture.controller.snapshot.durationSeconds)
         assertEquals(30, fixture.controller.snapshot.remainingSeconds)
 
-        // A later foreground package observation is independent of this session snapshot.
+        // A later foreground package observation cannot rewrite the active session.
+        tracker.record("com.example.other")
         assertEquals("com.example.target", fixture.controller.snapshot.targetPackage)
     }
 
@@ -169,6 +172,59 @@ class CoordinateCaptureControllerTest {
         assertEquals(1, fixture.overlay.removeCount)
     }
 
+    @Test
+    fun acceptsInclusiveDurationBoundsAndUsesDefaultDuration() {
+        val minimum = Fixture()
+        assertEquals(
+            CoordinateCaptureStartResult.STARTED,
+            minimum.controller.start("com.example.target", CoordinateCaptureController.MIN_DURATION_SECONDS)
+        )
+        assertEquals(15, minimum.controller.snapshot.durationSeconds)
+        minimum.controller.cancel()
+
+        val maximum = Fixture()
+        assertEquals(
+            CoordinateCaptureStartResult.STARTED,
+            maximum.controller.start("com.example.target", CoordinateCaptureController.MAX_DURATION_SECONDS)
+        )
+        assertEquals(300, maximum.controller.snapshot.durationSeconds)
+        maximum.controller.cancel()
+
+        val defaulted = Fixture()
+        assertEquals(
+            CoordinateCaptureStartResult.STARTED,
+            defaulted.controller.start("com.example.target")
+        )
+        assertEquals(120, defaulted.controller.snapshot.durationSeconds)
+    }
+
+    @Test
+    fun schedulerFailureTerminatesSessionAndRemovesOverlay() {
+        val fixture = Fixture()
+        fixture.scheduler.rejectNextPost = true
+
+        assertEquals(
+            CoordinateCaptureStartResult.INTERNAL_ERROR,
+            fixture.controller.start("com.example.target", 120)
+        )
+        assertEquals(CoordinateCaptureState.IDLE, fixture.controller.snapshot.state)
+        assertEquals(CoordinateCaptureFailure.INTERNAL_ERROR, fixture.controller.snapshot.lastFailure)
+        assertEquals(1, fixture.overlay.removeCount)
+    }
+
+    @Test
+    fun expiryWinsOverLateCancelCallback() {
+        val fixture = Fixture()
+        fixture.controller.start("com.example.target", 15)
+        val cancel = fixture.overlay.cancelAction
+
+        fixture.scheduler.advanceBy(15_000L)
+        cancel?.invoke()
+
+        assertEquals(CoordinateCaptureOutcome.EXPIRED, fixture.controller.snapshot.lastOutcome)
+        assertEquals(1, fixture.overlay.removeCount)
+    }
+
     private class Fixture {
         val scheduler = FakeScheduler()
         val overlay = FakeOverlay()
@@ -182,6 +238,7 @@ class CoordinateCaptureControllerTest {
         var failRemoveCount = 0
         var onShow: (() -> Unit)? = null
         var cancelAction: (() -> Unit)? = null
+        val updates = mutableListOf<Int>()
 
         override fun show(durationSeconds: Int, onCancel: () -> Unit) {
             showCount += 1
@@ -190,7 +247,9 @@ class CoordinateCaptureControllerTest {
             if (failShow) error("simulated overlay creation failure")
         }
 
-        override fun updateRemainingSeconds(remainingSeconds: Int) = Unit
+        override fun updateRemainingSeconds(remainingSeconds: Int) {
+            updates += remainingSeconds
+        }
 
         override fun remove() {
             removeCount += 1
@@ -204,10 +263,15 @@ class CoordinateCaptureControllerTest {
     private class FakeScheduler : CoordinateCaptureScheduler {
         private val tasks = linkedMapOf<Runnable, Long>()
         private var now = 10_000L
+        var rejectNextPost = false
 
         override fun elapsedRealtime(): Long = now
 
         override fun postDelayed(task: Runnable, delayMs: Long): Boolean {
+            if (rejectNextPost) {
+                rejectNextPost = false
+                return false
+            }
             tasks[task] = now + delayMs
             return true
         }

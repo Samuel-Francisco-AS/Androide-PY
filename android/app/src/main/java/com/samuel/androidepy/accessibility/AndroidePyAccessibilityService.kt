@@ -16,8 +16,9 @@ import org.json.JSONObject
 /**
  * Android-managed entry point for explicitly requested screen operations.
  *
- * Event payloads are not inspected or retained. Window content is accessed only
- * for the focused editable field during an explicit type_text request.
+ * Configured window-state events contribute only their packageName metadata to
+ * the capture target tracker. Window content is accessed only for the focused
+ * editable field during an explicit type_text request.
  */
 class AndroidePyAccessibilityService : AccessibilityService() {
 
@@ -74,7 +75,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        // Read only the configured window-state signal; never inspect its payload.
+        // Read the configured event type and, for that signal, only packageName.
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             // The package name is the only event field retained for the B2 target snapshot.
             captureTargetTracker.record(event.packageName?.toString())
@@ -86,6 +87,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {
         serviceOperational = false
         captureController?.onServiceInterrupted()
+        captureTargetTracker.reset()
         accessibilityGateway?.onServiceInterrupted(this)
     }
 
@@ -93,6 +95,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
         serviceOperational = false
         captureController?.onServiceDisconnected()
         captureController?.shutdown()
+        captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
         return super.onUnbind(intent)
     }
@@ -102,6 +105,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
         captureController?.onServiceDisconnected()
         captureController?.shutdown()
         captureController = null
+        captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
         super.onDestroy()
     }

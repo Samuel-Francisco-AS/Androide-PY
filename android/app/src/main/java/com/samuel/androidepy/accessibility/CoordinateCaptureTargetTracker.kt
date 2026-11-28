@@ -22,6 +22,10 @@ internal class CoordinateCaptureTargetTracker(
 
     fun snapshot(): String? = lastExternalPackage
 
+    fun reset() {
+        lastExternalPackage = null
+    }
+
     companion object {
         private val PACKAGE_NAME =
             Regex("[A-Za-z][A-Za-z0-9_]*(?:\\.[A-Za-z][A-Za-z0-9_]*)+")
