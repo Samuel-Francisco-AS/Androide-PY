@@ -4,7 +4,7 @@
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Escopo:** P2 — AccessibilityService, consulta de interface, interação e Mapas de Coordenadas.  
-**Natureza:** análise de riscos e contratos de segurança. Atualização de estado em 2026-11-28: AccessibilityService/autorização P2.1 validados; P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado); P2.2-B1 implementada/testada/build concluído. O contrato B2 foi aceito, mas sessão e overlay ainda não foram implementados. Consentimentos sensíveis permanecem não implementados.
+**Natureza:** análise de riscos e contratos de segurança. Atualização de estado em 2026-11-28: AccessibilityService/autorização P2.1 validados; P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado); P2.2-B1 implementada/testada/build concluído; B2 implementada e revisada estaticamente, com 63 testes JVM da suíte e build debug aprovados. A validação física do overlay permanece para a bateria integrada final da B3. Consentimentos sensíveis permanecem não implementados.
 
 ## 1. Resultado da revisão do estado real
 
@@ -15,7 +15,7 @@ Foram conferidos `AGENTS.md`, checklist P2, contratos P2.0.6/P2.0.7, visão, arq
 Constatações relevantes:
 
 - O AccessibilityService, a configuração XML e o gateway foram implementados na P2.1 e validados no escopo acordado. Na P2.2-A foram publicados coordenador/fila, operações de gesto, `type_text()` restrito e módulo Python `mobile.screen`; testes JVM/Python host e build debug foram concluídos, com validação física parcial registrada separadamente.
-- A persistência dos Mapas de Coordenadas foi implementada na B1; a suíte de repositório passou com DAO fake, sem comprovar ainda FK/cascata em SQLite real. Overlay e sessão de captura permanecem não implementados; contrato B2 aceito. Seleção/nomeação/conclusão do mapa pertence à B3.
+- A persistência dos Mapas de Coordenadas foi implementada na B1; a suíte de repositório passou com DAO fake, sem comprovar ainda FK/cascata em SQLite real. Overlay e sessão de captura foram implementados na B2 e passaram na suíte JVM/build local; a validação física permanece para B3. Seleção/nomeação/conclusão do mapa pertence à B3.
 - O manifesto declara `android:allowBackup="false"` e o AccessibilityService com `BIND_ACCESSIBILITY_SERVICE`; não declara `SYSTEM_ALERT_WINDOW`. O overlay B2 usa `TYPE_ACCESSIBILITY_OVERLAY`.
 - O catálogo Python continua anunciando somente `device.get_info` e `apps.launch`; operações `screen.*` permanecem deliberadamente não anunciadas até aprovação dos testes correspondentes.
 - A aplicação já possui Room privado ao aplicativo, com entidades de scripts, versões e execuções. A política vigente usa `fallbackToDestructiveMigration()`; mudanças de schema podem descartar dados locais.
@@ -152,4 +152,4 @@ Não ler payload de evento, texto, nós, árvore, `rootInActiveWindow`, screensh
 
 Duração configurável de 15–300 segundos, padrão 120; timer iniciado após anexar o overlay e baseado em relógio monotônico. Contrato completo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
-**Estado B2:** implementação do controlador de sessão e overlay publicada; revisão estática remota concluída; testes JVM adicionados mas não executados e build local pendente. A ausência de permissão `SYSTEM_ALERT_WINDOW` foi conferida no manifesto. Este registro não declara validação física.
+**Estado B2:** implementação do controlador de sessão e overlay publicada; revisão estática remota e verificação local concluídas; 63 testes JVM passaram (16 específicos B2) e build debug aprovado. A ausência de permissão `SYSTEM_ALERT_WINDOW` foi conferida no manifesto. Não houve instalação do APK nem validação física; esta última permanece reservada à bateria integrada final da B3.
