@@ -6,7 +6,7 @@ Androide PY é um projeto experimental de aplicativo Android que permite criar, 
 
 O projeto adota uma arquitetura *Python-first* com integração Android nativa: Python concentra a lógica de automação e orquestração; Kotlin fornece a integração com o sistema operacional, os serviços Android e a interface do aplicativo.
 
-> **Status:** P0 e P1 concluídas e integradas em `main`; itens diferidos da P1 permanecem documentados. P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente na branch dedicada; testes específicos foram adicionados, mas ainda não executados no checkout, build e validação física pendentes. P2.2-B/C não iniciadas. Nenhuma capacidade `screen.*` é anunciada no catálogo.
+> **Status:** P0 e P1 concluídas e integradas em `main`; itens diferidos da P1 permanecem documentados. P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, com testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, 15 testes JVM adicionados mas ainda não executados e build local pendente. B3 pendente. Nenhuma capacidade `screen.*` é anunciada no catálogo.
 
 ## Objetivos
 
@@ -45,7 +45,7 @@ A arquitetura completa, suas fronteiras e suas limitações estão documentadas 
 | [Relatório da implementação P2](docs/operations/P2_IMPLEMENTATION_REPORT.md) | Estado, decisões, riscos e validações da P2 |
 | [Contrato Python P2](docs/operations/P2_PYTHON_API.md) | API planejada `mobile.screen` e Mapas de Coordenadas |
 | [Protocolo assíncrono P2](docs/operations/P2_ASYNC_PROTOCOL.md) | Comunicação interna Python/Kotlin/AccessibilityService |
-| [Revisão de segurança P2](docs/operations/P2_SECURITY_REVIEW.md) | Consentimento, minimização, retenção e riscos P2 |
+| [Revisão de segurança P2](docs/operations/P2_SECURITY_REVIEW.md) | Consentimento, minimização, retenção e riscos P2 |\n| [Contrato da sessão B2](docs/operations/P2_2B2_CAPTURE_SESSION_CONTRACT.md) | Sessão de captura, overlay, timer, lifecycle e critérios de aceite |
 
 ## Estado atual
 
@@ -53,7 +53,7 @@ A P0 está integrada em `main`. O usuário reportou build APK, instalação e ab
 
 A P1 foi integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo acordado foi validado no Moto G06; P1-TF13 e cenários adicionais de tipo inválido, fila cheia, falhas de persistência, dependências e fallback destrutivo específico permanecem diferidos, sem serem declarados aprovados. Consulte o [checklist P1](docs/operations/P1_EXECUTION_CHECKLIST.md) e o [relatório P1](docs/operations/P1_IMPLEMENTATION_REPORT.md).
 
-**P2 — estado atual:** P2.1-C permanece concluída no escopo validado. A P2.2-A já tem implementação publicada de `mobile.screen.get_status`, `tap`, `type_text`, `swipe` e `scroll`, coordenador/fila nativa e testes específicos adicionados. Testes da branch, build debug e validação física ainda pendentes; por isso o catálogo continua sem anunciar operações `screen.*`. P2.2-B/C não iniciadas. Consulte o [roadmap](docs/ROADMAP.md), o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md) e o [relatório P2](docs/operations/P2_IMPLEMENTATION_REPORT.md).
+**P2 — estado atual:** P2.1-C permanece concluída no escopo validado. A P2.2-A já tem implementação publicada de `mobile.screen.get_status`, `tap`, `type_text`, `swipe` e `scroll`, coordenador/fila nativa e testes específicos adicionados. Testes/build da B2 ainda pendentes; por isso o catálogo continua sem anunciar operações `screen.*`. A validação física do mapa está reservada à bateria integrada final da B3. Consulte o [roadmap](docs/ROADMAP.md), o [checklist P2](docs/operations/P2_EXECUTION_CHECKLIST.md) e o [relatório P2](docs/operations/P2_IMPLEMENTATION_REPORT.md).
 
 ## Build e testes
 

@@ -1,6 +1,6 @@
 # P2.0.6 — Protocolo assíncrono Python/Kotlin/AccessibilityService
 
-**Estado:** contrato v1 implementado parcialmente na P2.2-A. A fundação do serviço, gateway e estado foram validados na P2.1; a P2.2-A adicionou coordenador/fila, despacho de gestos, timeout/cancelamento lógico, Bridge e fachada Python para operações geométricas e digitação comum. Revisão estática, testes JVM/Python host e build debug foram concluídos; validação física parcial (4 PASS), com `type_text()` adiado. A P2.2-B1 foi concluída; o contrato B2 está definido/aceito, mas sua implementação ainda não começou.
+**Estado:** contrato v1 implementado parcialmente na P2.2-A. A fundação do serviço, gateway e estado foram validados na P2.1; a P2.2-A adicionou coordenador/fila, despacho de gestos, timeout/cancelamento lógico, Bridge e fachada Python para operações geométricas e digitação comum. Revisão estática, testes JVM/Python host e build debug foram concluídos; validação física parcial (4 PASS), com `type_text()` adiado. A P2.2-B1 foi concluída; a sessão B2 foi implementada e publicada, com testes JVM adicionados ainda pendentes de execução e build local pendente.
 **Versão do protocolo:** 1  
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25
@@ -173,4 +173,4 @@ A sessão de captura é um ciclo de vida prolongado e independente das operaçõ
 
 O início é curto: valida serviço, duração e contexto, cria o overlay e ativa o timer após anexar a janela. Timer, cancelamento, expiração e teardown são conduzidos pelo lifecycle nativo, com callbacks na main thread e relógio monotônico. Contrato aprovado: 15–300 segundos, padrão 120; contexto inicial somente por `event.packageName`, congelado antes do overlay; mudança posterior de aplicativo não encerra a sessão nem altera esse contexto. Encerramento normal por cancelamento ou expiração; interrupção/desconexão e falhas encerram por segurança. Detalhes em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
-Nenhuma API Python pública `screen.*`, payload de sessão ou anúncio de capacidade é introduzido por este registro. A seleção/conclusão do mapa continua fora de B2. Este adendo é contratual, não comprova implementação ou testes.
+Nenhuma API Python pública `screen.*`, payload de sessão ou anúncio de capacidade é introduzido por este registro. A seleção/conclusão do mapa continua fora de B2. Implementação B2 publicada: controladores pertencem à instância do AccessibilityService; o início nativo interno é assíncrono e reservado à integração Bridge da B3. Revisão estática remota concluída; testes JVM adicionados, ainda não executados; build local pendente. Este adendo não declara testes ou build aprovados.

@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 teve seu contrato definido e aceito em 2026-11-28, mas sua implementação ainda não foi iniciada; B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 teve implementação publicada em 2026-11-28; revisão estática remota concluída, testes JVM adicionados mas ainda não executados e build local pendente; B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
 
 ## 1. Objetivo
 
@@ -611,7 +611,7 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - Proteção contra interrupção/desconexão e ajuste de teardown: `7f36551919de5fb17efb519aaecec0f26da4f4aa`, `c8cecb584e52313a5680b1c701b343742f17e439`.
 - Validação estrita de payload nativo, semântica de rolagem, traço mínimo do toque e classificação de falhas: `a0bcf6c03c48609dd68bc5d8d66bcc14b6530fb9`, `01e186c2ac3e0f358f2268b3d2946f03e3620ce8`, `6c506c8acf14c80f95fc7a89d3ee40d3555339fb`.
 
-**Estado atualizado em 2026-11-28:** P2.2-A fechada administrativamente com ressalvas: testes automatizados e build aprovados, validação física parcial (4 PASS) e `type_text()` adiado. P2.2-B1 concluída; B2 definida e aceita, ainda não implementada; B3 pendente. A verificação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas permanecem para a bateria final da B3.
+**Estado atualizado em 2026-11-28:** P2.2-A fechada administrativamente com ressalvas: testes automatizados e build aprovados, validação física parcial (4 PASS) e `type_text()` adiado. P2.2-B1 concluída; implementação B2 publicada em cinco commits, testes JVM adicionados mas não executados e build local pendente; B3 pendente. A verificação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas permanecem para a bateria final da B3.
 
 ## 3.16 P2.2-B1 — Modelo de dados e persistência Room: fechamento — 2026-11-28
 
@@ -654,7 +654,7 @@ Por decisão explícita de Sam em 2026-11-28, a validação física do fluxo do 
 
 ### Resultado
 
-**B1 concluída no escopo aprovado:** implementação, revisão estática, 47 testes JVM aprovados e build debug aprovado. A verificação de FK/cascata no SQLite real e a validação física integrada permanecem explicitamente atribuídas à bateria final de B3. B2 ainda não foi iniciada; não houve alteração em `main`, merge, instalação de APK ou anúncio de capacidades `screen.*`.
+**B1 concluída no escopo aprovado:** implementação, revisão estática, 47 testes JVM aprovados e build debug aprovado. A verificação de FK/cascata no SQLite real e a validação física integrada permanecem explicitamente atribuídas à bateria final de B3. A implementação B2 foi publicada; seus testes ainda aguardam execução local e o build permanece pendente. Não houve alteração em `main`, merge, instalação de APK ou anúncio de capacidades `screen.*`.
 
 
 ## 3.17 P2.2-B2 — Definição do contrato da sessão de captura — 2026-11-28
@@ -662,3 +662,20 @@ Por decisão explícita de Sam em 2026-11-28, a validação física do fluxo do 
 Sam aprovou o contrato registrado em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md). Decisões: overlay `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer e botão cancelar; duração configurável de 15 a 300 segundos, padrão 120; contexto inicial obtido somente de `event.packageName`, congelado antes da criação do overlay e ignorando o próprio app. A mudança do aplicativo em primeiro plano **não encerra a sessão**, não atualiza o pacote e não reinicia o timer. Encerramento normal por cancelamento explícito ou expiração; interrupção/desconexão e falhas operacionais são encerramentos de segurança.
 
 Os controladores pertencem à instância conectada do AccessibilityService. A sessão não mantém ocupada a fila de operações pontuais nem o worker Python. B2 não inclui seleção/nomeação de pontos, persistência parcial, screenshots, leitura de conteúdo de tela, API pública Python ou anúncio `screen.*`. O contrato define estados, exclusividade, cleanup idempotente, causas de falha, 16 critérios de aceite e plano de verificação. **B2 permanece não iniciada**: nenhum teste, build ou validação física B2 foi executado. A validação física continua adiada para a bateria integrada final da B3; o risco Room schema 2 → 3 deverá ser comunicado antes de qualquer instalação de APK.
+
+
+## 3.18 P2.2-B2 — Sessão de captura e overlay: implementação publicada — 2026-11-28
+
+**Arquivos de produção:**
+- `CoordinateCaptureController.kt`: estados `IDLE/STARTING/ACTIVE/STOPPING/FAILED`, resultados terminais, exclusividade, limites/default de duração, relógio monotônico, timer, cancelamento, expiração, invalidação de callbacks tardios e retry de remoção.
+- `CoordinateCaptureTargetTracker.kt`: fotografia do último pacote externo válido; ignora o pacote do Androide PY e limpa o valor em interrupção/desconexão.
+- `CaptureOverlayController.kt`: janela `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer e botão Cancelar. A busca do WindowManager é tardia para que indisponibilidade seja tratada como falha de criação, não como falha ao conectar o serviço.
+- `AndroidePyAccessibilityService.kt`: captura somente `event.packageName` para contexto nos eventos configurados, cria controladores no lifecycle da instância e encerra/limpa em interrupção, unbind e destroy. O método nativo interno de início é reservado à integração Bridge da B3; B2 não publica `screen.*`.
+
+**Testes adicionados:** 13 testes de `CoordinateCaptureController` e 2 de `CoordinateCaptureTargetTracker` (15 no total), usando relógio e overlay falsos. Cobrem limites/default, contexto imutável, exclusividade, contagem regressiva, início do prazo após anexar overlay, cancelamento, expiração, callback tardio, interrupção/desconexão, falha de criação/remoção, retry de cleanup e idempotência.
+
+**Revisão estática remota:** conferidos diff completo da B2, lifecycle, propriedade dos controladores, uso exclusivo de `event.packageName` além do filtro de tipo, ausência de leitura de nós/payload, timer com `SystemClock.elapsedRealtime()`, Handler da main thread, ausência de espera/bloqueio da fila Python, ausência de persistência parcial e ausência de novas permissões/capabilities. Manifesto e `accessibility_service_config.xml` permaneceram inalterados; não há `SYSTEM_ALERT_WINDOW`.
+
+**Commits de implementação:** `8e7600fb9bf27623c8e6c9ce242004dd86adc435`, `674e2ff7138e046a34367c4602e7df38f7123900`, `fc009d6b999e8fa7e33ccebce0f93989cb32200a`, `f2218d01415a3ae5f2c448719a8c66fabaa2658e`, `60456fd0cf7ffb014316c61963ee896b018231c5`. Total: 5/7 commits permitidos para implementação.
+
+**Estado da verificação:** os testes foram escritos/publicados, mas não executados. A integração GitHub não fornece neste fluxo um ambiente Gradle/Android para executar a suíte ou compilar o APK. Sam deve sincronizar no Fedora e executar `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`; correções necessárias durante a fase de testes estão autorizadas fora do teto de commits. Nenhuma validação física foi realizada ou solicitada; permanece reservada à bateria integrada final da B3. Nenhum APK deve ser instalado antes de nova comunicação e decisão sobre o risco Room schema 2 → 3.

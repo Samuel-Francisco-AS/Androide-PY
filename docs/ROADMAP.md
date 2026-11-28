@@ -1,7 +1,7 @@
 # Roadmap de Desenvolvimento
 
 **Projeto:** Androide PY  
-**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente; testes específicos, build e validação física pendentes. P2.2-B/C não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`.
+**Status:** P0/P1 integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, testada/build concluído e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; implementação B2 publicada e revisada estaticamente, testes JVM adicionados mas ainda não executados e build local pendente. B3 pendente. Branch de trabalho: `feat/p2-accessibility-automation`.
 **Estratégia:** entregas incrementais, testes automatizados e validação física.
 
 ## Diretrizes
@@ -75,7 +75,7 @@ Entregas:
 
 **Objetivo:** permitir automações geométricas e semânticas por meio de um AccessibilityService nativo, habilitado explicitamente pelo usuário, mantendo Python como API pública e Kotlin como integração Android.
 
-**Estado atual:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal. P2.2-A tem implementação publicada de coordenador/fila, `get_status`, `tap`, `type_text`, `swipe` e `scroll`, além de testes específicos adicionados. Testes da branch, build e validação física ainda pendentes; o catálogo não anuncia `screen.*`. P2.2-B/C não iniciadas. Branch: `feat/p2-accessibility-automation`.
+**Estado atual:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal. P2.2-A implementada, testes automatizados/build concluídos e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 concluída; B2 implementada e publicada, com 15 testes JVM adicionados mas ainda não executados e build local pendente. A validação física do mapa segue para a bateria integrada final da B3; o catálogo não anuncia `screen.*`. B3 pendente. Branch: `feat/p2-accessibility-automation`.
 
 ### P2.0 — Preparação, baseline e contratos
 - Confirmar código/branch, SDKs e dispositivo real.

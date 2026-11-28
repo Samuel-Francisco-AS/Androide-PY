@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 teve seu contrato definido e aceito em 2026-11-28, mas sua implementação ainda não foi iniciada; B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 teve sua implementação publicada em 2026-11-28; revisão estática remota concluída, testes JVM adicionados mas ainda não executados e build local pendente. B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -467,17 +467,20 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 ### B2 — Sessão de captura e overlay
 
-**Estado:** contrato definido e aceito em 2026-11-28; implementação ainda não iniciada. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
+**Estado:** implementação publicada; revisão estática remota concluída; 15 testes JVM adicionados, mas ainda não executados; build local pendente. Contrato normativo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
-Decisões aceitas:
-- Overlay `TYPE_ACCESSIBILITY_OVERLAY` com indicador, timer regressivo e botão de cancelar.
-- Duração configurável entre **15 s e 300 s**, padrão **120 s**.
-- Identificar o contexto inicial lendo somente `event.packageName`; registrar fotografia imutável antes de adicionar o overlay e ignorar o pacote do próprio Androide PY.
-- **A mudança de aplicativo em primeiro plano não encerra a sessão.** A sessão permanece ativa até cancelamento explícito do usuário, expiração do timer ou encerramento de segurança por interrupção/desconexão/falha do serviço.
-- Controladores pertencem à instância do AccessibilityService; timer monotônico; a sessão não ocupa a fila de operações pontuais.
-- Sem seleção/nomeação de pontos, persistência parcial, screenshots, conteúdo de tela, API pública ou anúncio `screen.*` em B2.
+**Implementado:**
+- `CoordinateCaptureController`: máquina de estados, exclusividade, validação de 15–300 s (padrão 120 s), timer monotônico, expiração, cancelamento, callbacks tardios e retry de cleanup.
+- `CoordinateCaptureTargetTracker`: mantém somente o último pacote externo válido recebido por `event.packageName`; ignora o próprio pacote e limpa o contexto em interrupção/desconexão.
+- `CaptureOverlayController`: overlay `TYPE_ACCESSIBILITY_OVERLAY` visível, com indicador, contagem regressiva e botão cancelar.
+- Integração ao lifecycle do `AndroidePyAccessibilityService`; início nativo interno assíncrono, sem ocupar a fila de operações pontuais. O ponto de entrada fica reservado à integração Bridge da B3.
+- Testes JVM com relógio/overlay falsos para limites, contexto imutável, exclusividade, timer, cancelamento, expiração, falhas, idempotência e callbacks tardios.
 
-Critérios de aceite e plano de testes estão detalhados no contrato. Todos permanecem pendentes até implementação e evidência correspondente. A validação física segue adiada para a bateria integrada final da B3.
+**Limites preservados:** a mudança de aplicativo em primeiro plano não encerra a sessão; pacote-alvo permanece como fotografia inicial. B2 não seleciona/nomeia pontos, não persiste dados parciais, não adiciona screenshots/OCR, API pública ou anúncio `screen.*`. Manifesto e XML de acessibilidade não precisaram de permissões/capabilities adicionais; nenhum `SYSTEM_ALERT_WINDOW`.
+
+**Commits de implementação:** `8e7600f`, `674e2ff`, `fc009d6`, `f2218d0`, `60456fd` (5 de 7 commits permitidos). Este registro documental é o sexto commit do trabalho B2. Correções que surgirem durante a fase de testes ficam fora do teto, conforme autorização de Sam.
+
+**Pendências:** executar `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` no Fedora, revisar os resultados e corrigir falhas. Nenhum teste/build foi executado pela integração GitHub. A validação física segue adiada para a bateria integrada final da B3.
 
 ### B3 — Seleção, nomeação e conclusão do mapa
 - [ ] Implementar seleção de múltiplos pontos, nomeação, correção/refazer, conclusão e cancelamento.
@@ -486,7 +489,7 @@ Critérios de aceite e plano de testes estão detalhados no contrato. Todos perm
 
 **Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
 
-**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; B2 teve contrato definido e aceito por Sam, mas ainda não foi implementada; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; implementação B2 publicada em cinco commits, com testes JVM adicionados ainda pendentes de execução e build local pendente; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção

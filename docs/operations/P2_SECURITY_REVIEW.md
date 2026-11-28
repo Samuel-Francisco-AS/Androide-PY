@@ -16,7 +16,7 @@ Constatações relevantes:
 
 - O AccessibilityService, a configuração XML e o gateway foram implementados na P2.1 e validados no escopo acordado. Na P2.2-A foram publicados coordenador/fila, operações de gesto, `type_text()` restrito e módulo Python `mobile.screen`; testes JVM/Python host e build debug foram concluídos, com validação física parcial registrada separadamente.
 - A persistência dos Mapas de Coordenadas foi implementada na B1; a suíte de repositório passou com DAO fake, sem comprovar ainda FK/cascata em SQLite real. Overlay e sessão de captura permanecem não implementados; contrato B2 aceito. Seleção/nomeação/conclusão do mapa pertence à B3.
-- O manifesto declara `android:allowBackup="false"`; não há declaração de serviço de acessibilidade nem permissões de overlay.
+- O manifesto declara `android:allowBackup="false"` e o AccessibilityService com `BIND_ACCESSIBILITY_SERVICE`; não declara `SYSTEM_ALERT_WINDOW`. O overlay B2 usa `TYPE_ACCESSIBILITY_OVERLAY`.
 - O catálogo Python continua anunciando somente `device.get_info` e `apps.launch`; operações `screen.*` permanecem deliberadamente não anunciadas até aprovação dos testes correspondentes.
 - A aplicação já possui Room privado ao aplicativo, com entidades de scripts, versões e execuções. A política vigente usa `fallbackToDestructiveMigration()`; mudanças de schema podem descartar dados locais.
 - O histórico P1 persiste parâmetros, stdout, stderr e exceções/tracebacks. O executor também registra exceções do host no Logcat. Portanto, não seria correto afirmar que o histórico atual armazena apenas metadados.
@@ -152,4 +152,4 @@ Não ler payload de evento, texto, nós, árvore, `rootInActiveWindow`, screensh
 
 Duração configurável de 15–300 segundos, padrão 120; timer iniciado após anexar o overlay e baseado em relógio monotônico. Contrato completo: [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
-**Estado:** decisões aceitas; implementação e verificação permanecem pendentes. Este registro não comprova que os controles estejam implementados.
+**Estado B2:** implementação do controlador de sessão e overlay publicada; revisão estática remota concluída; testes JVM adicionados mas não executados e build local pendente. A ausência de permissão `SYSTEM_ALERT_WINDOW` foi conferida no manifesto. Este registro não declara validação física.

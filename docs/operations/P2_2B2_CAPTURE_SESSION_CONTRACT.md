@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Branch:** `feat/p2-accessibility-automation`  
-**Estado:** contrato definido e aceito por Sam em 2026-11-28; implementação ainda não iniciada.  
+**Estado:** contrato definido e implementação publicada em 2026-11-28; revisão estática remota concluída; testes JVM adicionados, ainda não executados; build local pendente.  
 **Escopo:** sessão temporária de captura e overlay do Mapa de Coordenadas.  
 **Dependências:** P2.2-B1 (persistência Room) concluída. P2.2-B3 (seleção/nomeação dos pontos e conclusão do mapa) permanece fora deste contrato.
 
@@ -132,4 +132,4 @@ Todos são critérios planejados; nenhum está marcado como implementado/testado
 
 ## 11. Estado e limites
 
-Contrato definido e aceito em 2026-11-28. B2 ainda não implementada, revisada, testada ou compilada. B3 permanece pendente. A aprovação deste contrato não autoriza implementação: é necessária autorização específica para iniciar B2.
+Contrato definido e aceito em 2026-11-28. Implementação publicada em cinco commits; revisão estática remota concluída. Os 15 testes JVM foram adicionados, mas ainda não executados; build local pendente. B3 permanece pendente. A validação física foi adiada para a bateria integrada final da B3. O início da implementação foi autorizado separadamente por Sam em 2026-11-28.
