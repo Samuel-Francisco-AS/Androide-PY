@@ -1,6 +1,6 @@
 # P2.0.7 — Contrato público da API Python `mobile.screen`
 
-**Estado:** contrato público v1 implementado parcialmente na branch para `get_status`, `tap`, `type_text`, `swipe` e `scroll`; revisão estática concluída. Testes Kotlin/Python foram adicionados, mas ainda não executados no checkout da branch; build e validação física pendentes. Nenhuma capacidade `screen.*` é anunciada no catálogo até os testes correspondentes serem executados e aprovados. Mapas permanecem para P2.2-B/C.
+**Estado:** contrato público v1 implementado parcialmente na branch para `get_status`, `tap`, `type_text`, `swipe` e `scroll`; revisão estática concluída. A suíte JVM da branch e o build debug foram executados com sucesso em 2026-11-28 (63 testes, 0 falhas/erros/ignorados); os testes Python host da P2.2-A já haviam sido aprovados no registro próprio. A validação física de `type_text()` permanece adiada conforme relatório P2.2-A. Nenhuma capacidade `screen.*` é anunciada no catálogo até o gate funcional correspondente; B2 não introduz API pública. Seleção e persistência dos mapas permanecem para B3.
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Dependência:** `P2_ASYNC_PROTOCOL.md` (protocolo interno v1).
@@ -202,7 +202,7 @@ A revisão de privacidade P2.0.8 e os ADRs-0008/0009 foram concluídos e aceitos
 ## 9. Verificação e estado
 
 - Revisão estática do contrato contra `mobile/__init__.py`, `device.py`, `apps.py`, `capabilities.py`, `runner.py`, testes Python, `AndroidBridgeAdapter`, `ScriptExecutor` e protocolo P2.0.6.
-- P2.2-A adicionou o módulo `mobile.screen`, o método JSON operacional da Bridge, o coordenador/fila nativa e as ações do serviço. A implementação publicada ainda não tem build/testes da branch confirmados.
+- P2.2-A adicionou o módulo `mobile.screen`, o método JSON operacional da Bridge, o coordenador/fila nativa e as ações do serviço. A suíte JVM da branch e o build debug foram aprovados em 2026-11-28; a validação física parcial e o adiamento de `type_text()` permanecem conforme relatório. B2 não adiciona API Python pública.
 - A fachada pública existe na branch, mas o catálogo continua anunciando somente `device.get_info` e `apps.launch`; nenhuma capacidade `screen.*` foi habilitada antes da execução/aprovação dos testes correspondentes.
 - P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. Evidências P2.1-C: testes JVM, Python host 13/13 PASS, build debug PASS; habilitação/revogação e reinicialização normal PASS no Moto G06/Android 15 (API 35). Force stop caracterizado como comportamento do Android.
 - P2.2 aprovada em três subetapas (núcleo de interação; captura/persistência de mapas; reutilização/validação integrada), ainda não iniciada na data desta atualização.
