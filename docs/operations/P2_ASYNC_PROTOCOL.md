@@ -13,7 +13,7 @@ O contrato mantém a fronteira pública baseada em JSON e tipos simples. Scripts
 
 ## 2. Modelo de execução aprovado
 
-A API pública Python poderá ser síncrona no primeiro corte: o script chama uma função, aguarda um resultado ou recebe uma exceção Python estável e continua. A implementação nativa será assíncrona internamente.
+A API pública Python pode ser síncrona para operações pontuais, mas captura de mapas é explicitamente assíncrona por handle, conforme decisão de Sam em 2026-11-28. A chamada de início retorna imediatamente; o script pode continuar. A espera pelo resultado só ocorre se o script chamar explicitamente `CaptureHandle.result()` no worker Python.
 
 Fluxo:
 
@@ -27,7 +27,7 @@ Fluxo:
 
 **Limite de threads:** a espera bloqueante é permitida somente no worker `AndroidePY-Python`. É proibido aguardar `Future.get()`, `join()`, `runBlocking` ou qualquer latch na main thread. O serviço e os callbacks Android nunca aguardam o worker Python.
 
-Não criar outro executor Python, outro runtime Chaquopy ou uma thread Python por operação. A política continua sendo uma execução Python ativa por vez. Coroutines podem ser usadas internamente se uma etapa futura justificar, mas não são necessárias para a fronteira inicial: um gateway assíncrono baseado em `CompletableFuture` e um adaptador bloqueante fora da UI são suficientes.
+Não criar outro executor Python, outro runtime Chaquopy ou uma thread Python por operação. A política continua sendo uma execução Python ativa por vez. A sessão de captura possui lifecycle nativo independente da fila de operações pontuais e do worker Python. O handle consulta estado/resultado e solicita cancelamento por comandos curtos; o worker não fica retido durante a coleta de pontos. Se `CaptureHandle.result()` for chamado, somente essa espera explícita bloqueia o worker Python, nunca a main thread.
 
 ## 3. Compatibilidade da espera nativa
 
@@ -174,3 +174,19 @@ A sessão de captura é um ciclo de vida prolongado e independente das operaçõ
 O início é curto: valida serviço, duração e contexto, cria o overlay e ativa o timer após anexar a janela. Timer, cancelamento, expiração e teardown são conduzidos pelo lifecycle nativo, com callbacks na main thread e relógio monotônico. Contrato aprovado: 15–300 segundos, padrão 120; contexto inicial somente por `event.packageName`, congelado antes do overlay; mudança posterior de aplicativo não encerra a sessão nem altera esse contexto. Encerramento normal por cancelamento ou expiração; interrupção/desconexão e falhas encerram por segurança. Detalhes em [P2_2B2_CAPTURE_SESSION_CONTRACT.md](P2_2B2_CAPTURE_SESSION_CONTRACT.md).
 
 Nenhuma API Python pública `screen.*`, payload de sessão ou anúncio de capacidade é introduzido por este registro. A seleção/conclusão do mapa continua fora de B2. Implementação B2 publicada: controladores pertencem à instância do AccessibilityService; o início nativo interno é assíncrono e reservado à integração Bridge da B3. Revisão estática remota concluída. Em 2026-11-28, Sam executou a suíte JVM: 63 testes, 0 falhas/erros/ignorados, incluindo 16 testes específicos B2; `assembleDebug` concluiu com `BUILD SUCCESSFUL`. Nenhuma API Python pública `screen.*` foi adicionada por B2. A validação física permanece adiada para a bateria integrada final da B3.
+
+
+## 12. Captura de mapas por handle assíncrono — decisão B3
+
+Em 2026-11-28, Sam autorizou formalmente a alteração do contrato público de `capture_coordinates()`: em vez de aguardar e retornar o mapa completo, a função inicia/agendada a captura e retorna imediatamente um `CaptureHandle` Python.
+
+- O handle expõe `capture_id`, `status()`, `result(timeout_ms=None)` e `cancel()`.
+- A sessão nativa não ocupa a fila `AccessibilityOperationCoordinator` enquanto aguarda o usuário selecionar pontos.
+- O worker Python não permanece bloqueado durante a captura; o script pode continuar e consultar o handle posteriormente.
+- `result()` representa uma espera explícita e limitada no worker Python. O timeout local dessa espera não cancela automaticamente a sessão nativa.
+- O prazo total da captura (`timeout_ms`), a espera inicial (`delay_ms`) e a duração visual B2 (15–300 s, padrão 120 s, iniciada após o overlay anexar) têm semânticas independentes.
+- O resultado terminal é correlacionado por `capture_id`; estados e erros são serializáveis. Não atravessar a fronteira com futures, callbacks, handlers ou objetos Android.
+- Cancelamento/timeout/falha descartam pontos não persistidos. Apenas conclusão válida chama o repositório Room para persistência atômica.
+- A main thread Android nunca aguarda worker Python ou resultado de captura.
+
+Essa seção registra a decisão de contrato e o desenho esperado; não é evidência de que a implementação ou testes estejam concluídos.

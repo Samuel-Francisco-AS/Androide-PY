@@ -714,3 +714,19 @@ Decisões aprovadas:
 - A sincronização do Fedora será feita após a implementação remota, conforme decisão do usuário.
 
 A implementação seguirá CONFERE → IMPLEMENTA → VERIFICA → CONFIRMA. Publicação/revisão estática, testes automatizados executados, build e validação física serão registrados como evidências distintas. Este registro documenta a autorização e as decisões; não declara qualquer item B3 implementado/testado.
+
+
+## 3.21 P2.2-B3 — Autorização do handle assíncrono — 2026-11-28
+
+Após análise da incompatibilidade entre o retorno síncrono originalmente documentado para `capture_coordinates()` e a decisão de manter o worker Python livre durante toda a coleta, Sam autorizou a mudança do contrato público para um handle assíncrono.
+
+Contrato aprovado:
+- `capture_coordinates(name, delay_ms=30_000, timeout_ms=120_000)` inicia/agendada a captura e retorna imediatamente `CaptureHandle`.
+- O handle oferece `status()`, `result(timeout_ms=None)` e `cancel()`.
+- O script pode continuar executando enquanto a sessão nativa está ativa. Somente chamada explícita a `result()` aguarda, no worker Python, com prazo finito.
+- O ciclo da sessão não reserva a fila serial de operações pontuais.
+- `delay_ms`, duração B2 (15–300 s; padrão 120 s) e `timeout_ms` mantêm semânticas distintas.
+- O resultado é correlacionado por UUID e atravessa a Bridge somente como JSON/tipos simples.
+- A documentação normativa foi alterada em `P2_PYTHON_API.md` e `P2_ASYNC_PROTOCOL.md`.
+
+Autorização registrada. A implementação nativa/Python e a verificação permanecem pendentes nesta fase; este registro não declara a API funcional.

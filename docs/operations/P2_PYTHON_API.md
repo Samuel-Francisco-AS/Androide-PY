@@ -1,15 +1,15 @@
 # P2.0.7 — Contrato público da API Python `mobile.screen`
 
-**Estado:** contrato público v1 implementado parcialmente na branch para `get_status`, `tap`, `type_text`, `swipe` e `scroll`; revisão estática concluída. A suíte JVM da branch e o build debug foram executados com sucesso em 2026-11-28 (63 testes, 0 falhas/erros/ignorados); os testes Python host da P2.2-A já haviam sido aprovados no registro próprio. A validação física de `type_text()` permanece adiada conforme relatório P2.2-A. Nenhuma capacidade `screen.*` é anunciada no catálogo até o gate funcional correspondente; B2 não introduz API pública. Seleção e persistência dos mapas permanecem para B3.
+**Estado:** contrato público v1 parcialmente implementado para `get_status`, `tap`, `type_text`, `swipe` e `scroll`. B3 está implementando as operações de mapas. Em 2026-11-28, Sam autorizou substituir o retorno síncrono de `capture_coordinates()` por um handle assíncrono, para que a chamada de início não retenha o worker serial Python durante a seleção. Nenhuma capacidade nova será anunciada antes dos testes correspondentes. A validação física de `type_text()` permanece adiada.
 **Branch:** `feat/p2-accessibility-automation`  
 **Data:** 2026-11-25  
 **Dependência:** `P2_ASYNC_PROTOCOL.md` (protocolo interno v1).
 
 ## 1. Objetivo e fronteira pública
 
-A API `mobile.screen` oferece ao script Python operações síncronas e previsíveis para consultar o estado do serviço de acessibilidade, interagir geometricamente com a tela e criar/reutilizar Mapas de Coordenadas.
+A API `mobile.screen` oferece operações síncronas de curta duração para consultar estado/interagir geometricamente e uma captura de mapas iniciada de forma assíncrona por handle. O handle permite ao script continuar executando enquanto a sessão nativa coleta pontos.
 
-A implementação Kotlin permanece assíncrona internamente conforme o protocolo P2.0.6. A espera ocorre somente no worker serial Python existente. A API não expõe objetos Android, nós de acessibilidade, handlers, futures ou detalhes do lifecycle.
+A implementação Kotlin permanece assíncrona conforme o protocolo P2.0.6. Operações pontuais podem aguardar resultado somente no worker serial Python. A captura de mapa não aguarda: `capture_coordinates()` retorna imediatamente um `CaptureHandle` Python opaco, que expõe `status()`, `result(timeout_ms=...)` e `cancel()`. `result()` é a única operação explicitamente bloqueante do handle e só pode aguardar no worker Python; o script pode executar outras instruções antes de chamá-la. O handle não expõe objetos Android, futures Java, handlers ou detalhes do lifecycle.
 
 Esta especificação define contratos públicos futuros. Na entrada da P2.2-A, nenhuma função estava implementada. A subetapa agora adiciona as cinco funções descritas neste documento, mas elas ainda não são anunciadas em `mobile.capabilities` enquanto os testes da branch não forem executados e aprovados.
 
@@ -129,17 +129,32 @@ Cada mapa contém:
 
 Coordenadas normalizadas são calculadas em relação ao display completo. Elas permitem reprojeção para outra resolução, mas não corrigem mudanças de layout, conteúdo, barras do sistema ou escala do aplicativo.
 
-### `capture_coordinates(name, *, delay_ms=30_000, timeout_ms=120_000) -> dict`
+### `capture_coordinates(name, *, delay_ms=30_000, timeout_ms=120_000) -> CaptureHandle`
 
-Inicia a captura de um mapa novo.
+Valida e agenda a captura de um mapa novo, retornando um handle sem aguardar a seleção dos pontos.
 
 - `name` é obrigatório, não vazio após trim e limitado a 80 caracteres.
-- `delay_ms` define a espera antes da ativação do overlay; zero inicia imediatamente. Limite: 0 a 120.000 ms.
-- `timeout_ms` limita a sessão inteira de captura, incluindo seleção e conclusão; limite: 1.000 a 300.000 ms.
-- O usuário pode selecionar vários pontos, atribuir nomes, corrigir/refazer um ponto, concluir ou cancelar.
+- `delay_ms` define a espera antes da ativação do overlay; zero inicia imediatamente. Limite: 0 a 120.000 ms. A espera é executada nativamente e não bloqueia o worker Python.
+- `timeout_ms` é o prazo total da solicitação de captura, incluindo espera inicial, seleção e conclusão; limite: 1.000 a 300.000 ms. É distinto da duração configurável da sessão B2 (15–300 s, padrão 120 s).
+- Retorno imediato: objeto `CaptureHandle` Python com `capture_id` UUID. Não é uma operação de espera.
+- O usuário pode selecionar vários pontos, atribuir nomes, substituir/refazer ou remover pontos, concluir ou cancelar.
 - O nome de mapa já existente produz `ScreenError(code="MAP_ALREADY_EXISTS")`; a captura não sobrescreve mapas silenciosamente.
-- Cancelamento pelo usuário produz `ScreenError(code="CANCELLED")`; nenhum mapa parcial é persistido.
-- A persistência deve ocorrer por repositório Kotlin/local do aplicativo, nunca por escrita direta do Python no banco.
+- Cancelamento, timeout ou falha antes da conclusão não persistem mapa parcial.
+- A persistência ocorre exclusivamente pelo repositório Kotlin/Room após conclusão válida.
+
+### `CaptureHandle.status() -> dict`
+
+Consulta sem bloqueio o estado da captura: `scheduled`, `active`, `completed`, `cancelled`, `expired` ou `failed`. Quando concluída, inclui o mapa serializável em `result`; falhas incluem `error_code` estável.
+
+### `CaptureHandle.result(*, timeout_ms=None) -> dict`
+
+Aguarda explicitamente a conclusão no worker Python e retorna o mapa completo. Um timeout local de espera não cancela a sessão nativa. Cancelamento, expiração ou falha terminal levantam `ScreenError` com o código correspondente. Nunca pode ser chamado na main thread Android.
+
+### `CaptureHandle.cancel() -> dict`
+
+Solicita cancelamento da sessão nativa. É idempotente para handles já terminais. Cancelar antes da persistência descarta todos os pontos em memória.
+
+O handle é um objeto Python local, não um objeto Java/Android. O `capture_id` pode ser serializado para diagnóstico, mas o objeto não é persistido entre execuções de script nem após reinício do processo.
 
 ### `list_coordinate_maps() -> list[dict]`
 
@@ -188,7 +203,7 @@ Erros de validação de argumentos ocorrem antes da solicitação e usam `TypeEr
 ## 7. Integração com a biblioteca `mobile`
 
 - Módulo público: `mobile.screen`; exceção: `mobile.screen.ScreenError`.
-- Identificadores planejados no catálogo de capacidades: `screen.get_status`, `screen.tap`, `screen.type_text`, `screen.swipe`, `screen.scroll`, `screen.capture_coordinates`, `screen.list_coordinate_maps`, `screen.get_coordinate_map`, `screen.delete_coordinate_map`, `screen.tap_point`.
+- Identificadores planejados no catálogo de capacidades: `screen.get_status`, `screen.tap`, `screen.type_text`, `screen.swipe`, `screen.scroll`, `screen.capture_coordinates`, `screen.list_coordinate_maps`, `screen.get_coordinate_map`, `screen.delete_coordinate_map`, `screen.tap_point`. `CaptureHandle.status/result/cancel` são métodos do handle, não capacidades globais separadas.
 - Essas capacidades só poderão ser anunciadas como implementadas no catálogo após cada operação existir e passar pelos testes correspondentes.
 - A adição é compatível com `API_VERSION = 1`; não exige quebra do contrato existente. A versão da biblioteca só será alterada quando o módulo for efetivamente entregue.
 - A API semântica (por exemplo, localizar/clicar elemento por texto ou atributo) permanece fora deste contrato e será definida na etapa correspondente à Prioridade C.
@@ -203,6 +218,6 @@ A revisão de privacidade P2.0.8 e os ADRs-0008/0009 foram concluídos e aceitos
 
 - Revisão estática do contrato contra `mobile/__init__.py`, `device.py`, `apps.py`, `capabilities.py`, `runner.py`, testes Python, `AndroidBridgeAdapter`, `ScriptExecutor` e protocolo P2.0.6.
 - P2.2-A adicionou o módulo `mobile.screen`, o método JSON operacional da Bridge, o coordenador/fila nativa e as ações do serviço. A suíte JVM da branch e o build debug foram aprovados em 2026-11-28; a validação física parcial e o adiamento de `type_text()` permanecem conforme relatório. B2 não adiciona API Python pública.
-- A fachada pública existe na branch, mas o catálogo continua anunciando somente `device.get_info` e `apps.launch`; nenhuma capacidade `screen.*` foi habilitada antes da execução/aprovação dos testes correspondentes.
+- A fachada pública existe na branch, mas o catálogo continua anunciando somente `device.get_info` e `apps.launch`; nenhuma capacidade `screen.*` foi habilitada antes da execução/aprovação dos testes correspondentes. A mudança para handle assíncrono foi autorizada por Sam em 2026-11-28 e está em implementação B3.
 - P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. Evidências P2.1-C: testes JVM, Python host 13/13 PASS, build debug PASS; habilitação/revogação e reinicialização normal PASS no Moto G06/Android 15 (API 35). Force stop caracterizado como comportamento do Android.
 - P2.2 aprovada em três subetapas (núcleo de interação; captura/persistência de mapas; reutilização/validação integrada), ainda não iniciada na data desta atualização.
