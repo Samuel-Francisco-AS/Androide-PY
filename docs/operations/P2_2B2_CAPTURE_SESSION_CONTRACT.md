@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Branch:** `feat/p2-accessibility-automation`  
-**Estado:** contrato definido e implementação publicada em 2026-11-28; revisão estática remota concluída; testes JVM adicionados, ainda não executados; build local pendente.  
+**Estado:** implementação publicada e revisada estaticamente; verificação local concluída em 2026-11-28: 63 testes JVM passaram (16 específicos B2), build debug aprovado. Validação física adiada para a bateria integrada final da B3.  
 **Escopo:** sessão temporária de captura e overlay do Mapa de Coordenadas.  
 **Dependências:** P2.2-B1 (persistência Room) concluída. P2.2-B3 (seleção/nomeação dos pontos e conclusão do mapa) permanece fora deste contrato.
 
@@ -130,6 +130,18 @@ Todos são critérios planejados; nenhum está marcado como implementado/testado
 
 **Validação física:** adiada por decisão de Sam para a bateria integrada final da B3. Antes de qualquer instalação de APK, comunicar o risco Room schema 2 → 3 e obter decisão explícita de Sam.
 
-## 11. Estado e limites
+## 11. Evidências de verificação e estado
 
-Contrato definido e aceito em 2026-11-28. Implementação publicada em seis commits; revisão estática remota concluída. Os 16 testes JVM foram adicionados, mas ainda não executados; build local pendente. B3 permanece pendente. A validação física foi adiada para a bateria integrada final da B3. O início da implementação foi autorizado separadamente por Sam em 2026-11-28.
+Em 2026-11-28, Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` no Fedora, a partir de `android/`. Resultado: `BUILD SUCCESSFUL` em 34 s (55 tarefas: 11 executadas, 44 atualizadas). Os relatórios XML registraram 11 suítes, 63 testes, 0 ignorados, 0 falhas e 0 erros. Os testes específicos B2 passaram: `CoordinateCaptureControllerTest` 14/14 e `CoordinateCaptureTargetTrackerTest` 2/2. O APK debug foi gerado (32 MB), mas não foi instalado.
+
+A revisão estática remota foi concluída antes da execução local. A verificação automatizada e o build aprovam o código no escopo JVM/compilação; não comprovam o comportamento real do AccessibilityService/overlay no dispositivo. A validação física permanece adiada para a bateria integrada final da B3, por decisão de Sam. A B3 permanece pendente e não foi iniciada por este fechamento.
+
+Antes de qualquer instalação do APK, comunicar novamente o risco Room schema 2 → 3 e obter decisão explícita de Sam: `fallbackToDestructiveMigration(true)` pode apagar o banco local `androide_py.db`, incluindo scripts, versões e histórico.
+
+## 12. Nota de manutenção — chamadas `recycle()` mantidas
+
+A execução local da B2 produziu dois avisos não fatais de depreciação nas linhas 423–424 de `AndroidePyAccessibilityService.kt`, correspondentes a `node?.recycle()` e `root.recycle()` em um bloco `finally`.
+
+Sam decidiu manter as chamadas nesta etapa, sem correção preventiva. A API Android marca `recycle()` de `AccessibilityNodeInfo` e `AccessibilityEvent` como deprecated desde API 33 porque o object pooling foi descontinuado; em API 33 ou superior, chamar o método não produz efeito. O projeto mantém `minSdk = 24`, portanto a chamada ainda pode ter o comportamento histórico de reciclagem em versões API 24–32. Manter as chamadas preserva esse comportamento legado e não impede a compilação; os avisos permanecem conhecidos e aceitos.
+
+Uma eventual revisão futura deverá inspecionar o tipo, a origem e a propriedade de cada objeto antes de decidir entre remoção, guarda por versão ou supressão localizada. Não remover ou encapsular preventivamente nesta B2. Referências oficiais: [AccessibilityNodeInfo.recycle()](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#recycle()) e [AccessibilityEvent.recycle()](https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent#recycle()).
