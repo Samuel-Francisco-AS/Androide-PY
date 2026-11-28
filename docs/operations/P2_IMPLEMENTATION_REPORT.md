@@ -5,7 +5,7 @@
 **Base:** `main`  
 **Marco:** P2 — Automação de interfaces Android  
 **Data do registro:** 2026-11-26  
-**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação Kotlin/Python publicada e revisada estaticamente na branch; testes específicos adicionados, mas ainda não executados no checkout; build e validação física pendentes. P2.2-B/C não iniciadas.
+**Estado:** P2.0.1–P2.0.10 concluídas documentalmente. P2.1-A/B/C concluídas no escopo acordado, incluindo testes JVM/Python host, build debug e validação física de autorização/reinicialização normal no Moto G06. **P2.2-A:** implementação, testes automatizados/build e validação física parcial concluídos no escopo registrado, com `type_text()` adiado. **P2.2-B:** B1 concluída em 2026-11-28 no escopo de implementação, revisão estática, testes JVM e build debug; B2 é a próxima subetapa e B3 permanece pendente. A validação integrada da FK/cascata em SQLite real e a validação física do Mapa de Coordenadas ficam consolidadas para a bateria final de B3, conforme decisão de Sam. Nenhuma instalação de APK foi realizada nesta B1.
 
 ## 1. Objetivo
 
@@ -612,3 +612,46 @@ Na ocasião do registro (antes da nova autorização), a aprovação cobria some
 - Validação estrita de payload nativo, semântica de rolagem, traço mínimo do toque e classificação de falhas: `a0bcf6c03c48609dd68bc5d8d66bcc14b6530fb9`, `01e186c2ac3e0f358f2268b3d2946f03e3620ce8`, `6c506c8acf14c80f95fc7a89d3ee40d3555339fb`.
 
 **Estado:** P2.2-A permanece em andamento até que os testes oficiais, build debug e validação física sejam executados e aprovados. P2.2-B/C permanecem não iniciadas.
+
+## 3.16 P2.2-B1 — Modelo de dados e persistência Room: fechamento — 2026-11-28
+
+### Implementação e revisão
+
+B1 implementou as entidades `CoordinateMapEntity` e `CoordinateMapPointEntity`, relação referencial com `ON DELETE CASCADE`, índices de unicidade, DAO e repositório Kotlin, criação transacional de mapa/pontos e integração à instância Room existente. `AppDatabase` passou ao schema v3. A persistência permanece privada no Room; não há acesso Python direto nesta subetapa.
+
+Arquivos centrais:
+- `android/app/src/main/java/com/samuel/androidepy/data/CoordinateMapPersistence.kt`
+- `android/app/src/main/java/com/samuel/androidepy/data/AppDatabase.kt`
+- `android/app/src/test/java/com/samuel/androidepy/data/CoordinateMapRepositoryTest.kt`
+
+Commits de implementação/correção: `088159a`, `2ab4f15`, `bcd0ced`, `70dc7eb` e `cf1d4c7`.
+
+### Testes automatizados e build
+
+Em 2026-11-28, Sam confirmou o checkout local na branch `feat/p2-accessibility-automation`, HEAD `cf1d4c7`, worktree limpa e sincronizada com `origin`. No diretório `android/`, executou:
+
+```bash
+./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2
+```
+
+**Resultado reportado:** `BUILD SUCCESSFUL` em 22 s; 55 tarefas (4 executadas, 51 atualizadas).
+
+Os XMLs JUnit em `app/build/test-results/testDebugUnitTest/` foram conferidos por Sam:
+- 9 suítes;
+- 47 testes;
+- 0 falhas;
+- 0 erros;
+- 0 testes ignorados;
+- `CoordinateMapRepositoryTest`: 9 testes, 0 falhas e 0 erros.
+
+### Limites e decisão de validação
+
+A suíte `CoordinateMapRepositoryTest` usa um DAO fake. Ela valida regras e comportamento do repositório sob esse contrato, mas não comprova execução real do Room/SQLite nem a aplicação efetiva da FK `ON DELETE CASCADE`. Essa verificação integrada fica registrada como pendência para a bateria final da B3.
+
+Por decisão explícita de Sam em 2026-11-28, a validação física do fluxo do Mapa de Coordenadas será concentrada ao final da B3, em vez de ser executada durante B1 ou B2. Nenhum APK foi instalado nem validado fisicamente nesta subetapa.
+
+**Risco de instalação:** a alteração Room schema 2 → 3 mantém `fallbackToDestructiveMigration(true)`. Se a atualização acionar a migração destrutiva, todo o banco local `androide_py.db` poderá ser apagado, incluindo scripts, versões e histórico de execuções. Antes de instalar o APK com esse schema, o risco deverá ser comunicado novamente e Sam deverá decidir conscientemente.
+
+### Resultado
+
+**B1 concluída no escopo aprovado:** implementação, revisão estática, 47 testes JVM aprovados e build debug aprovado. A verificação de FK/cascata no SQLite real e a validação física integrada permanecem explicitamente atribuídas à bateria final de B3. B2 ainda não foi iniciada; não houve alteração em `main`, merge, instalação de APK ou anúncio de capacidades `screen.*`.

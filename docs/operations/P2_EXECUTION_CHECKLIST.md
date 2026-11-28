@@ -7,7 +7,7 @@
 **Data de abertura:** 2026-11-25  
 **Responsável pela implementação remota:** assistente, via integração GitHub  
 **Responsável por builds e validação física:** Sam, no Fedora e no Moto G06  
-**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada por Sam; decomposição registrada. B1 implementada e revisada estaticamente; testes JVM adicionados, execução e build pendentes. B2 e B3 não iniciadas. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
+**Estado geral:** P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A fechada administrativamente com ressalvas: testes automatizados/build aprovados e validação física parcial (4 PASS; type_text() adiado). P2.2-B autorizada; **B1 concluída no escopo de implementação, revisão estática, testes JVM e build debug** em 2026-11-28. A validação integrada da FK/cascata no SQLite real e a validação física do fluxo completo ficam consolidadas para o encerramento da B3. B2 é a próxima subetapa e B3 permanece pendente. Branch de trabalho: `feat/p2-accessibility-automation`; nenhum merge em `main` autorizado.
 
 > Este checklist é a fonte operacional de verdade da P2. Publicar documentação ou código não equivale a executar testes, compilar o APK ou validar o comportamento no Moto G06. Marcar cada item somente após conferir evidências concretas.
 
@@ -440,25 +440,30 @@ A execução foi simplificada, por decisão de Sam em 25/11/2026, para **três s
 Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A decomposição abaixo foi registrada antes de qualquer implementação da B1. O processo obrigatório para cada subetapa permanece CONFERE → DEFINE → IMPLEMENTA → CONFERE → TESTA → MARCA → CONFERE, com conferência do planejamento entre passos.
 
 ### B1 — Modelo de dados e persistência Room
+<badge color="success">Concluída — implementação, testes JVM e build</badge>
+
 - [x] Definir e implementar entidades Room separadas para mapas e pontos nomeados, com relação referencial e exclusão em cascata (`CoordinateMapEntity`, `CoordinateMapPointEntity`; FK com `ON DELETE CASCADE`).
 - [x] Persistir somente dados mínimos: nome/identidade, timestamps, pacote de destino opcional, dimensões do display, densidade, rotação/insets e coordenadas em pixels e normalizadas. Não há campos para screenshots, texto de tela ou valores de campos.
 - [x] Criar DAO e repositório Kotlin com operações transacionais para criar/consultar/listar/excluir mapas e pontos; impedir nomes duplicados dentro do mapa. Criação de mapa e pontos é uma única transação.
 - [x] Integrar as novas entidades/DAO à instância Room existente, sem banco separado e sem acesso Python direto. `AppDatabase` passa a schema v3 e expõe `coordinateMapDao()`.
-- [x] Adicionar testes JVM de validação, atomicidade no contrato do DAO, exclusão e conversão/limites de coordenadas. Testes adicionados em `CoordinateMapRepositoryTest.kt`; execução ainda pendente. A cascata física do SQLite depende de confirmação em teste/build.
+- [x] Adicionar e executar testes JVM de validação, atomicidade no contrato do DAO, exclusão e conversão/limites de coordenadas. A suíte `CoordinateMapRepositoryTest` passou com 9 testes.
 - [x] Documentar mudança de schema e risco de descarte local antes de qualquer instalação de APK. A política ADR-0007 permite migração destrutiva durante desenvolvimento, mas exige comunicação prévia.
 
-**Limites B1:** não implementar overlay, sessão de captura, timer, seleção de pontos na tela, Bridge/API Python, mobile.capabilities ou tap_point. Não armazenar screenshots, texto de tela, valores de campos ou credenciais. Não declarar a captura funcional.
+**Limites B1:** não implementar overlay, sessão de captura, timer, seleção de pontos na tela, Bridge/API Python, mobile.capabilities ou tap_point. Não armazenar screenshots, texto de tela, valores de campos ou credenciais. A conclusão da B1 não declara a captura funcional.
 
-
-
-**Registro B1 — implementação publicada e revisão estática — 2026-11-28**
+**Registro B1 — implementação, revisão e verificação automatizada — 2026-11-28**
 
 - Arquivos: `CoordinateMapPersistence.kt` (entidades, relação, DAO, modelos de entrada e repositório); `AppDatabase.kt` (schema 3 e DAO); `CoordinateMapRepositoryTest.kt` (testes JVM com DAO fake).
-- Commits: `088159a` (modelo/DAO/repositório), `2ab4f15` (integração Room), `bcd0ced` (testes).
-- Revisão estática remota: PASS para relação FK com cascata, índices únicos, criação transacional, normalização x/width e y/height, metadados mínimos e ausência de overlay/Bridge/API pública nesta subetapa.
-- Testes JVM: adicionados, ainda não executados. Build: pendente. Validação física: não aplicável/não executada.
-- **Risco antes de instalar APK:** Room schema 2 → 3 e `fallbackToDestructiveMigration(true)` permanecem ativos. Uma atualização que acione a migração destrutiva poderá apagar todo o banco `androide_py.db`, incluindo scripts, versões e histórico. Não instalar sem decisão consciente sobre preservação dos dados.
+- Commits de implementação/correção: `088159a` (modelo/DAO/repositório), `2ab4f15` (integração Room), `bcd0ced` (testes), `70dc7eb` (correção de argumentos nomeados `clock`) e `cf1d4c7` (retorno explícito `Unit` no teste JUnit).
+- Revisão estática remota: PASS para relação FK declarada com cascata, índices únicos, criação transacional, normalização x/width e y/height, metadados mínimos e ausência de overlay/Bridge/API pública nesta subetapa.
+- Testes/build reportados por Sam no Fedora, no checkout da branch em `cf1d4c7`: `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` — `BUILD SUCCESSFUL` em 22 s; 55 tarefas (4 executadas, 51 atualizadas).
+- Relatórios JUnit: 9 suítes, 47 testes, 0 falhas, 0 erros e 0 ignorados; `CoordinateMapRepositoryTest`: 9/9 PASS. A contagem foi conferida nos XMLs de `app/build/test-results/testDebugUnitTest/`.
+- **Limite de cobertura:** os testes do repositório usam DAO fake. Eles validam as regras do repositório/contrato, mas não executam Room contra SQLite real e não comprovam a aplicação efetiva de `ON DELETE CASCADE`. A validação integrada da FK/cascata no SQLite real fica explicitamente adiada para a bateria integrada de B3.
+- **Decisão de validação:** conforme decisão de Sam em 2026-11-28, a validação física do fluxo do Mapa de Coordenadas será concentrada ao final da B3; nenhuma instalação de APK nem validação física foi realizada nesta B1.
+- **Risco antes de instalar APK:** Room schema 2 → 3 e `fallbackToDestructiveMigration(true)` permanecem ativos. Uma atualização que acione a migração destrutiva poderá apagar todo o banco `androide_py.db`, incluindo scripts, versões e histórico. **Antes de instalar o APK que contenha essa alteração de schema, comunicar novamente a perda potencial e obter a decisão de Sam.**
 - Limite B1 preservado: sem overlay, sessão de captura, timer, Bridge, API Python ou anúncio de capacidades `screen.*`.
+
+**Gate B1:** aprovado para avançar à B2 no escopo de modelo, repositório, revisão estática, testes JVM e build debug. A verificação da FK/cascata no SQLite real e a validação física integrada permanecem como critérios explícitos da bateria de encerramento da B3.
 
 ### B2 — Sessão de captura e overlay
 - [ ] Implementar sessão explícita e temporária, timer configurável e overlay TYPE_ACCESSIBILITY_OVERLAY pertencente ao AccessibilityService conectado.
@@ -472,7 +477,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 
 **Orçamento de commits:** no máximo 5 commits para a implementação B1 nesta rodada. Agrupar mudanças coerentes; não criar commits por arquivo ou por microajuste. Se o limite ameaçar a rastreabilidade, interromper e pedir decisão em vez de ultrapassá-lo.
 
-**Estado inicial da P2.2-B:** B1 autorizada/em andamento; B2 e B3 pendentes. Nenhuma alteração de código foi feita no momento do registro desta decomposição.
+**Estado atualizado da P2.2-B em 2026-11-28:** B1 concluída no escopo documentado acima; B2 é a próxima subetapa, ainda pendente de definição/autorização específica; B3 permanece pendente. A validação física e a verificação integrada da FK/cascata no SQLite real serão realizadas na bateria final da B3. Nenhuma alteração foi feita na `main`.
 
 ---
 ## 10. Riscos e pontos de atenção
@@ -503,6 +508,7 @@ Sam autorizou iniciar a P2.2-B após o fechamento administrativo da P2.2-A. A de
 | 2026-11-25 | P2.1-C | Sam executou testes JVM + build; compilação falhou antes de iniciar testes JVM por `AccessibilityStatus` ausente após extração do reducer. Causa identificada comparando com `be5f91d`: enum compartilhado não foi movido para arquivo próprio. Enum restaurado em `AccessibilityStatus.kt`, teste dos valores wire acrescentado. Testes Python host: 13/13 PASS. Reexecutar testes JVM/build após correção. | falha reportada no terminal Fedora; correção `c044818`, teste `de6271c` |
 | 2026-11-25 | P2.1-C | Após a correção de `AccessibilityStatus`, Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2`: `BUILD SUCCESSFUL` em 32 s; 55 tarefas (18 executadas, 37 atualizadas). Testes JVM executados com sucesso; testes Python host previamente reportados: 13/13 PASS. Validação física parcial no Moto G06: card inicialmente `Não Habilitado`; após habilitar o serviço e permitir as funcionalidades restritas exigidas pelo Android, card mudou para `Habilitado`; após desativar o serviço, voltou a `Não Habilitado`. Sam relatou que precisou desativar temporariamente o Play Protect para atualizar o APK. Isso foi registrado como fricção do processo de instalação, não como requisito do app nem como orientação de segurança. Reconexão e reabertura/reinicialização do app ainda não foram testadas. | execução local reportada por Sam; HEAD anterior `552d2cd` |
 | 2026-11-26 | P2.1-C / Forçar parada (F2) | Sam iniciou com o serviço `Conectado`, forçou a parada do Androide PY nas configurações do Android e reabriu o app. O card permaneceu `Não Habilitado` após 30 s; nas configurações do sistema, Sam confirmou que a autorização do AccessibilityService havia sido revogada pelo Android. Após habilitar novamente a autorização, o card voltou a `Conectado`. Revisão estática não encontrou código do app que revogue a autorização. Investigação do comportamento da plataforma identificou que o Android remove serviços do pacote forçado a parar da lista de serviços de acessibilidade habilitados. **Classificação: comportamento esperado da plataforma; F2 não mede reconexão com autorização preservada e não é falha do Androide PY. Nenhuma correção de código necessária.** Próximo teste físico: reinicialização normal, mantendo a autorização habilitada. | relato físico de Sam + revisão estática/técnica da assistente |
+| 2026-11-28 | P2.2-B / B1 | B1 fechada no escopo de implementação, revisão estática, testes JVM e build debug. Sam executou `./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon --max-workers=2` no Fedora, checkout `cf1d4c7`: `BUILD SUCCESSFUL` em 22 s; 55 tarefas (4 executadas/51 atualizadas). XMLs JUnit: 9 suítes, 47 testes, 0 falhas, 0 erros, 0 ignorados; `CoordinateMapRepositoryTest` 9/9. DAO fake não comprova FK/cascata em SQLite real; essa verificação e a validação física integrada ficam para a bateria final da B3, por decisão de Sam. Nenhum APK foi instalado. | relato/terminal/XMLs fornecidos por Sam; HEAD `cf1d4c7` |
 
 Atualizações devem acrescentar linhas com caminhos, comandos, resultados e autoria da evidência. Relatos físicos do usuário devem ser identificados como tais.
 
