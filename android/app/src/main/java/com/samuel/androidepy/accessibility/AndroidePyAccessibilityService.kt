@@ -93,7 +93,6 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
     override fun onUnbind(intent: Intent): Boolean {
         serviceOperational = false
-        captureController?.onServiceDisconnected()
         captureController?.shutdown()
         captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
@@ -102,9 +101,7 @@ class AndroidePyAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         serviceOperational = false
-        captureController?.onServiceDisconnected()
         captureController?.shutdown()
-        captureController = null
         captureTargetTracker.reset()
         accessibilityGateway?.onServiceDisconnected(this)
         super.onDestroy()
