@@ -21,7 +21,7 @@ class CoordinateMapRepositoryTest {
 
     @Test
     fun createPersistsDisplayContextAndCalculatesNormalizedCoordinates() = runBlocking {
-        val repository = CoordinateMapRepository(FakeCoordinateMapDao()) { 1234L }
+        val repository = CoordinateMapRepository(FakeCoordinateMapDao(), clock = { 1234L })
         val created = repository.create(
             "  Tela principal  ",
             context,
@@ -131,7 +131,7 @@ class CoordinateMapRepositoryTest {
     @Test
     fun getListAndDeleteOperateOnMapAndItsPoints() = runBlocking {
         val dao = FakeCoordinateMapDao()
-        val repository = CoordinateMapRepository(dao) { 2000L }
+        val repository = CoordinateMapRepository(dao, clock = { 2000L })
         val created = repository.create(
             "Mapa",
             context,
