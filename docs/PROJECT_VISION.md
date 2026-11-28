@@ -2,7 +2,7 @@
 
 **Projeto:** Androide PY  
 **Tipo:** aplicativo Android local de automação programável  
-**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A tem implementação Kotlin/Python publicada e revisada estaticamente na branch dedicada; testes específicos, build e validação física pendentes. P2.2-B/C não iniciadas.
+**Status:** P0 e P1 concluídas e integradas em `main`; P2.0 documental e P2.1-A/B/C concluídas no escopo acordado. P2.2-A implementada, testada/build concluído e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 e B2 implementadas, revisadas, testadas em JVM e compiladas; 63/63 testes JVM e build debug aprovados em 2026-11-28. A validação física integrada e B3 permanecem pendentes.
 
 ## 1. Resumo
 
@@ -111,7 +111,7 @@ Código de terceiros será considerado não confiável. A primeira versão será
 
 - **P0:** concluída e integrada em `main`.
 - **P1:** concluída e integrada em `main` por Squash Merge da PR #2 em 25/11/2026. O escopo físico acordado foi validado; P1-TF13 e verificações adicionais permanecem explicitamente diferidas nos documentos operacionais.
-- **P2:** P2.1-C concluída no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. Force stop foi caracterizado como revogação executada pelo Android. A P2.2-A tem implementação publicada de `mobile.screen.get_status`, `tap`, `type_text`, `swipe` e `scroll`, com testes específicos adicionados mas ainda não executados no checkout; build e validação física pendentes. O catálogo continua sem anunciar `screen.*`. P2.2-B/C (overlay e mapas) permanecem não iniciadas.
+- **P2:** P2.1-C concluída no escopo acordado, com testes JVM/Python host, build debug e validação física de autorização/reinicialização normal PASS no Moto G06. Force stop foi caracterizado como revogação executada pelo Android. P2.2-A possui implementação publicada de `mobile.screen.get_status`, `tap`, `type_text`, `swipe` e `scroll`, testes/build aprovados e validação física parcial (4 PASS; `type_text()` adiado). P2.2-B1 e B2 estão implementadas, revisadas, testadas em JVM (63/63, incluindo 16 testes B2) e compiladas. A validação física do overlay e o restante do mapa permanecem para B3. O catálogo continua sem anunciar `screen.*`.
 
 A P2 adota três prioridades funcionais: A — interação geométrica e Mapa de Coordenadas; B — consulta/coleta sob demanda; C — leitura e identificação semântica de elementos. A fundação nativa e autorização precedem essas entregas. Screenshots, OCR e notificações não integram a P2 inicial.
 
